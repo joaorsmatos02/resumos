@@ -1,0 +1,277 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\begin{document}
+
+\chapter{Assintotas}
+\section{Horizontais}
+Para encontrar as assintotas horizontais de uma função $f(x)$ devemos calcular:
+$$
+\lim_{x\rightarrow +\infty} f(x)
+$$
+$$
+\lim_{x\rightarrow -\infty} f(x)
+$$
+Caso seja um qualquer número $n \in \mathbb{R}$, então $n$ é assintota horizontal.
+\section{Verticais}
+Para encontrar as assintotas verticais de uma função racional $f(x)$ devemos primeiro encontrar os zeros do denominador. De seguida devemos calcular o limite de $f(x)$ quando $x$ tende para esses zeros:
+$$
+\lim_{x \rightarrow z} f(x)
+$$
+Caso  seja $+\infty$ ou $-\infty$ então $z$ é assintota vertical de $f(x)$.
+\section{Obliquas}
+Para encontrar as assintotas obliquas de uma função $f(x)$ devemos primeiro encontrar o seu declive, calculando:
+$$
+\lim_{x \rightarrow +\infty} \frac{f(x)}{x}
+$$
+E de seguida encontrar o seu valor de $b$, através de:
+$$
+\lim_{x \rightarrow +\infty} (f(x)-mx)
+$$
+
+\chapter{Limites}
+\section{Indeterminações}
+As indeterminações mais comuns são:
+\begin{itemize}
+\item[$\frac{0}{0}$] Fatorizar numerador e denominador
+\item[$\frac{\infty}{\infty}$] Dividir o numerador e denominador pelo $x$ de maior grau.
+\item[$0 \times \infty$] Formas do tipo $0 \times \infty$ podem ser transformadas em $\frac{0}{\frac{1}{\infty}}$ ou $\frac{\infty}{\frac{1}{0}}$
+\end{itemize}
+\section{Regra de L'Hopital}
+Para resolver indeterminações do tipo $\frac{\infty}{\infty}$ ou $\frac{0}{0}$ é possível utilizar a regra de L'Hopital, que consiste em derivar o numerador e o denominador da fração individualmente e a partir das suas derivadas calcular o limite inicial.
+
+\chapter{Série}
+
+\section{Convergência e divergência}
+A série $\sum_{}^{} a_{n}$ diz-se $convergente$ se for limitada. Caso contrário é $divergente$.
+
+\section{Critério de Cauchy-Bolzano}
+Uma série $\sum_{}^{} a_n$ é convergente se, e só se dadas quaisquer subsucessões $T_N - U_N$ da sucessão
+das somas parciais, a diferença $T_N - U_N$ tende para zero. Logo:
+\begin{itemize}
+\item Se a série $\sum_{}^{} a_n$ é convergente, então $\lim a_n = 0$
+\item Se a série $\sum_{}^{} a_n$ é divergente nada se conclui.
+\item Se $\lim a_n \neq 0$ então a série $\sum_{}^{} a_n$ é divergente.
+\item Se $\lim a_n = 0$ nada se conclui.
+\end{itemize}
+Ou seja, toda a série convergente tem limite igual a 0 mas as séries divergentes podem ter qualquer limite.
+
+\section{Série geométrica}
+Uma série diz-se geométrica de razão $r$ se é do tipo:
+$$
+\sum_{}^{} ar^{n}
+$$
+\subsection{Somas parciais de uma série geométrica}
+Considere-se a série geométrica $\sum_{n=0}^{\infty} r^{n}$, com $r \neq 1$. Para cada $N \geq 0$, tem-se:
+$$
+S_N = \sum_{n=0}^{N} r^{n} = 1 + r + r^2 + ... + r^N = \frac{1-r^{N+1}}{1-r}
+$$
+\subsection{Convergência da série geométrica}
+Uma série geométrica de razão $r$ é convergente se e só se $-1 < r < 1$. Sendo $a_1$ o primeiro termo, a soma da série geométrica convergente é:
+$$
+a_1 \times \frac{1}{1-r}
+$$
+
+\section{Séries redutivas ou de Mengoli}
+Uma série diz-se redutiva ou série de Mengoli se é do tipo:
+$$
+\sum_{n=1}^{\infty} (u_n - u_{n+k})
+$$
+\subsection{Convergência da série redutiva}
+A série $\sum_{n=1}^{\infty} (u_n - u_{n+k})$ é convergente se $u_n$ for convergente. Se $\lim u_n = a \in \mathbb{R}$, a soma da série é:
+$$
+\sum_{n=1}^{\infty} (u_n - u_{n+k}) = u_1 + ... + u_k - ka
+$$
+
+\section{Séries de Dirichlet}
+Uma série diz-se de Dirichlet se for da forma $\sum_{}^{} \frac{1}{n^k}$, com $k \in \mathbb{R}$.
+\subsection{Convergência da série de Dirichlet}
+Uma série de Dirichlet $\sum_{}^{} \frac{1}{n^k}$ converge se, e só se $k > 1$.
+
+\section{Séries de termos positivos}
+Uma série $\sum_{}^{} a_n$ diz-se de termos positivos se $a_n > 0$ para todo $n \in \mathbb{N}$. A sucessão de todas as somas parciais de $\sum_{}^{} a_n$ é estritamente crescente.
+
+\section{Resumo}
+\begin{table}[h]
+\centering
+\begin{tabular}{c|c|c}
+$\sum$ & Forma & Convergencia\\ \hline
+Geométrica & $\sum_{}^{} ar^{n}$ & $-1 < r < 1$\\ \hline
+Mengoli & $\sum_{}^{} (u_n - u_{n+k})$ & $u_n$ converge\\ \hline
+Dirichlet & $\sum_{}^{} \frac{1}{n^k}$ & $k > 1$\\ \hline
+Termos positivos & $a_n > 0, \forall n \in \mathbb{N}$ & -----
+\end{tabular}
+\end{table}
+\begin{itemize}
+\item[Geométrica:]
+\item[] 
+\begin{itemize}
+\item[soma total:]
+$
+a_1 \times \frac{1}{1-r}
+$
+sendo $a_1$ o primeiro termo.
+\item[soma parcial:]
+$$
+S_N = \sum_{n=0}^{N} r^{n} = 1 + r + r^2 + ... + r^N = \frac{1-r^{N+1}}{1-r}
+$$
+\end{itemize}
+\item[Mengoli:]
+\item[] soma total:
+$$
+\sum_{n=1}^{\infty} (u_n - u_{n+k}) = u_1 + ... + u_k - ka
+$$
+sendo $a = \lim u_n$.
+\end{itemize}
+
+\section{Critérios}
+\subsection{Critério da Razão ou de D’Alembert}
+Seja $\sum_{}^{} a_n$ uma série de termos positivos e $a = \lim \frac{a_{n+1}}{a_n}$, então:
+\begin{itemize}
+\item Se $a < 1$ a série é convergente
+\item Se $a > 1$ a série é divergente
+\item Se $a = 1$ nada se conclui
+\end{itemize}
+\subsection{Critério da raiz ou de Cauchy}
+Seja $\sum_{}^{} a_n$ uma série de termos positivos e $a = \lim \sqrt[n]{a_n}$, então:
+\begin{itemize}
+\item Se $a < 1$ a série é convergente
+\item Se $a > 1$ a série é divergente
+\item Se $a = 1$ nada se conclui
+\end{itemize}
+
+\section{Critérios de comparação}
+\subsection{Primeiro critério de comparação}
+Sejam $\sum_{}^{} a_n$ e $\sum_{}^{} b_n$ séries de termos positivos, com $a_n \leq b_n$, pelo menos a partir de certa ordem, então:
+\begin{itemize}
+\item Se $\sum_{}^{} a_n$ é divergente então $\sum_{}^{} b_n$ é divergente
+\item Se $\sum_{}^{} b_n$ é convergente, então $\sum_{}^{} a_n$ é convergente
+\end{itemize}
+\subsection{Segundo critério de comparação}
+Sejam $\sum_{}^{} a_n$ e $\sum_{}^{} b_n$ séries de termos positivos e $L = \lim \frac{a_n}{b_n}$, então:
+\begin{itemize}
+\item Se $L = 0$ ou $L = +\infty$, aplica-se o primeiro critério de comparação.
+\item Se $0 < L < +\infty$, então as duas séries são da mesma natureza, i.e. ambas convergentes ou ambas divergentes.
+\end{itemize}
+
+\chapter{Taylor}
+\section{Fórmula de Taylor}
+Se $f: A \rightarrow \mathbb{R}$ é uma função $n$ vezes diferenciável em $a \in A$, então existe um único polinómio $T_n(x)$, de grau não superior a $n$, tal que:
+$$
+f(x) = T_n(x) + o((x-a)^n)
+$$
+Sendo que $T_n(x)$ é o polinómio de $f$, de ordem $n$, em $a$:
+$$
+T_n(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + ... + \frac{f^{(a)}(a)}{n!}(x-a)^n
+$$
+\section{Fórmula de MacLaurin}
+No caso de $a = 0$ dá-se o nome de fórmula de MacLaurin:
+$$
+f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + ... + \frac{f^{(a)}(0)}{n!}x^n + o(x^n)
+$$
+\chapter{Primitiva}
+\section{Primitivas Imediatas}
+\begin{itemize}
+\item $\int_{}^{} e^u \cdot u'\ = e^u + C$
+\item $\int_{}^{} ku^{k-1} \cdot u'\ = u^k + C$
+\item $\int_{}^{} \frac{1}{u} \cdot u'\ = u^k + C$
+\item $\int_{}^{} \cos(u) \cdot u'\ = \sin(u) + C$
+\item $\int_{}^{} -\sin(u) \cdot u'\ = \cos(u) + C$
+\item $\int_{}^{} \frac{1}{1+u^2} \cdot u'\ = \arctan(u) + C$
+\end{itemize}
+
+\section{Operações elementares}
+\begin{itemize}
+\item $\int_{}^{} (f + g)\ = \int_{}^{} f\ + \int_{}^{} g$
+\item $\int_{}^{} (kf) = k\int_{}^{} f$
+\end{itemize}
+
+\section{Técnicas de primitivação}
+\subsection{Primitivação por partes}
+$$
+\int_{}^{} f'g = fg - \int_{}^{} fg'
+$$
+\subsection{Primitivação por substituição}
+$$
+\int_{}^{} f(x) dx = \int_{}^{} f(x(t)) \cdot x'(t) dt|_{t=t(x)}
+$$
+
+\section{Funções racionais}
+Uma $função$ $racional$ é uma função que é expressa como quociente de duas funções:
+$$
+f(x) = \frac{P(x)}{Q(x)}
+$$
+A função diz-se própria se o grau de $P$ é menor que o grau de $Q$.
+\subsection{Funções racionais impróprias}
+No caso de termos uma função racional imprópria, o primeiro passo consiste
+em efetuar a divisão de polinómios, para ficarmos com uma função racional
+própria.
+
+\subsection{Funções racionais próprias}
+No caso de termos uma função racional própria $f(x) = \frac{P(x)}{Q(x)}$:
+\begin{itemize}
+\item Decompomos o denominador em fatores
+\item Escrevemos a fração racional como soma de frações racionais mais simples
+\item Primitivamos
+\end{itemize}
+
+\chapter{Integral}
+\section{Média integral}
+A média integral de $f$ em $[a, b]$ é:
+$$
+\frac{1}{b-a} \int_{a}^{b}f(t) dt
+$$
+
+\section{Função integral indefinido}
+Dado $a \in I$, chamamos $integral$ $indefinido$ com origem em $a$  á função $F: I \rightarrow \mathbb{R}$ definida por:
+$$
+F(x) = \int_{a}^{x}f(t) dt
+$$
+\subsection{Derivada da função integral indefinido}
+Seja $a$ uma constante, $u(x)$ uma expressão de $x$ e $t$ uma variável. Temos
+\begin{align}
+G(x) = \int_{a}^{u(x)} f(t) dt\\
+G'(x) = f(u(x)) \cdot u'(x)
+\end{align}
+Caso o integral tenha limites não constantes temos:
+$$
+\left( \int_{\phi(x)}^{\psi(x)} f(t) dt \right)' = f(\psi(x)) \cdot \psi '(x) - f(\phi(x)) \cdot \phi '(x)
+$$
+
+\section{Fórmula de Barrow}
+Se $f$ é contínua em $I, a, b \in I$ e $G$ é uma qualquer primitiva de $f$, então:
+$$
+\int_{a}^{b} f(t) dt = G(b) - G(a) = [G(x)]^{b}_a
+$$
+
+\section{Métodos de Integração}
+\subsection{Integração por partes}
+$$
+\int_{a}^{b} f'(t)g(t) dt = [f(t)g(t)]^{b}_a - \int_{a}^{b} f(t)g'(t) dt
+$$
+\subsection{Integração por substituição}
+Sendo $x = x(t); dx = \frac{dx}{dt}dt; x(\alpha) = a; x(\beta) = b$
+$$
+\int_{a}^{b} f(x) dx = \int_{\alpha}^{\beta} f(x(t)) \frac{dx}{dt} dt
+$$
+
+\section{Sólidos}
+É possível calcular o volume de sólidos através de integração tendo em conta a sua construção, i.e. o facto de que são compostos por infinitas secções de área definida.
+\subsection{Sólidos de revolução}
+Um sólido de revolução tem secções paralelas todas circulares e pode ser gerado pela rotação de uma figura plana em torno de um eixo.\\
+Para calcular o volume destes sólidos basta saber como calcular a área de cada secção circular e integrar essa função do inicio ao fim do objeto em $x$. Por exemplo:
+\begin{figure}[h]
+\includegraphics[scale=0.33]{Sem Título.png}
+\end{figure}
+\\
+O mesmo pode acontecer em torno de $y$:
+\begin{figure}[h]
+\includegraphics[scale=0.35]{Sem Título1.png}
+\end{figure}
+\end{document}

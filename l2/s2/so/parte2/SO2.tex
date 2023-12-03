@@ -1,0 +1,792 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{courier}
+\usepackage{minitoc}
+\usepackage{hyperref}
+\title{\LARGE{Sistemas Operativos} \\ \vspace{0.5cm} \normalsize{Resumo}}
+\date{}
+\renewcommand{\mtctitle}{Conteúdos}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Sincronização e Threads}
+\section{Sincronização}
+Acessos simultâneos a dados partilhados por vários fluxos de execução (entre processos ou entre threads) podem gerar
+inconsistências. São, portanto, necessários mecanismos para garantir a serialização de fluxos de execução concorrentes.
+\begin{itemize}
+\item Processos cooperando num mesma aplicação usando memória partilhada
+\item Threads dentro de um mesmo processo utilizando as mesmas varáveis globais
+\end{itemize}
+\subsection{Secção Crítica}
+A secção crítica é a zona de código de um processo/thread que só pode ser executada por um processo/thread de cada vez, em exclusão mútua.\\
+\\
+Existe uma competição para executar esta secção, que pode ter forma diferente entre cada processo/thread.\\
+\\
+Sem exclusão mútua, o resultado da execução dos processos/threads é indeterminado.
+\subsection{Mutex Locks}
+Uma das soluções para o problema da secção crítica são os mutex locks. Consiste num número inteiro positivo, alternando entre 1 e 0, mantido pelo sistema operativo, que pode ser acedido por vários processos.
+\begin{itemize}
+\item Variável inteira
+\item Valor 1 por defeito
+\item Tem associada uma fila de espera para os outros processos que querem executar a sua secção crítica
+\end{itemize}
+Existem apenas duas operações associadas aos mutex locks:
+\begin{itemize}
+\item Para um processo/thread entrar na secção crítica deve primeiro obter o mutex através de \texttt{acquire()} 
+\begin{itemize}
+\item Se \texttt{mutex = 1}
+\begin{itemize}
+\item \texttt{mutex = 0}
+\item O processo/thread executa a secção crítica
+\end{itemize}
+\item Se \texttt{mutex = 0}
+\begin{itemize}
+\item Coloca o processo/thread na fila de espera
+\item Bloqueia o processo/thread 
+\end{itemize}
+\end{itemize}
+\item Após executar/sair da secção crítica o mutex deve ser libertado através de \texttt{release()}
+\begin{itemize}
+\item Se existirem processos/threads na fila de espera
+\begin{itemize}
+\item Remove um processo/thread da fila de espera para executar
+\item Desbloqueia o processo/thread
+\end{itemize}
+\item Se não existirem processos/threads na fila de espera
+\begin{itemize}
+\item \texttt{mutex = 1}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\subsection{Semáforos}
+Os semáforos representam uma outra solução para o mesmo problema. Tal como os mutex locks, estes consistem num número inteiro positivo mantido pelo sistema, no entanto, podem ser inicializados com qualquer valor $>= 0$. A principal diferença entre os mutex e os semáforos é que estes são um mecanismo de sinalização, podendo ser acedidos por qualquer processo/thread, enquanto que os mutex são mecanismos de bloqueio, pelo que têm de ser libertados pelo mesmo processo/thread que os bloqueou. Existem 2 tipos de semáforo:
+\subsubsection{Semáforo de Contador (Counting Semaphore)}
+\begin{itemize}
+\item O controlo de acesso a um recurso é feito com sincronização de $n$ recursos distintos, i.e, permite que vários processos/threads acedam a um recurso simultaneamente
+\item O valor do semáforo está entre 0 e $N$, onde $N > 1$
+\end{itemize}
+\subsubsection{Semáforo Binário(Binary Semaphore)}
+\begin{itemize}
+\item O valor do semáforo pode ser 0 ou 1, tal como nos mutex locks
+\item O controlo de acesso a um recurso é feito por exclusão mútua
+\end{itemize}
+\vspace{0.4cm}
+Existem duas operações atómicas realizáveis sobre semáforos:
+\begin{itemize}
+\item \texttt{sem\textunderscore wait()} - Indica que o processo/thread quer aceder a um recurso
+\begin{itemize}
+\item Se \texttt{sem > 0}
+\begin{itemize}
+\item Decrementa \texttt{sem}
+\item O processo/thread continua a executar o seu código, que pode ser uma secção crítica
+\end{itemize}
+\item Se \texttt{sem = 0}
+\begin{itemize}
+\item Coloca o processo/thread na fila de espera
+\item Bloqueia o processo/thread
+\end{itemize}
+\end{itemize}
+\item \texttt{sem\textunderscore post()} - Indica que o processo/thread quer libertar um recurso
+\begin{itemize}
+\item Se \texttt{sem > 0}
+\begin{itemize}
+\item Incrementa o valor do semáforo
+\end{itemize}
+\item Se \texttt{sem = 0}
+\begin{itemize}
+\item Remove um processo/thread da fila de espera
+\item Desbloqueia o processo/thread
+\end{itemize}
+\end{itemize}
+\end{itemize}
+O sistema operativo garante que o semáforo tem sempre um valor válido ($>= 0$).\\
+\\
+Os semáforos podem ser usados para garantir que o acesso a um recurso é efetuado em exclusividade, inicializando a 1 e fazendo \texttt{sem\textunderscore wait()} antes de aceder e \texttt{sem\textunderscore post()} após, ou para bloquear um processo/thread até que outro chegue a uma dada instrução, bloqueando um processo com \texttt{sem\textunderscore wait()} até que outro execute \texttt{sem\textunderscore post()}.
+\subsection{Problemas de Sincronização}
+\subsubsection{Problema Produtor/Consumidor}
+No problema do produtor/consumidor, um conjunto de informações é partilhado por vários processos. Os produtores criam informações e inserem-nas no buffer. Os consumidores removem as informações do buffer. Surgem então dois problemas:
+\begin{itemize}
+\item Apenas um consumidor pode ler do buffer de cada vez
+\item Um consumidor só pode ler um item após um produtor produzir um item
+\item Um produtor escreve no buffer se houver espaço no buffer
+\end{itemize}
+Este problema pode ser resolvido através de 3 semáforos: \texttt{mutex}, \texttt{empty} e \texttt{full}. \texttt{empty} é inicializado com a mesma capacidade do buffer e indica se existe espaço disponível no buffer para escrever. \texttt{full} é inicializado a 0 e indica se existem items no buffer para serem lidos. \texttt{mutex} é inicializado a 1 e é utilizado para delimitar a secção crítica, atuando como um semáforo regular.
+\subsubsection{Problema Leitores/Escritores}
+Neste problema, um conjunto de dados é partilhado por vários processos. Os leitores apenas acedem para leitura, não alterando os dados. Os escritores podem aceder aos dados para leitura e escrita. Surgem os seguintes problemas:
+\begin{itemize}
+\item Vários leitores podem ler ao mesmo tempo
+\item Num dado momento, apenas um escritor pode aceder aos dados
+\end{itemize}
+Este problema é resolvido através do utilização de 2 semáforos: \texttt{mutex} e \texttt{rw\textunderscore mutex}.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título.png}
+\end{figure}
+\subsection{Monitores}
+Os monitores foram criados para evitar os problemas na utilização de semáforos. O monitor baseia-se no princípio que a sincronização é necessária para controlar o acesso a dados, ou estruturas de dados, e código, que podem ser utilizados por diversos processos de forma concorrente.\\
+Os monitores definem essa estrutura de dados, lógica, etc. Esta definição é próxima da definição de classe das linguagens de programação OO.
+\begin{itemize}
+\item As variáveis internas só são acedidas pelos
+procedimentos do monitor
+\item Os procedimentos são acedidos do exterior
+\item Só um processo de cada vez pode estar ativo no monitor
+\end{itemize}
+\section{Threads}
+A utilização de vários processos distintos implica overhead na comunicação de dados e comutação de contexto e existem situações em que seria benéfico ter a possibilidade de partilha de recursos entre dois processos. As threads foram criadas como uma solução a estes problemas, funcionando como uma sequência de execução num processo.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título1.png}
+\end{figure}
+O Scheduler atribui o CPU a cada processo, criando um fluxo de execução, ou single threaded process. No modelo clássico existe apenas um fluxo de execução, mas no modelo  multithreaded, em cada processo existem vários fluxos de execução ou threads.\\
+\\
+As várias threads de um processo partilham o espaço de endereçamento, mas têm contextos de execução distintos. Uma thread partilha com as outras do mesmo processo:
+\begin{itemize}
+\item Secção de código
+\item Secção de dados
+\item Recursos do processo (ficheiros, etc.)
+\end{itemize}
+\subsection{Modelos Multithreading}
+Existe ainda o conceito de nível da thread. Threads de nível utilizador são geridas por bibliotecas ao nível utilizador, pelo que o kernel não reconhece a sua existência, tratando-as como se fossem processos single-threaded. As threads do núcleo são suportadas e geridas pelo kernel diretamente.
+\subsubsection{Modelos many-to-one}
+Associam várias threads do nível utilizador a uma thread do nível núcleo
+\subsubsection{Modelos one-to-one}
+Associam cada thread do nível utilizador a uma thread do nível núcleo. Gera mais concorrência que o many-to-one
+\subsubsection{Modelos many-to-many}
+Associam $N$ threads do nível utilizador a um nº igual ou inferior de threads do nível núcleo. Permite gerir o nº de threads do kernel.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título3.png}
+\end{figure}
+Para além destes modelos existe ainda o conceito de thread pools. As thread pools são geralmente usadas em servidores web, onde se cria um conjunto de threads que permanecem á espera de trabalho. Esta prática melhora o desempenho, visto que as threads já estão criadas mas limita o número de threads que podem ser criadas.
+\subsection{Escalonamento de Threads}
+Existem dois tipos de escalonamento de threads, de acordo com a implementação do package de threads:
+\begin{itemize}
+\item Local: implementado e efetuado na biblioteca de threads, para decidir que thread irá correr em modo utilizador associada às threads kernel disponíveis
+\begin{itemize}
+\item many-to-one
+\item many-to-many
+\end{itemize}
+\item Global: implementado e efetuado no kernel
+\begin{itemize}
+\item one-to-one
+\item scheduling threads $\equiv$ scheduling processos
+\end{itemize}
+\end{itemize}
+
+Alguns CPUs fornecem a possibilidade de criar processadores lógicos (threads) dentro de cada core (HyperThreading). Um CPU com $x$ threads e $y$ cores consegue executar $y$ processos de cada vez e $x$ threads simultaneamente, $\frac{x}{y}$ de cada processo.
+\section{Deadlocks}
+Uma situação de deadlock pode ocorrer devido ás seguintes situações:
+\begin{itemize}
+\item Exclusão mútua - Apenas um processo de cada vez pode usar um determinado recurso
+\item Hold and wait - Um processo possui pelo menos um recurso (hold) e está à espera de obter recursos adicionais (wait) reservados para outros processos
+\item Sem preempção - Um recurso apenas pode ser libertado pelo processo que o possui, depois do processo ter terminado a sua tarefa
+\item Espera circular - Existe um conjunto de processos em espera $\{P_0, P_1, ...P_n\}$ tal que $P_0$ está à espera de um recurso possuído por $P_1$. $P_1$ está à espera de um recurso possuído por $P_2, ..., P_n$ está à espera de um recurso possuído por $P_0$.
+\end{itemize}
+\subsection{Modelo}
+É possível modelar um sistema de forma a detetar deadlocks. Este modelo é feito na forma de um grafo em que os vértices $R_1, R_2,...$ representam os recursos disponíveis, cada um com $R_i$ instâncias e $P_1, P_2,...$ representam os processos em execução. Existem ainda dois tipos de arcos: Os arcos do tipo $P_i \rightarrow R_j$ representam pedidos de reserva e os arcos do tipo $R_i \rightarrow P_j$ representam as reservas efetuadas. Por exemplo:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título4.png}
+\end{figure}
+Se este grafo não tem ciclos, então não existem deadlocks, caso contrário:
+\begin{itemize}
+\item Se o ciclo envolve apenas recursos com uma instância então existe deadlock
+\item Se cada tipo de recurso tem várias instâncias depende
+\end{itemize}
+\subsection{Gerir Deadlocks}
+Existem duas formas de gerir deadlocks:
+\begin{itemize}
+\item Garantir que o sistema nunca entra em deadlock, prevenindo e evitando-os
+\item Permitir que o sistema entre em deadlock, detetar e recuperar
+\end{itemize}
+\subsubsection{Prevenir}
+\begin{itemize}
+\item Exclusão mútua
+\begin{itemize}
+\item Podia ser evitada se todos os recursos fossem partilháveis sem problemas de concorrência (ex. recursos apenas de leitura)
+\item Genericamente não podemos prevenir deadlocks evitando exclusão mútua
+\end{itemize}
+\item Hold and wait
+\begin{itemize}
+\item Tem de garantir que sempre que um processo faz um pedido de reserva de um recurso, não possui outros recursos
+\item Requer que um processo reserve todos os recursos de que vai necessitar antes de ter início a sua execução
+\item Alternativamente, o processo apenas pode reservar recursos quando não possui nenhum
+\end{itemize}
+\item Sem preempção
+\begin{itemize}
+\item Se um processo faz um pedido de reserva de um recurso que não pode ser imediatamente satisfeito, então todos os recursos que ele possui são libertados
+\item Quando um processo faz um pedido de reserva, se o recurso não está disponível, verifica-se se ele está reservado por um processo que esteja em espera, em caso afirmativo o recurso é preemptivo
+\item Aplica-se a recursos cujo estado pode ser guardado e recuperado facilmente
+\end{itemize}
+\item Espera circular
+\begin{itemize}
+\item Define uma ordem total para todos os recursos e requer que os pedidos de reserva sejam efetuados de acordo com esta ordem
+\end{itemize}
+\end{itemize}
+\subsubsection{Evitar}
+Para evitar um deadlock é necessário monitorizar o estado do sistema de modo a impedir uma reserva que dê origem a um estado de interbloqueio, pelo que requer informação sobre reserva de recursos à priori.\\
+\\
+Um modelo mais simples requer que cada processo declare o número máximo de recursos de cada tipo que ele pode vir a necessitar.\\
+\\
+Por outro lado, é possível usar um algoritmo que examina dinamicamente o estado da reserva de recursos de modo a evitar espera circular.\\
+\\
+Existem então dois estados possíveis:
+\begin{itemize}
+\item Estado seguro: interbloqueio é impossível
+\item Estado inseguro: interbloqueio é possível
+\end{itemize}
+Critério de estado seguro:\\
+\\
+Quando um processo faz um pedido de reserva, o sistema tem de determinar se essa reserva deixa o sistema num estado seguro. Isto é, existe uma sequência $<P_1, P_2, ..., P_n>$ de todos os processos tal que para cada processo $P_i$, os recursos que necessita possam ser satisfeitos pelos recursos disponíveis mais os recursos possuídos por todos os $P_j$, com $j < i$.
+\begin{itemize}
+\item Se os recursos que $P_i$ necessita não estão todos disponíveis, espera até que todos os $P_j$ terminem
+\item Quando $P_j$ termina $P_i$ executa, depois $P_{i+1}$...
+\end{itemize}
+Para garantir o estado seguro, havendo apenas uma instância de cada tipo de recurso, pode-se usar o grafo de reserva de recursos. Neste grafo existe um novo tipo de arco a tracejado, que indica que o processo pode vir a fazer o pedido de reserva. Se este grafo não tiver ciclos assegura-se o estado seguro, caso contrário verifica-se o estado inseguro.\\
+\\
+Se existirem várias instâncias de recursos usa-se o banker's algorithm. Neste algoritmo cada processo tem de indicar a sua máxima utilização à priori e assume-se que pode ter de esperar ao fazer um pedido de reserva e que após ter os recursos tem de os libertar num período de tempo finito. Por exemplo:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título5.png}
+\end{figure}
+\subsubsection{Deteção de Deadlocks}
+Desta forma permite-se que o sistema entre em deadlock, recuperando posteriormente. Existe um algoritmo de deteção que determina quando procurar interbloqueios e aplica um esquema de recuperação:
+\begin{itemize}
+\item Terminação de um, ou mais, processos em interbloqueio até que este desapareça
+\item Preempção de recursos, i.e., selecionar um processo que perde o recurso, colocá-lo num estado seguro anterior e reiniciá-lo. Repetir se necessário
+\end{itemize}
+\chapter{Memória}
+\section{Memória Principal}
+A memória principal, os registos e a cache únicos dispositivos de armazenamento que o CPU pode aceder diretamente.\\
+\\
+Quando um processo é carregado em memória é-lhe atribuído um espaço de endereçamento físico, que pode ser qualquer zona de memória que esteja livre, pelo que deve haver proteção da memória, de forma a que os processos tenham sempre espaços físicos distintos.\\
+\\
+Um processo sabe qual é o seu espaço de endereçamento físico através de uma ligação entre instruções e memória.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título6.png}
+\end{figure}
+\subsection{Proteção}
+É importante considerar a distinção entre os diferentes tipos de endereço:
+\begin{itemize}
+\item Endereço lógico: gerado pelo processador, endereço virtual
+\item Endereço físico: endereço usado pela memória principal, endereço real
+\end{itemize}
+Os programas não manipulam endereços físicos, a unidade de gestão de memória (MMU), inserida no CPU faz a tradução de endereços lógicos para físicos.\\
+\\
+Através dos registos base e limite (ambos com valores diferentes para cada processo) implementado um esquema de proteção da seguinte forma: Quando o endereço gerado pelo CPU é inferior à Base ou superior ao (Base + Limite) é gerada uma exceção para o sistema operativo.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título7.png}
+\end{figure}
+Assim, o registo base contém sucessivamente o endereço de inicio de cada processo ativo e o registo de limite contem o valor máximo do intervalo de endereços lógicos autorizados para cada processo.
+\subsection{Tradução de Endereços Lógicos em Físicos}
+\subsubsection{Forma 1}
+\begin{itemize}
+\item Os endereços lógicos e físicos são idênticos quando calculados em tempo de compilação e carregamento
+\item A MMU verifica se o endereço lógico é maior ou igual do que o registo base e menor que a (base + registo limite)
+\end{itemize}
+\subsubsection{Forma 2}
+\begin{itemize}
+\item Os endereços lógicos e físicos são diferentes quando calculados em tempo de compilação e carregamento
+\item A MMU verifica se o endereço lógico é menor que o registo limite, se sim adiciona o valor do registo de realocação (base) ao endereço lógico
+\end{itemize}
+A todos os endereços lógicos gerados pelo CPU é adicionado o valor contido num registo de realocação.
+\subsection{Swapping}
+O swapping ocorre quando existe falta de memória principal e consiste em retirar processos da memória temporariamente, armazenando-os temporariamente em disco e mais tarde devolvendo à memória.
+\subsection{Alocação de Memória aos Processos}
+Existem 3 forma de alocar memória aos processos: alocação contígua, segmentação e paginação.
+\subsubsection{Alocação Contígua}
+A alocação de memória contígua é feita através do particionamento do espaço físico disponível em múltiplos blocos.
+\begin{itemize}
+\item Um bloco livre é um espaço de memória livre localizado em qualquer sítio da memória física
+\item Quando um processo é carregado é-lhe atribuído um bloco livre
+\item O sistema operativo mantém informações sobre os blocos livres e blocos ocupados
+\end{itemize}
+É então necessário saber responder a um pedido de alocação de $N$ bytes a partir de uma lista de blocos livres:
+\begin{itemize}
+\item First-fit - alocar o primeiro bloco livre suficientemente grande para conter $N$ bytes
+\item Best-fit: alocar o mais pequeno bloco que seja suficientemente grande para conter $N$ bytes
+\begin{itemize}
+\item É preciso percorrer a lista toda, se esta não estiver ordenada por tamanhos
+\item Produz melhores resultados, com menos desperdícios
+\end{itemize}
+\item Worst-fit: alocar o maior bloco que seja suficientemente grande
+\begin{itemize}
+\item Necessita percorrer a lista toda
+\item Produz fragmentos maiores
+\end{itemize}
+\end{itemize}
+\subsubsection{Segmentação}
+O espaço de endereçamento lógico é constituído por um conjunto de segmentos que podem ter tamanhos diferentes e cada um tem um identificador. Um endereço lógico é constituído pelo identificador do e o deslocamento no segmento (offset). Um processo tem diversos segmentos: Código, bibliotecas, variáveis, pilha, etc.\\
+\\
+A tradução de endereços é feita com base numa tabela de segmentos:
+\begin{itemize}
+\item Endereço lógico: <segmento, deslocamento>
+\item Tabela de segmentos:
+\begin{itemize}
+\item Base - contém o endereço de início da memória física associada ao segmento
+\item Limit – define a dimensão do segmento
+\end{itemize}
+\end{itemize}
+Segue-se um exemplo:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título8.png}
+\end{figure}
+\subsubsection{Paginação}
+Neste modelo a memória física está dividida em blocos de dimensão fixa (frames), sendo que a sua dimensão é sempre uma potência de 2. A memória lógica está dividida em blocos da mesma dimensão (páginas).
+\begin{itemize}
+\item O sistema operativo mantém uma lista de frames livres
+\item Para executar um programa com tamanho de $n$ páginas, é necessário procurar $n$ frames livres e carregar o programa em memória
+\item Tabela de páginas é usada para traduzir endereços
+lógicos em físicos
+\end{itemize}
+A tradução de endereços é feita da seguinte forma:
+\begin{itemize}
+\item Endereço lógico: <página, deslocamento>
+\begin{itemize}
+\item Número de página (p) – usado como índice numa tabela de páginas que contém o endereço de base da frame correspondente em memória física
+\item Deslocamento (offset) (d) – deslocamento dentro da página. É combinado com o endereço de base da frame correspondente à página para formar o endereço físico requerido na memória
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título9.png}
+\end{figure}
+Segue-se um exemplo:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título10.png}
+\end{figure}
+De forma a proteger a memória associa-se ainda um bit de proteção associado a cada entrada da tabela de páginas que assume os seguintes estados:
+\begin{itemize}
+\item Válido (v): a página pertence ao espaço de endereçamento do processo
+\item Inválido (i): a página não pertence
+\end{itemize}
+Alternativamente é possível usar um modelo mais sofisticado, com um bit de leitura/escrita.
+\section{Memória Virtual}
+A MMU introduz uma diferenciação entre a memória lógica do utilizador e a memória física do sistema. Dado que apenas algumas partes de cada processo precisam de estar em memória para execução o espaço de endereçamento lógico pode ser maior que o físico. Algumas partes do espaço físico podem ser partilhadas por diferentes espaços lógicos de vários processos. Pode ser implementada através de:
+\begin{itemize}
+\item Paginação - Demand paging (paginação sob demanda)
+\item Segmentação - Demand segmentation (segmentação sob demanda)
+\end{itemize}
+\subsection{Paginação sob Demanda}
+Este princípio consiste em trazer páginas para a memória principal só quando são necessárias (lazy swapping). Um swapper que gere páginas é designado por pager (paginador). Ao aceder a uma página as seguintes situações podem ocorrer:
+\begin{itemize}
+\item Página válida e presente: acesso autorizado
+\item Referência inválida: gerar exceção e terminar o processo
+\item Referência válida mas não presente: gerar exceção (page fault) e trazer o conteúdo da página para memória
+\end{itemize}
+A cada página está associado um bit de proteção que indica o estado da página:
+\begin{itemize}
+\item $v$: em memória
+\item $i$: não presente
+\end{itemize}
+Inicialmente, o bit de validade é posto a $i$ em todas as páginas sendo passado para $v$ à medida que as páginas são carregadas. Durante a tradução de endereços, se o bit estiver a $i$ é dada uma page fault. Segue-se um exemplo de um processo parcialmente carregado:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título11.png}
+\end{figure}
+\subsubsection{Tratamento de uma Falta de Página}
+Ao encontrar uma referência a uma página não presente é gerada uma page fault e o controlo é transferido para o sistema operativo:
+\begin{itemize}
+\item É consultada a tabela de páginas:
+\begin{itemize}
+\item Referência inválida: aborta
+\item Página não presente: continuar tratamento
+\end{itemize}
+\item Escolhe uma frame vazia na memória física e verifica se a página existe na memória virtual
+\item Trás o conteúdo da página para a frame escolhida
+\item Atualiza a tabela de páginas com o endereço da frame e mudar o valor do bit $v$
+\item Reinicia o processo na instrução exata que causou
+a falha de página
+\end{itemize}
+\subsection{Substituição de Páginas}
+Coloca-se então a questão de quantas frames se devem reservar para cada processo. O número máximo é a memória disponível, mas o número mínimo é dependente da arquitetura, já que, por exemplo, uma instrução pode estar em 2 páginas. No caso de não haver memória livre disponível, a escolha de uma nova frame para carregar a página em falta tem de passar por um esquema de substituição de páginas: escolher uma página em memória que não esteja a ser utilizada, enviá-la para disco (swap-out) e utilizar a frame assim libertada.\\
+\\
+Trata-se de um processo complexo que implica:
+\begin{itemize}
+\item A utilização de um algoritmo de seleção e substituição de páginas não utilizadas
+\item O algoritmo tem de minimizar o número de falta de páginas no sistema
+\item Tem consequências críticas no desempenho do sistema em situações de sobre utilização de memória
+\end{itemize}
+Pode-se praticar uma substituição global, em que a frame de substituição (vítima) é escolhida do conjunto de todas as frames (pode pertencer a outro processo) ou substituição local, em que a frame de substituição é escolhida do conjunto das frames do processo. Alguns algoritmos de substituição de páginas são:
+\subsubsection{Algoritmo Ótimo}
+Substituir a página que não vai ser usada pelo período mais longo. Usado para medir qualidade relativa dos algoritmos.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{Sem Título13.png}
+\end{figure}
+\subsubsection{Algoritmo FIFO}
+A página a substituir é a mais antiga. Para a contagem de faltas de páginas tem-se em conta que as frames estão vazias de início
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título12.png}
+\end{figure}
+\subsubsection{Algoritmo LRU}
+Substituir a página que não é usada durante mais tempo.
+\begin{itemize}
+\item Concretizado com um contador incrementado a cada acesso
+\item Guardar para cada página o valor do contador do seu último acesso
+\item Quando for necessário substituir uma página escolhe aquela com o contador menor
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{Sem Título14.png}
+\end{figure}
+Este algoritmo pode também ser implementado através de uma pilha de números de páginas:
+\begin{itemize}
+\item A cada referência, move página para o topo da pilha
+\item Se a pilha for uma lista duplamente encadeada não é necessário pesquisar, a página que não é usada á mais tempo está no fundo.
+\end{itemize}
+Uma última implementação é a second chance, feita através de uma lista circular de páginas com bit de referência. Itera-se pela lista de páginas:
+\begin{itemize}
+\item Se a próxima página tem reference bit a 0 é a vítima
+\item Caso contrário, o bit é colocado a 0
+\item Passa á página seguinte
+\end{itemize}
+
+\chapter{Tópicos Gerais}
+\section{Ficheiros}
+Um ficheiro é um tipo de dados abstrato que possui atributos, tais como nome, identificador, tipo, localização, tamanho, etc. É possível realizar operações sobre ficheiros, nomeadamente criar, remover, truncar, escrever, ler e reposicionar dentro do ficheiro. Ao abrir, o so procura o ficheiro na diretoria e move os seus atributos para a memória. Ao fechar os seus atributos em memória são gravados no disco e removidos da memória.
+\subsection{Métodos de acesso a ficheiros}
+\begin{itemize}
+\item Acesso sequencial
+\begin{itemize}
+\item Operações de read e write acedem e avançam o file pointer
+\end{itemize}
+\item Acesso direto ou aleatório
+\begin{itemize}
+\item Ficheiro constituído por registos lógicos de tamanho fixo
+\item Estes registos são identificados de forma relativa em relação ao inicio do ficheiro
+\item Lê-se o bloco $n$
+\end{itemize}
+\end{itemize}
+Existe ainda o ficheiro índice, que é guardado em memória e contém apontadores para blocos que por sua vez contêm records. O nome do ficheiro índice é o nome do primeiro record de um bloco.
+\subsection{Diretórios}
+Diretórios são uma coleção de nós que contêm informação sobre ficheiros e, tal como estes, residem em disco. Possuem algumas operações, tais como a procura, criação, remoção e renomeação de ficheiros. Existem várias formas distintas de estruturar diretórios:
+\begin{itemize}
+\item Estrutura de um nível
+\begin{itemize}
+\item Existe uma única diretoria para todos os ficheiros de todos os utilizadores
+\item É inconveniente pois tem um espaço de nomes único e não permite agrupamento
+\end{itemize}
+\item Estrutura de dois níveis
+\begin{itemize}
+\item Uma diretoria por utilizador
+\item Elimina alguns dos problemas anteriores e torna a pesquisa mais eficiente
+\end{itemize}
+\item Estrutura em árvore
+\begin{itemize}
+\item Introduz a noção de diretório corrente
+\item Procura eficiente
+\item Possibilidade de agrupar ficheiros
+\item Espaço de nomes estruturado
+\end{itemize}
+\item Grafos Acíclicos
+\begin{itemize}
+\item Permite partilha de ficheiros e sub-diretórios
+\item Aliasing: vários nomes para a mesma entidade
+\item Obtido com o conceito de link
+\item Cópia de ficheiro vs. vários nomes para o mesmo ficheiro
+\end{itemize}
+\end{itemize}
+\subsection{Mounting}
+Um sistema de de ficheiros precisa de ser montado para ser acedido. Para tal, é escolhido um mount point: um local da árvore de diretórios onde a raiz fica. Na operação de mount:
+\begin{itemize}
+\item Dá-se a fusão entre duas árvores
+\item Uma árvore torna-se sub-árvore da outra
+\end{itemize}
+\subsection{Partilha de Ficheiros}
+A partilha é desejável em sistemas multi-utilizador. Para uma partilha segura é necessário implementar um esquema de proteção, em que a identificação de utilizadores usa:
+\begin{itemize}
+\item user IDs - permitem proteção por utilizador
+\item group IDs - permitem proteção por grupo de utilizadores
+\end{itemize}
+A partilha de ficheiros remotos pode ser feita de vários modos:
+\begin{itemize}
+\item Manualmente, através de ftp (anónimo ou autenticado)
+\item Automático: Sistema de ficheiros distribuído
+\item Semi: WWW (semelhante a ftp)
+\item Modelo cliente-servidor: Cliente podem fazer mount de sistemas de ficheiros remotos e o servidor pode servir vários clientes. 
+\end{itemize}
+\subsection{Proteção}
+O criador de um ficheiro deve controlar o que pode ser feito e por quem. Para isto, existem diversos tipos de acesso (leitura, execução...). Para tal usam-se mecanismos de controlo de acesso:
+\begin{itemize}
+\item ACL (access-control list)
+\begin{itemize}
+\item Lista de utilizadores especifica quem pode aceder
+\item Esta lista pode ser extensa e não conhecida à partida
+\item Entrada que descreve diretório tem que ser de tamanho variável
+\end{itemize}
+\item Versão condensada (usada em UNIX)
+\begin{itemize}
+\item É associado um utilizador e um grupo de utilizadores ao ficheiro
+\item Conjuntos de utilizadores são classificados como user, group, other.
+\item São definidos três tipos de acesso: read, write, execute
+\item Acesso é controlado em $3 \times 3 = 9$ bits
+\end{itemize}
+\end{itemize}
+\section{Sistema de Ficheiros}
+O sistema de ficheiros pode ser visto de duas perspetivas: na perspetiva do utilizador existem ficheiros e diretorias e na perspetiva do sistema existe uma associação entre ficheiros e diretorias ao espaço em disco.\\
+\\
+É, portanto, necessário organizar o sistema de ficheiros em disco, geralmente em camadas. Alguns sistemas de ficheiros são, por exemplo: FAT, FAT32, ext2, ...
+\subsection{Implementação do Sistema de Ficheiros}
+Á semelhança dos processos, cada ficheiro tem a sua file control block (FCB), uma estrutura de dados com informação sobre o ficheiro correspondente (permissões, datas,...).
+\subsubsection{Operação Create}
+\begin{itemize}
+\item Reserva um novo FCB
+\item Atualiza a diretoria com o novo FCB e nome de ficheiro
+\end{itemize}
+\subsubsection{Operação Open}
+Esta operação recebe o nome do ficheiro como argumento. Verifica se o ficheiro já está aberto noutro processo:
+\begin{itemize}
+\item Acede à tabela global de ficheiros abertos (system-wide open-file table)
+\item Se sim cria entrada em tabela de ficheiros abertos do processo (per-process open-file table)
+\item Se não é feita a pesquisa do ficheiro na estrutura de diretórios + entrada na tabela global + entrada na tabela do processo
+\end{itemize}
+Para gerir um ficheiro aberto é necessário o apontador do ficheiro, o seu contador de aberturas, a sua localização em disco e direitos de acesso. Estas informações são mantidas em dois tipos de tabelas:
+\begin{itemize}
+\item Tabela por processo
+\begin{itemize}
+\item File pointer
+\item Permissões
+\item Apontador para a tabela global
+\end{itemize}
+\item Tabela global
+\begin{itemize}
+\item Localização do ficheiro em disco
+\item Dimensão do ficheiro
+\item Contador do nº de vezes que o ficheiro está aberto
+\end{itemize}
+\end{itemize}
+\subsubsection{Operações Read e Write}
+\begin{itemize}
+\item Open retorna apontador (descritor do ficheiro)
+\item Operações de acesso são efetuadas através deste apontador
+\end{itemize}
+\subsubsection{Operação Close}
+\begin{itemize}
+\item Removido da tabela de ficheiros abertos do processo
+\item Removido da tabela de ficheiros abertos global
+\end{itemize}
+\subsection{Implementação de Diretórios}
+\begin{itemize}
+\item Lista com nomes de ficheiros e apontadores para blocos simples
+\begin{itemize}
+\item Procura de nome potencialmente demorada
+\item Lista ordenada facilita procura, mas dificulta alterações
+\end{itemize}
+\item Hash Table
+\begin{itemize}
+\item Reduz o tempo de procura
+\item Possibilidade de colisões
+\item Problema: tamanho fixo da hash table e dependência da função de hash desse tamanho
+\end{itemize}
+\end{itemize}
+\subsection{Métodos de Reserva}
+Existem vários métodos para atribuir blocos do disco a ficheiros, sendo que normalmente um sistema de ficheiros usa apenas um método.
+\subsubsection{Reserva Contígua}
+\begin{itemize}
+\item Cada ficheiro ocupa um conjunto de blocos contíguos
+\item Basta guardar para cada ficheiro o bloco inicial e o tamanho
+\item Permite fácil acesso direto
+\item Gestão de espaço livre
+\item Ficheiros não podem crescer
+\end{itemize}
+\subsubsection{Reserva de Lista Ligada}
+\begin{itemize}
+\item Cada ficheiro é uma lista encadeada de blocos
+\item Blocos podem estar espalhados pelo disco
+\item Basta guardar o nó do primeiro bloco pois cada bloco contém o número do próximo
+\item Sem acesso aleatório
+\end{itemize}
+Existe uma outra variante: FAT (file allocation table)
+\begin{itemize}
+\item É mantida uma tabela separada com uma entrada por bloco do disco
+\item Cada ficheiro é representado por uma lista ligada na FAT
+\item Pode ser feita cache da FAT para aumentar eficiência no acesso
+\end{itemize}
+\subsubsection{Reserva Indexada}
+\begin{itemize}
+\item Usa-se uma tabela de índices de blocos (todos os apontadores num só local)
+\item Permite acesso aleatório
+\item Sem fragmentação
+\item Acesso sempre indireto (tabela de índice)
+\item Tabela ocupa espaço
+\end{itemize}
+É também possível concretizar uma implementação multi-nível para suporte a ficheiros de maior dimensão. Desta forma usam-se índices multi-nível (bloco de índices de 1º nível aponta para blocos de índices de 2º nível que apontam para blocos do ficheiro).
+\subsection{Gestão de Espaço Livre}
+Pode ser feita a identificação dos blocos livres através de um vetor de bits:
+\begin{itemize}
+\item Bit a 0: livre
+\item Bit a 1: ocupado
+\end{itemize}
+É uma abordagem simples e eficiente desde que o vetor não seja guardado em disco.\\
+\\
+Uma outra abordagem consiste na utilização de uma lista encadeada, que não ocupa espaço de forma inútil mas não é fácil encontrar blocos contíguos. Pode-se implementar uma variante com contador de blocos contíguos.
+\subsection{Recuperação}
+Dado que a informação está em memória e em disco, falhas no sistema podem levar a perdas de dados e incoerências.\\
+\\
+Para manter a coerência o sistema operativo possuí formas de comparar a info das diretorias com info dos blocos de disco, que dependem dos algoritmos de reserva e gestão do espaço livre.\\
+\\
+Podem ser usadas técnicas de sistemas transacionais, em que todas as alterações são registadas em log ou backups (completos ou incrementais).
+\section{Armazenamento}
+No nível inferior ao sistema de ficheiros temos o armazenamento. Alguns dispositivos de armazenamento são, por exemplo, a fita magnética, os discos rígidos ou os discos SSD.
+\subsection{Estrutura de Disco}
+As unidades de disco são endereçadas como um vetor de blocos (unidade de transferência). O vetor de blocos é projetado sequencialmente nos setores do disco. O bloco 0 inclui o primeiro sector da primeira pista do cilindro mais externo e a projeção continua em ordem na pista, no cilindro, e depois em direção ao interior do disco.
+\subsection{Ligação de Discos a Computadores}
+Localmente, o computador usa os barramentos de E/S para aceder às unidades de disco.\\
+\\
+É também possível aceder ao armazenamento pela rede (network attached storage, NAS). No UNIX existe o network file system (NFS) que fornece uma implementação de remote procedure calls (RPC) entre o host e o NAS.\\
+\\
+Existe ainda o conceito de storage area network (SAN), usado em ambientes de grande armazenamento. Usa protocolos de armazenamento e de rede para permitir que vários hosts se conectem a storage array-flexible.
+\subsection{Gestão de Disco}
+A formatação é um processo de baixo nível. Pode ser física, na divisão das pistas em setores( nos discos magnéticos) ou lógica, aquando da gravação da estrutura do sistema de ficheiros (essencial para usar o disco). É possível criar partições de disco (partes virtuais dentro de uma unidade).\\
+\\
+Também é possível organizar o disco em clusters (grupos de blocos) ou em formato raw disk, em que não existem estruturas de dados do sistema de ficheiros.
+\subsection{Estrutura de RAID}
+As estruturas de RAID usam a redundância para conseguir maior fiabilidade(contra falhas de discos). Verificam-se ainda melhorias de desempenho devido ao paralelismo. 
+\begin{itemize}
+\item RAID 0 - Distribuição em faixas (stripping)
+\begin{itemize}
+\item Grupo de discos forma uma unidade de armazenamento
+\end{itemize}
+\item RAIDs que implementam redundância e fiabilidade
+\begin{itemize}
+\item RAID 1 - Espalhamento (mirroring, shadowing), replicação dos dados em mais de um disco
+\item RAID 1+0 - Striped mirrors ou RAID 0+1 - Mirrored stripes fornecem melhor performance e fiabilidade
+\item RAID 4,5,6 - Paridade de discos tem menor redundância
+\end{itemize}
+\end{itemize}
+RAID dentro de um storage array pode também falhar se o array falhar.
+Automaticamente a replicação de arrays entra em funcionamento.
+\section{Sistema de Entradas e Saídas}
+Existe uma grande variedade de sistemas de entrada e saída que usam conceitos em comum, tais como o porto, barramento (bus), cadeia, controlador, etc.\\
+Existem três tipos de bus na estrutura de barramento típica de um pc:
+\begin{itemize}
+\item Data bus - usada para transferir
+os dados entre os componentes do sistema. Composto por data lines, onde cada linha transfere um bit
+\item Address bus - especifica o endereço origem ou destino dos dados que estão a ser transmitidos no data bus
+\item Control bus - permite controlar sinais o que está a ser transferido e para quem, coordenando por emissão das operações a realizar
+\end{itemize}
+Existe uma fila de espera ativa em que o estado de um dispositivo E/S é verificado ciclicamente.
+\subsection{Interrupções}
+\begin{itemize}
+\item Interrupção do CPU iniciada por um dispositivo
+\begin{itemize}
+\item Algumas interrupções podem ser mascaradas (ignoradas)
+\item Pode haver prioridade entre elas
+\end{itemize}
+\item Interrupção do processador~\begin{itemize}
+\item Encontra endereço do tratador no vetor de interrupções
+\item Desvia para tratador
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título15.png}
+\end{figure}
+\subsection{Acesso Direto à Memória}
+O acesso direto direto à memória é usado para mover blocos de dados, deixando de lado o CPU na transferência entre dispositivo e memória. Necessita de um controlador de DMA.
+\subsection{Device Drivers}
+Dado que os dispositivos podem ser muito diferentes uns dos outros, o objetivo dos drivers é fornecer uma interface de E/S normalizada, ocultando diferenças entre os vários controladores.
+\subsection{Operações E/S}
+\begin{itemize}
+\item Bloqueantes
+\begin{itemize}
+\item Processo é suspenso até a operação de E/S ser realizada
+\end{itemize}
+\item Não bloqueantes
+\begin{itemize}
+\item Operação retorna a informação disponível
+\end{itemize}
+\item Assíncronas
+\begin{itemize}
+\item Processo continua e é avisado quando a operação de E/S terminar
+\end{itemize}
+\end{itemize}
+\subsection{Gestão de Erros e Proteção}
+Podem ocorrer erros de leitura em disco, dispositivos indisponíveis, de escrita, etc. Geralmente devolve-se um código de erro à aplicação, podendo haver um registo de erros. Um processo pode tentar causar erro no sistema (propositadamente ou não)
+\begin{itemize}
+\item Todas as instruções de E/S são privilegiadas
+\item Processos não têm acesso à memória dos dispositivos
+\item Todas as operações de E/S são feitas pelo SO
+\end{itemize}
+Existem mecanismos de proteção para evitar a realização de operações de E/S ilegais.
+\subsection{Estrutuas de Dados para E/S}
+O kernel mantém várias estruturas de informação de estado, tais como tabelas de ficheiros, filas de acesso a disco, buffers, etc. Alguns sistemas são orientados por objetos e outros usam troca de mensagens.
+\subsection{Processamento de um Pedido de E/S}
+Segue-se um exemplo de um pedido de leitura de um ficheiro:
+\begin{itemize}
+\item Determinar dispositivo que contém o ficheiro
+\item Traduzir de nome em índice de blocos
+\item Fisicamente ler dados do disco para um buffer
+\item Tornar bloco de dados lido disponível ao processo
+\item Retornar ao processo
+\end{itemize}
+\section{Proteção}
+A proteção tem como objetivo garantir que cada objeto é acedido corretamente. Segue-se o principio do mínimo privilégio.
+\subsection{Domínios de Proteção}
+Um domínio pode ser um utilizador, processo, procedimento que possui um conjunto de permissões. Processos são executados num domínio de proteção que depende de várias identidades (ex. execução em modo utilizador ou modo administrador).
+\subsubsection{Estrutura em Domínios}
+\begin{itemize}
+\item Direito de acesso:
+\begin{itemize}
+\item <nome do objeto, {conjunto de direitos}>
+\end{itemize}
+\item Conjunto de direitos - subconjunto de todas as operações que são permitidas sobre um objeto
+\end{itemize}
+Em POSIX existem dois tipos de domínios: utilizador e administrador. O domínio é definido pela identificação do utilizador (userid) e a troca de domínio é feita através do sistema de ficheiros. Existe um bit de escolha de identificação de utilizador (set-userid). Ao executar um ficheiro com set-userid o utilizador se torna no dono do ficheiro.
+\subsection{Matriz de Acessos}
+A proteção pode ser vista como uma matriz, em que as linhas representam os domínios e as colunas representam os objetos. $Acesso[i][j]$ é o conjunto de operações que o domínio $i$ pode fazer no objeto $j$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título16.png}
+\end{figure}
+\subsection{Controle de Acesso}
+O controle de acesso é baseado em papéis. Os utilizadores têm papéis e cada papel tem um conjunto de direitos, pelo que os utilizadores não têm permissões específicas. A gestão de utilizadores consiste em atribuir o papel correto a cada um.\\
+\\
+Existem listas de controle de acesso (ACL), matrizes em forma de lista, para cada objeto. O sistema percorre a lista até decidir. Exemplo:\\
+Ficheiro XPTO: João pode ler, Maria pode escrever, Paulo pode ler e escrever, Alunos (grupo) podem ler, Outros, não podem fazer nada.
+\section{Segurança}
+\subsection{Segurança de Recursos}
+A segurança de recursos consiste em controlar o acesso a uma localização bem delimitada, o perímetro. Exige controlo em:
+\begin{itemize}
+\item Acesso a serviços
+\item Direção de utilização
+\item Utilizadores
+\item Comportamento
+\end{itemize}
+Permite negar a utilização de um objeto por uma pessoa.
+\subsection{Segurança de Comunicação}
+Para uma comunicação segura é necessário:
+\begin{itemize}
+\item Estabelecer um canal de comunicação seguro entre os intervenientes da comunicação
+\item Trocar informação de forma segura
+\end{itemize} 
+\subsection{Segurança de Informação}
+Para proteger a informação/serviços contra o acesso de leitura de intrusos deve-se:
+\begin{itemize}
+\item Limitar o acesso à informação/serviço apenas às pessoas autorizadas
+\item Proteger informações/serviços privados de intrusos
+\end{itemize}
+Para garantir que uma informação é genuína e está protegida contra a personificação de intrusos devem-se usar mecanismos de autenticação.
+\subsubsection{Encriptação}
+Podem-se usar chaves de encriptação de forma a proteger a informação. Chaves podem ser simétricas ou assimétricas.\\
+\\
+É possível usar chaves de encriptação para assinar documentos.
+\end{document}

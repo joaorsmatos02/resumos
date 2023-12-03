@@ -1,0 +1,627 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{minitoc}
+\usepackage{hyperref}
+\renewcommand{\mtctitle}{Conteúdos}
+
+\begin{document}
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+
+\dominitoc
+\tableofcontents
+
+
+\chapter{Camada de Aplicação}
+O objetivo da camada de aplicação é proporcionar um meio de comunicação entre processos.
+\minitoc
+\section{Visão Geral}
+\subsection{Arquiteturas}
+\subsubsection{Cliente-Servidor}
+Na arquitetura cliente-servidor o servidor é um terminal sempre ligado com endereço IP permanente que serve o propósito de atender os pedidos dos clientes que, por contraste, não estão sempre ligados, têm endereço IP dinâmico e não comunicam entre si.
+\subsubsection{Peer-to-Peer (P2P)}
+Na arquitetura P2P não existe um servidor sempre ligado e os clientes comunicam diretamente entre si. Trata-se de uma arquitetura de gestão complexa, dado que os seus endereços IP são dinâmicos e auto-escalável pois os peers cobrem ambas as funções.
+\subsection{Ligação de Processos}
+Para receberem mensagens os processos têm de ter um identificador, que é composto pelo endereço IP da máquina e pelo número de porto.
+\subsubsection{Socket}
+A socket é um conceito do sistema operativo por onde os processos enviam e recebem mensagens.
+\section{Protocolos Gerais}
+\subsection{HTTP}
+O protocolo HTTP segue o modelo cliente-servidor, usando o porto 80 e utiliza TCP como protocolo de transporte. No HTTP apenas um objeto é enviado através de uma mensagem e diz-se um protocolo do tipo pull (o cliente puxa o objeto do servidor).
+\subsubsection{HTTP não persistente}
+No modo não persistente cada ligação serve para transmitir um objeto e depois é fechada
+\subsubsection{HTTP persistente}
+No modo persistente o servidor mantém a ligação aberta depois de enviar uma resposta.
+\subsubsection{Cookies}
+O protocolo HTTP é stateless. O servidor não guarda nenhuma informação sobre pedidos anteriores do cliente.
+Para compensar este facto, o HTTP utiliza cookies. Através dos cookies os clientes passam a guardar estado, em vez dos servidores, ou seja, a aplicação que corre por cima do HTTP é stateful.
+\subsubsection{Web Caching}
+O HTTP usa web caching para satisfazer pedidos do cliente sem envolver o servidor de origem. O browser envia os pedidos para a cache, se estiver armazenado retorna o objeto, caso contrario pede o objeto ao servidor de origem.
+\subsubsection{GET Condicional}
+É possível especificar um pedido HTTP como sendo condicional. O objetivo é não enviar o objeto se a cache tem uma versão atualizado. Este tipo de pedido utiliza a clausula $if$-$modified$-$since$: com a data do objeto guardado em cache.
+\subsection{FTP}
+O protocolo FTP tem como objetivo transferir ficheiros de e para terminais remotos. Segue o modelo cliente-servidor, utiliza o porto 21 e é stateful, guardando a diretoria atual, etc.
+\subsubsection{Funcionamento}
+Quando um cliente contacta um servidor FTP no porto 21, usando TCP, é aberta uma ligação de controlo, que permite pedidos de autorização, pesquisa de diretoria, etc. Esta ligação de controlo diz-se out-of-band.
+Ao receber um comando de transferência de ficheiro é aberta uma ligação de dados, cuja única função é transferir o ficheiro. Esta ligação de dados diz-se in-band.
+\section{Correio Eletrónico}
+Os servidores de correio armazenam as mensagens destinadas ao utilizador. As mensagens que aguardam envio ficam numa fila de espera.
+\subsection{SMTP}
+O protocolo SMTP é utilizado na comunicação entre servidores de correio para enviar mensagens. Também é utilizado em comunicação cliente -> servidor, mas não sevidor -> cliente.
+Este protocolo utiliza TCP e o porto 25. A transferência é direta do servidor emissor para o servidor destino em 3 fases:
+\begin{itemize}
+\item Handshaking
+\item Transferência de mensagens
+\item Fecho
+\end{itemize}
+SMTP apenas utiliza ligações persistentes, vários objetos são enviados através de uma única mensagem e diz-se um protocolo do tipo push (o servidor empurra a mensagem para o destino).
+\subsection{Protocolos de acesso ao correio}
+São necessários protocolos adicionais para aceder ao correio, já que o SMTP é do tipo push.
+\subsubsection{POP3 (Post Office Protocol Version 3)}
+Protocolo simples, stateless
+\subsubsection{IMAP (Internet Mail access Protocol)}
+Protocolo com mais funcionalidades, stateful
+\subsubsection{HTTP}
+Usado no gmail, hotmail...
+\section{DNS}
+O DNS surge como resposta ao problema de como mapear entre um nome e um endereço IP. Trata-se de uma base de dados distribuída em que estão contidas correspondências entre nomes e endereços IP. Este protocolo usa o porto 53 e tipicamente utiliza UDP. Os servidores DNS são máquinas UNIX e correm o software BIND.
+\subsection{Serviços}
+\begin{itemize}
+\item Traduções (resolução) de endereços
+\item Múltiplos nomes (host aliasing)
+\item Nomes de servidores de correio
+\item Distribuição de carga
+\end{itemize}
+\subsection{Estrutura}
+O DNS não é centralizado pois tornava-se num ponto único de falha, com todo o tráfego concentrado nesse ponto e distante da maior parte dos clientes.\\
+A solução é distribuir o serviço pelo mundo.
+\subsection{Servidores DNS}
+\subsubsection{Servidores de DNS local}
+Não pertencem, estritamente, á hierarquia. Cada ISP tem pelo menos um servidor de nomes local. Possui uma cache com os pares nome/endereço mais recente. Quando uma máquina faz uma query ao DNS, este é enviado ao servidor de nomes local.
+\subsubsection{Servidores de Raíz}
+São contactados pelo servidor de nomes local quando este não sabe resolver um nome. Há 13 root servers  no mundo.
+\subsubsection{Servidores TLD}
+São responsáveis pelos domínios com, org, net, edu e pelos domínios top level de países (ex: pt, es...).
+\subsubsection{Servidores DNS autoritário}
+Servidores DNS da organização responsável pelo domínio.
+\subsection{Resolução de nomes}
+\subsubsection{Iterativa}
+O servidor contactado responde com o nome do servidor a contactar.
+\subsubsection{Recursiva}
+A responsabilidade da resolução de nomes passa para o servidor contactado.
+\subsection{Cache e atualização de registos}
+Sempre que um servidor de nome aprende uma nova tradução armazena-a numa cache, melhorando o desempenho. Estas entradas são removidas após um período de tempo.
+As entradas na cache podem estar desatualizadas.
+\subsection{Registos DNS}
+\begin{figure}[h]
+\includegraphics[scale=0.60]{Sem Título22.png}
+\end{figure}
+\section{Sumário}
+\begin{figure}[h]
+\includegraphics[scale=0.60]{Sem Título.png}
+\end{figure}
+
+\chapter{Camada de Transporte}
+O objetivo da camada de transporte é oferecer um canal lógico de comunicação entre processos remotos. Os protocolos de transporte correm apenas nos computadores terminais e não na infrastrutura da rede (routers e switches).
+\minitoc
+\section{Multiplexagem e Desmultiplexagem}
+Estes conceitos surgem da necessidade de distinguir processos remotos.
+\subsection{Multiplexagem}
+A multiplexagem recolhe dados de vários sockets e adiciona cabeçalho de transporte com informação sobre origem.
+\subsection{Desmultiplexagem}
+Na desmultiplexagem a informação no cabeçalho usada para entregar os segmentos ao socket correto.
+\subsubsection{UDP}
+O serviço de transporte UDP não requer ligação. Quando se cria um socket este vai receber um número de porto local. Ao receber um datagrama verifica o porto destino e direciona o segmento UDP para o socket com esse número de porto, logo datagramas IP com o mesmo porto destino, mas diferentes IP ou porto origem são direcionados para o mesmo socket no destino
+\subsubsection{TCP}
+Um socket TCP é identificado pelo tuplo <Endereço IP origem, porto origem, IP destino, porto destino>, logo o servidor pode suportar múltiplos sockets TCP para o mesmo porto destino
+\section{Protocolos}
+\subsection{UDP}
+UDP é o protocolo de transporte mais simples. É um protocolo connectionless, sem handshaking e cada segmento é tratado como independente. Oferece um serviço best effort, sendo que os  seus segmentos podem perder-se ou ser entregues à aplicação fora de ordem. Para conseguir fiabilidade, esta adiciona-se ao nível da camada de aplicação.
+\subsubsection{Checksum}
+Para ajudar a detetar erros utiliza-se o checksum. O checksum consiste na adição em complemento de 1 dos conteúdos do segmento ao ser enviado. Este valor é colocado no segmento e ao chegar ao destino, este calcula o checksum do segmento recebido da mesma
+forma e compara com aquele que foi atribuído inicialmente.
+\begin{figure}[h]
+\includegraphics[scale=0.60]{Sem Título1.png}
+\end{figure}
+\subsection{Princípios de Transporte Fiável}
+\subsubsection{Deteção e Recuperação de Erros}
+O canal de comunicação pode trocar alguns bits do pacote (bit flipping). O checksum é usado para detetar estes erros.\\
+Para recuperar estes erros utilizam-se ACKs (o recetor comunica
+explicitamente ao emissor que recebeu bem o pacote) e NACKs (o recetor
+comunica explicitamente ao emissor que o pacote tinha
+erros ou foi perdido).
+Em caso de NACK ou de não receber ACK após um determinado período de tempo o pacote é retransmitido.
+\subsubsection{Números de sequência}
+Pacotes incluem um número de sequência.
+\subsubsection{Protocolo Stop-and-Wait}
+Emissor envia um pacote, pára e espera pela resposta do recetor. Ao receber a resposta envia o próximo pacote. Após um tempo de timeout, se não tiver obtido resposta, reenvia o pacote.
+\subsubsection{Pipelining}
+O emissor permite que haja múltiplos pacotes in-flight (pacotes enviados mas dos quais ainda não recebeu ACK). É necessário armazenar estes pacotes em buffers no emissor e, por vezes, no destinatário mas possibilita taxa de transferência efetiva $N$ vezes melhor, com $N$ pacotes in-flight. Dois protocolos com pipelining são o Selective Repeat e o Go-Back-N (O TCP utiliza um híbrido destes dois).
+\subsubsection{Go-Back-N}
+Emissor pode ter até $N$ pacotes in-flight. O destinatário envia ACKs cumulativos. O ACK recebido é sempre do último pacote recebido na ordem correta, ignorando pacotes recentes bem recebidos mas fora de ordem. Destinatário não guarda em buffer segmentos fora de ordem.\\
+O emissor mantém temporizador apenas para segmento mais antigo sem ACK. Se o temporizador expirar retransmite todos os pacotes seguintes.
+\subsubsection{Selective Repeat}
+Emissor pode ter até $N$ pacotes in-flight. O destinatário envia ACKs individualizados (um
+por pacote recebido) e coloca num buffer os pacotes fora de ordem. O emissor mantém um temporizador para cada pacote sem ACK. Quando o temporizador expirar, retransmite-se apenas aquele pacote.
+\clearpage
+\subsubsection{Sumário}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.40]{Sem Título3.png}
+\end{figure}
+\subsection{TCP}
+TCP tem dados em full duplex, é ponto-a-ponto (1:1), tem controlo de fluxo e de congestão (para não entupir o destinatário e a rede, respetivamente), utiliza um protocolo pipelined e assegura uma entrega fiável e ordenada de streams de bytes.
+\subsubsection{Estabelecimento de Ligação TCP}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.60]{Sem Título23.png}
+\end{figure}
+\subsubsection{Números de Sequência e ACKs}
+No TCP usa-se como número de sequência o primeiro byte do segmento. O ACK é cumulativo e diz qual o próximo byte esperado.\\
+O TCP não especifica como tratar segmentos que chegam fora de ordem, logo pode-se guardar em buffer (como selective repeat), ou pode descartar segmento (como go-back-n).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{Sem Título4.png}
+\end{figure}
+\subsubsection{Timeout e RTT}
+Timeout tem de ser maior que o RTT. Para estimar o RTT utiliza-se a $AmostraRTT$ (média de várias medidas recentemente) em:
+$$
+RTT_{Estimado} = (1-\alpha)*RTT_{Estimado} + \alpha*AmostraRTT
+$$
+Tipicamente $\alpha = 0.125$. O timeout é o RTT estimado mais uma margem de segurança:
+$$
+Timeout = RTT_{Estimado} + 4*DesvioRTT
+$$
+\subsubsection{Fast Retransmit}
+O período de timeout é normalmente longo, o que causa um atraso grande. Se apenas um segmento se perder é natural que se recebam múltiplos ACKs duplicados, se o emissor receber 3 ACKs duplicados é muito provável que o segmento tenha sido perdido, não vale a pena esperar pelo timeout e reenvia-se o segmento mais antigo sem ACK.
+\subsubsection{Estabelecimento e fecho de ligação TCP}
+Antes de trocarem dados, o emissor e recetor fazem um handshake e no final cliente e o servidor têm de fechar cada um dos lados da ligação.
+\subsubsection{Controlo de fluxo TCP}
+Em TCP o recetor publicita no cabeçalho o espaço livre no buffer: o valor rwnd (receive window). O emissor limita o número de pacotes in flight aos valor rwnd, garantindo que o buffer não vai encher.
+\subsubsection{Sumário}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.35]{Sem Título5.png}
+\end{figure}
+\section{Controlo de Congestão}
+O controlo de fluxo previne entupir o recetor; o controlo de congestão previne entupir a rede. Este problema manifesta-se na perda e atraso de pacotes. Existem duas abordagens ao controlo de congestão
+\subsection{Fim-a-Fim}
+A rede não envia feedback explícito a indicar congestão, esta é inferida pelo computador terminal, quando observa perda de pacotes ou atrasos.
+\subsection{Auxílio da Rede}
+Os routers enviam explicitamente feedback aos computadores terminais com informação no cabeçalho dos pacotes a indicar que há congestão. Ou definindo a taxa máxima a que o emissor pode enviar dados, de forma explícita
+\subsection{Controlo de Congestão TCP}
+Existem duas formas para um emissor detetar que há congestão: Indiretamente, através da perda de pacotes ou detetados por timeout ou através de 3 ACKs
+duplicados. Um emissor pode controlar a congestão limitando a sua janela de congestão (cwnd = número de segmentos in flight permitidos), assim limitando a taxa de transferência:
+$$
+Tamanho_{janela} = min(rwnd,cwnd)
+$$
+O TCP implementa um algoritmo de controlo de congestão que opera em 3 fases:
+\subsubsection{Slow Start}
+Começa lento, com $cwnd = 1$ e aumenta exponencialmente até primeira perda de pacote ($cwnd += 1$ com cada ACK, i.e. $cwnd$ duplica com cada RTT).
+\subsubsection{Congestion Avoidance}
+Mecanismo AIMD (Additive Increase,Multiplicative Decrease):\\
+\\
+Aumento da janela é aditivo (conservador);\\
+Redução é multiplicativa (radical)\\
+$$
+cwnd = cwnd/2
+$$
+(ou 1) quando há perda de pacote.
+\subsubsection{Recuperação}
+Quando a perda é detetada por timeout $cwnd = 1$; slow start até ssthresh; congestion avoidance depois.\\
+\\
+Quando a perda detetada através de 3 ACKs duplicados existem duas abordagens. No TCP Reno a abordagem é mais conservadora, $cwnd = cwnd/2$. O TCP Tahoe é mais radical, $cwnd = 1$.
+
+\chapter{Camada de Rede}
+A camada de rede tem como objetivo o transporte de datagramas entre computadores.
+Os protocolos desta camada correm nos nós terminais e nos routers, que examinam os cabeçalhos IP de todos os datagramas.
+\minitoc
+\section{Funções Gerais}
+\subsection{Routing}
+Determina o cominho origem-destino. Esta função é assegurada no plano de controlo por um algoritmo de routing, que determina a rota através da rede. Equivalente a planear uma viagem. 
+Existem duas abordagens:
+\subsubsection{Tradicional}
+Na abordagem tradicional os algoritmos de routing estão implementados nos routers. Componentes individuais do algoritmo correm em cada router e todos interagem entre si.
+\subsubsection{Redes Definidas por Software (SDN)}
+Na abordagem SDN estes algoritmos estão implementados em servidores remotos, que interagem com os agentes locais em cada router.
+\subsection{Forwarding}
+Mover pacotes que chegam para a saída apropriada. Esta função é assegurada no plano de dados pelas tabelas de forwarding locais de cada router que comparam bits do cabeçalho de cada datagrama e o direcionam para a saída correspondente. Equivalente a passar um cruzamento.
+\section{Plano de dados}
+\subsection{Anatomia do Router}
+Um router é um computador com características especificas, nomeadamente o facto de ter várias placas de rede. O seu objetivo é a comutação de pacotes e inclui um módulo de comutação de alta velocidade. As suas funções chave são correr protocolos de routing (tradicionais ou SDN) e encaminhar datagramas da entrada para a saída.
+\subsubsection{Porta de Entrada}
+Dado o endereço de destino do datagrama, faz-se a sua procura na tabela de encaminhamento e este é enviado para a saída correta. O objetivo é que o processamento seja feito á velocidade da linha, caso contrário criam-se filas/buffer, isto é, os datagramas estão a chegar mais rápido que a velocidade do módulo de switching.
+\subsubsection{Tabela de Encaminhamento}
+A tabela de encaminhamento está guardada em memória na porta de entrada. Como existem demasiados endereços IP para serem listados individualmente as entradas são agregadas na tabela.
+\subsubsection{Notação CIDR}
+Nas tabelas de encaminhamento utiliza-se a notação CIDR com Longest Prefix Matching, ou seja, a tabela tem o seguinte aspeto:\\
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título6.png}
+\end{figure}
+Que equivale a:\\
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título7.png}
+\end{figure}
+Neste exemplo, para a interface 0 seguem os pacotes cujo endereço IP, em binário seja idêntico aos primeiros 21 bits do endereço 128.16.16.0. No caso das interfaces 1 e 2, ambas usam o mesmo IP como referência , no entanto a interface 1 considera 24 bits deste endereço e a 2 apenas 21. Como se utiliza Longest Prefix Matching, endereços que correspondam a todos os primeiros 24 bits do endereço seguem para a interface 1. Endereços que correspondam a pelo menos 21, mas menos que 24 seguem na 2.
+\subsubsection{Módulo de comutação}
+O módulo de comutação transfere os pacotes do buffer de entrada para o buffer de saída. A taxa de comutação é a taxa a que os pacotes são enviados da entrada para a saída; para N entradas a taxa deveria ser N vezes o valor da velocidade da linha. Existem três tipos de módulos de comutação: memória, bus (barramento) e rede de interligação (crossbar).\\
+\\
+Na primeira opção os pacotes são copiados para a memória do sistema; a velocidade está limitada pela sua largura de banda (cada datagrama passa duas vezes).\\
+\\
+Com um bus a taxa de comutação é limitada pela largura de banda do barramento.\\
+\\
+Por fim, a rede de interligação ultrapassa as limitações do barramento, já que várias ligações podem usar a rede ao mesmo tempo. Tipicamente os datagramas são fragmentados para facilitar a comutação.
+\subsubsection{Portas de saída}
+Nas portas de saída pode ser necessário buffering quando o módulo de comutação é mais rápido que a linha. É utilizado uma algoritmo de escalonamento para decidir qual o próximo pacote a transmitir.
+\subsection{Endereçamento IP}
+Um endereço IPv4 é um identificador de 32 bits para uma interface de rede. No endereço, os bits mais significativos identificam a subrede e os bits menos significativos identificam o computador/router. Uma subrede define-se como sendo um conjunto de dispositivos que conseguem comunicar entre si sem necessitar de um router. O endereço IP de um computador pode ser atribuído manualmente ou automaticamente.
+\subsubsection{Dynamic Host Configuration Protocol (DHCP)}
+O DHCP permite que um computador obtenha dinamicamente uma endereço IP a partir de um servidor da rede, permitindo assim a reutilização de endereços e facilitando a entrada de utilizadores móveis na rede. A atribuição ocorre em 4 fases:
+\begin{itemize}
+\item O computador faz broadcast do DHCP Discover
+\item O(s) servidor DHCP propõe um IP com o DHCP Offer
+\item O computador pede o IP com o DHCP Request
+\item O servidor DHCP confirma com o DHCP ack
+\end{itemize}
+O servidor retorna ainda mais informação, como o endereço do router mais próximo, nome e IP do servidor DNS, máscara de rede, etc.\\
+\\
+O servidor DHCP escolhe o IP a partir do espaço de endereçamento do ISP.
+\subsubsection{Network Address Translation (NAT)}
+O NAT é necessário pois para a rede, a rede local usa apenas 1 endereço IP (para permitir uma maior flexibilidade na rede local). O funcionamento do NAT é simples:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título8.png}
+\end{figure}
+O NAT usa os 16 bits do porto, permitindo $2^{16}$ ligações simultâneas com um único endereço
+\subsubsection{Problema NAT transversal}
+O problema do NAT transversal surge pois um cliente pode querer contactar um servidor utilizando o seu endereço local. Existem três soluções para este problema:
+\begin{itemize}
+\item Configurar o NAT estaticamente
+\item Usar um dispositivo Universal Plug and Play (UPnP) e o protocolo Internet Gateway Device (IGD), automatizando o processo anterior
+\item Utilizando relaying. Os clientes ligam-se a um intermediário que faz a passagem de pacotes entre ligações
+\end{itemize}
+\subsubsection{ICMP}
+O ICMP é usado pelos computadores para trocarem informações sobre a camada de rede. A ferramenta traceroute usa ICMP para fornecer informação sobre todo o percurso desde ao emissor até ao destino.
+\subsubsection{IPv6}
+Devido ás limitações do IPv4 adotou-se o IPv6, desta vez com 128 bits e com o campo checksum removido. Durante o período de transição os routers utilizam pilhas protocolares duplas para conseguirem operar com ambos os tipos de endereço simultaneamente e túneis para que nos routers IPv4 os datagramas IPv6 sejam enviados como carga de um datagrama IPv4.
+\subsection{Encaminhamento Generalizado (SDN)}
+Em SDN o conceito de encaminhamento é generalizado utilizando uma nova abstração, o flow. Um flow é definido pelos campos de cabeçalho:
+\begin{itemize}
+\item Pode ser IP destino como tradicionalmente: $<dst\;IP>$
+\item Pode ser IP emissor + IP destino: $<src\;IP; dst\;IP>$
+\item Pode ser o 5-tuple que representa uma ligação TCP: $$<src\;port; src\;IP; dst\;port; dst\;IP; protocol>$$
+\end{itemize}
+O principal protocolo SDN é o OpenFlow.
+\section{Plano de Controlo}
+\subsection{Algoritmos de Routing}
+O objetivo de um algoritmo de routing é determinar qual o melhor caminho a percorrer no grafo da rede.
+Algoritmos de routing classificam-se quando á globalidade da sua informação:
+\begin{itemize}
+\item Nos algoritmos globais os routers têm noção da topologia completa da rede distribuem informação local com todos (Ex. link state)
+\item Nos algoritmos com informação parcial os routers só conhecem os nós vizinhos e distribuem informação global (de toda a rede) apenas
+com vizinhos (Ex. distance vector)
+\end{itemize}
+e como sendo estáticos ou dinâmicos
+\begin{itemize}
+\item Nos algoritmos estáticos as rotas mudam muito lentamente e as tabelas de encaminhamento podem ser configurados manualmente
+\item Nos algoritmos dinâmicos as rotas mudam rapidamente e são feitas atualizações periódicas em resposta a mudanças
+\end{itemize}
+\subsection{Algoritmo Estado de Ligação (Link State)}
+\begin{minipage}[c]{0.7\linewidth}
+O algoritmo estado de ligação mais comum é o algoritmo de Dijkstra. Neste algoritmo a topologia da rede e os custos da ligação são conhecidos por todos os nós através do link state broadcast (broadcast com informação sobre as ligações do nó). Cada nó calcula os percursos de custo mínimo entre si e todos os outros e recalcula periodicamente ou quando alguma ligação sofre alteração.
+\end{minipage}
+\begin{minipage}[c]{0.35\linewidth}
+\includegraphics[scale=0.45]{Sem Título9.png}
+\end{minipage}
+\subsection{Vetor distância (Distance Vector)}
+\subsubsection{Equação de Bellman-Ford}
+Seja $d_x(y)$ o custo do percurso de custo mínimo entre x e y, então
+$$
+d_x(y) = min\;\{c(x,v) + d_v(y)\}
+$$
+em que $c(x,v)$ é o custo para vizinho $v$ e $d_v(y)$ é o custo do vizinho $v$ para o destino $y$.
+\subsubsection{Algoritmo Vetor Distância}
+Neste algoritmo $D_x(y)$ representa uma estimativa do custo mínimo entre $x$ e $y$. O nó $x$ conhece o custo para cada vizinho $v$: $c(x,v)$ e guarda os vetores distância dos vizinhos. Para cada vizinho $v$, guarda: $D_v = [D_v(y): y \in \mathbb{N} ]$\\
+\\
+A ideia chave é que cada nó envia a sua estimativa de vetor distância aos vizinhos periodicamente, quando recebe um novo vetor distância atualiza o seu usando a equação de Bellman-Ford.\\
+\begin{minipage}[c]{0.7\linewidth}
+Este algoritmo é iterativo e assíncrono, sendo cada iteração local causada pela mudança de custo de uma das ligações locais ou pela receção de um novo vetor
+distância de um vizinho. É também um Algoritmo distribuído pois cada nó apenas notifica os seus vizinhos quando o seu vetor distância sofre alteração.
+\end{minipage}
+\begin{minipage}[c]{0.35\linewidth}
+\includegraphics[scale=0.50]{Sem Título10.png}
+\end{minipage}
+Quando um nó deteta mudança local este atualiza informação e recalcula vetor distância se o vetor sofrer alteração, notifica vizinhos e alteração propaga-se rapidamente:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título11.png}
+\end{figure}
+Se o custo aumentar temos o problema count-to-infinity e a alteração propaga-se devagar:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título12.png}
+\end{figure}
+\subsection{Comparação entre Algoritmos}
+Tipo de computação:
+\begin{itemize}
+\item Link state: centralizada
+\item Distance vector: distribuída
+\end{itemize}
+Complexidade das mensagens:
+\begin{itemize}
+\item Link state: com $n$ nós e $E$ ligações, $O(nE)$ mensagens enviadas (informação local trocada globalmente)
+\item Distance vector: troca de mensagens apenas entre vizinhos (informação global trocada localmente)
+\end{itemize}
+Tempo de convergência:
+\begin{itemize}
+\item Link state: algoritmo $O(n^2)$ sendo possível reduzir para $O(n \log n)$
+\item Distance vector: tempo de convergência varia pois pode haver loops ou o problema count-to-infinity
+\end{itemize}
+\subsection{Routing Hierárquico}
+Até agora apenas se considerou um cenário ideal, o que não corresponde á verdade. O routing na Internet é hierárquico, com os routers agregados em regiões, os sistemas autónomos (autonomous systems, AS). Routers do mesmo AS correm o mesmo protocolo de routing intra-AS, mas routers de outro AS podem correr protocolos distintos.
+\subsubsection{Interligação entre AS}
+As diferentes redes são ligadas através de routers na fronteira do seu AS, que correm o protocolo de routing inter-AS. No caso da Internet, este protocolo é o BGP (Border Gateway Protocol). A tabela de encaminhamento é configurada pelos dois protocolos: intra-AS e inter-AS.
+\begin{itemize}
+\item O intra-AS define as entradas relacionadas com os destinos internos
+\item O inter-AS (com ajuda do intra-AS) define as entradas relacionadas com os destinos externos
+\end{itemize}
+\section{Broadcast e Multicast}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título13.png}
+\end{figure}
+\subsection{Routing Broadcast}
+No routing broadcast os pacotes são enviados do emissor para todos os outros nós, o que é muito ineficiente devido á duplicação, tanto na fonte como na rede.
+\subsubsection{Flooding}
+Flooding acontece quando um nó recebe um pacote broadcast e envia uma cópia para todos os vizinhos. Isto pode criar ciclos e broadcast storms.
+\subsubsection{Flooding Controlado}
+O flooding controlado acontece quando um nó faz broadcast do pacote apenas se não o tiver feito anteriormente. Para isto, o nó guarda o ID de todos os pacotes que já fez broadcast, sendo necessário guardar este estado nos routers.
+\subsubsection{Spanning Tree}
+A spanning tree permite que nenhum nó receba pacotes repetidos. Consiste numa árvore à qual pertencem todos os nós da rede e estes encaminham pacotes apenas pela spanning tree. Existe ainda um nó central, para onde é enviada uma mensagem unicast join de cada nó da rede. Esta mensagem é encaminhada até chegar a um nó que ja pertence á spanning tree e essa ligação é adicionada.
+\subsection{Routing Multicast}
+No routing multicast surge o problema de como ligar os routers multicast numa rede de routers unicast. A solução passa pelo uso de túneis, encapsulando o pacote multicast num pacote não-multicast. Esse pacote é então enviado usando unicast IP para o próximo router multicast, que por sua vez o desencapsula, á semelhança dos túneis IPv6.\\
+\\
+O objetivo é então encontrar uma ou várias árvores que liguem os routers com membros de um dado grupo multicast. Estas árvores podem ser partilhadas (uma para todos os membros do grupo) ou baseadas no emissor (uma árvore por emissor).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.43]{Sem Título14.png}
+\end{figure}
+\subsubsection{Shortest Path Tree}
+A shortest path tree é uma árvore baseada no emissor que contém caminhos mais curtos entre o emissor e os destinatários, usando o algoritmo de Dijkstra. Surge um problema, pois os destinatários teriam de ter visão da rede e conhecer os outros destinatários.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título15.png}
+\end{figure}
+\subsubsection{Reverse Path Forwarding}
+O reverse path forwarding é uma árvore baseada no emissor se usa a informação que o router já tem, do caminho mais curto entre si e o emissor. De seguida executa-se o seguinte algoritmo:
+\begin{itemize}
+\item Se o datagrama multicast é recebido na interface que é caminho mais curto para o emissor faz flooding controlado
+\item Caso contrário, o datagrama é ignorado
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título16.png}
+\end{figure}
+O resultado é uma shortest path tree baseada no emissor, mas invertida. Na eventualidade das ligações serem assimétricas esta pode não ser a melhor situação.\\
+\\
+Assume-se inicialmente que todos os nós da rede são membros do grupo e progressivamente vai fazendo pruning. O processo de pruning consiste em excluir os nós não membros do grupo da rede multicast, dado que é ineficiente encaminhar pacotes para estes nós. A solução consiste em os routers sem membros enviarem mensagens prune em direção ao emissor até chegar a um router com membros.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título17.png}
+\end{figure}
+\subsubsection{Steiner Tree}
+A steiner tree é uma árvore partilhada que contém o custo mínimo que liga todos os routers que têm membros. Esta seria uma solução ótima, porém não existe nenhum algoritmo eficiente que permita chegar a esse ótimo (apesar de existirem soluções aceitáveis). Não é usado na prática devido á elevada complexidade computacional, á necessidade de ter informação de toda a rede e de voltar a executar o algoritmo sempre que um router entra ou sai.
+\subsubsection{Center-Based Trees}
+As center-based trees são árvores partilhadas em que um dos nós é designado como sendo o centro da árvore. Para um nó se juntar á árvore este envia uma mensagem unicast join para o router central e o percurso desta mensagem pelos router intermediários passa a ser um novo ramo da árvore.
+
+\chapter{Camada de Ligação de Dados}
+A camada da ligação de dados tem a responsabilidade de transferir um datagrama de um nó para o nó adjacente.
+\minitoc 
+\section{Visão Geral}
+\subsection{Serviços}
+\subsubsection{Terminologia}
+\begin{itemize}
+\item[Nós] - Computadores terminais e routers
+\item[Ligações] - Canais de comunicação que ligam nós adjacentes
+\item[Frame] - Trama que encapsula datagrama
+\end{itemize}
+\subsubsection{Framing}
+Encapsula os datagramas em frames e adiciona cabeçalho, possui protocolo de acesso ao canal se for partilhado e utiliza endereços MAC para identificar emissor e destino.
+\subsubsection{Entrega Fiável}
+A entrega entre nós adjacentes é fiável, á semelhança do TCP. Este tipo de entrega normalmente só é usado em ligações com alta taxa de erro.
+\subsubsection{Controlo de Fluxo entre Nós Adjacentes}
+\subsubsection{Deteção e/ou Correção de Erros}
+Nota: Estes serviços não são comuns a todos os protocolos da camada.
+\subsection{Implementação}
+Esta camada existe em todos os terminais, switches e routers. É implementada num adaptador (NIC) ou num chip (Ethernet). Trata-se, portanto, de uma combinação de hardware, software e firmware.
+\section{Protocolos de Acesso ao Meio}
+\subsection{Tipos de Ligações}
+\subsubsection{Ponto-a-Ponto}
+Ex: ligação entre o computador e o switch Ethernet
+\subsubsection{Broadcast (Meio Partilhado)}
+\begin{itemize}
+\item A Ethernet original
+\item HFC (redes cabo)
+\item 802.11 wireless LAN (WiFi)
+\end{itemize}
+\subsection{Protocolos de Acesso Múltiplo}
+Num canal partilhado, duas ou mais transmissões simultâneas resultam em interferência. Dado um canal partilhado com taxa de transmissão máxima de $R$ bps, num protocolo ideal:
+\begin{itemize}
+\item Quando um nó quer transmitir, transmite à taxa de $R$ bps
+\item Quando $M$ nós querem transmitir, cada nó envia a uma taxa média de $\frac{R}{M}$
+\item É totalmente descentralizado, i.e. não é necessário nenhum nó para coordenar as transmissões e não é necessário sincronizar relógios entre nós
+\item É simples e fácil de implementar
+\end{itemize}
+\subsection{Multiple Access Control (MAC)}
+O MAC é um algoritmo que determina como é que os nós partilham o canal sem causar colisão. Existem três classes de protocolos MAC: particionamento do canal, acesso aleatório e acesso ordenado.
+\subsection{Particionamento do Canal}
+Os protocolos MAC com particionamento do canal dividem o canal em pedaços mais pequenos (slots temporais, frequências, códigos) e cada nó pode usar cada pedaço de forma exclusiva. Geralmente estes protocolos são eficientes quando há muito tráfego, mas não quando há pouco tráfego, já que só é reservada $\frac{1}{N}$ da largura de banda para cada nó.
+\subsubsection{Time Division Multiple Access (TDMA)}
+No TDMA o acesso ao canal é feito em rondas. Cada nó tem um slot com tamanho fixo (tamanho = tempo de transmissão do pacote) em cada ronda. Slots não usados são desperdiçados
+\subsubsection{Frequency Division Multiple Access (FDMA)}
+No FDMA espetro de frequências do canal é dividido em várias bandas de frequência. A cada nó é atribuída uma banda e quando um nó não transmite dados a sua frequência é desperdiçada, não é utilizada por ninguém 
+\subsection{Acesso Aleatório}
+Os algoritmos com acesso aleatório não dividem o canal em pedaços, portanto as colisões são permitidas mas posteriormente faz-se a recuperação das colisões. Geralmente estes protocolos são eficientes quando há pouco tráfego, mas geram muitas colisões com tráfego elevado.
+\subsubsection{ALOHA}
+Quando um nó tem frame para transmitir, transmite-a imediatamente. É simples mas há uma grande probabilidade de colisão.
+\subsubsection{Slotted ALOHA}
+No slotted aloha os nós começam a transmitir no início de um
+slot. Se 2 ou mais transmitirem num slot, todos detetam a colisão. Quando o nó tem uma frame para enviar, transmite-a no próximo slot, com uma probabilidade $p$, até ter sucesso. Desta forma, um único nó ativo pode transferir á capacidade máxima do canal, no entanto, é geralmente ineficiente e é necessário que os relógios dos nós estejam sincronizados.
+\subsubsection{CSMA}
+Os nós escutam antes de enviar. Se estiver ocupado adia a transmissão, caso contrário, transmite a frame. No entanto ainda podem ocorrer colisões devido ao tempo de propagação do meio. Quando isto ocorre, o pacote é desperdiçado.
+\subsubsection{CSMA/CD}
+Continua a escutar-se o canal enquanto se transmite, e adia-se transmissão se for detetada colisão, reduzindo assim o desperdício e detetando as colisões mais rapidamente. A deteção de colisões é fácil em redes com fios; mede-se a força do sinal e compara-se o sinal transmitido com o recebido, mas é mais difícil em redes sem fios pois o sinal recebido é muito influenciado pela força do sinal da transmissão local
+\subsubsection{CSMA/CA}
+\begin{minipage}[c]{0.7\linewidth}
+Em CSMA/CA o objetivo não é necessariamente detetar colisões, mas sim evita-las. É usado em redes WiFi e procede da seguinte forma:\\
+\\
+Emissor:
+\begin{itemize}
+\item Se o canal estiver livre livre DIFS segundos, transmitir trama
+\item Se o canal estiver ocupado começa o random backoff time e transmite quando o timer disparar. Se não houver ACK, aumentar random backoff time, repetir passo 2
+\end{itemize}
+O recetor deve returnar ACK depois de SIFS segundos se  a trama for bem recebida (ACK é usado devido ao problema do terminal escondido).
+\end{minipage}
+\begin{minipage}[c]{0.35\linewidth}
+\includegraphics[scale=0.50]{Sem Título21.png}
+\end{minipage}
+\subsection{Acesso Ordenado}
+Com acesso ordenado os nós vão usando o canal à vez. Os nós com mais para enviar podem eventualmente usar o canal durante mais tempo.
+\subsubsection{Baseado em Turnos (Polling)}
+Um nó principal convida os restantes nós a transmitir, à vez. Isto gera problemas de latência, overhead do polling e o facto de que o nó principal é um ponto único de falha.
+\subsubsection{Testemunho (Token)}
+Há um token de controlo que é passado de nó para nó, em sequência. Gera problemas semelhantes ao Polling.
+\section{Redes LAN}
+\subsection{Endereço MAC}
+De forma a manter a independência entre camadas, localmente é utilizado o endereço MAC, em vez do endereço IP. Este endereço tem 48 bits e é único para cada adaptador de rede, servindo o propósito de enviar frames de uma interface para outra à qual está fisicamente ligado, i.e., na mesma subrede IP. O endereço MAC não segue estrutura hierárquica, sendo possível migrar para outra rede mantendo o endereço, ao contrário do IP.
+\subsection{Address Resolution Protocol (ARP)}
+De forma a determinar o endereço MAC de uma interface a partir do seu endereço IP utiliza-se uma tabela ARP. Cada nó tem uma tabela com o mapeamento dos endereços IP/MAC para alguns dos outros nós da LAN, da seguinte forma:
+$$
+< IP\;address;\;MAC\;address;\;TTL>
+$$
+Em que TTL (time to leave) é o tempo a partir do qual o mapeamento é esquecido.
+\subsubsection{Mesma LAN}
+Quando uma interface A quer enviar um datagrama a outra interface B, mas o endereço MAC de B não está na tabela ARP de A, este faz broadcast de um query que contém o endereço IP de B, para pedir o MAC. Todos os nós na LAN recebem o ARP query e quando B recebe este pacote ARP responde a A com o seu endereço MAC. O par $<IP,MAC>$ de B é guardado na tabela ARP de A até o TTL expirar. Diz-se então que ARP é um protocolo plug-and-play, dado que os nós criam as suas tabelas ARP sem intervenção de um administrador da rede.
+\subsubsection{LAN Diferente}
+O routing entre redes LAN distintas é um pouco mais complexo. Sendo A e B duas interfaces e R um router:
+\begin{itemize}
+\item A cria um datagrama IP com endereço IP de A como emissor, e destino IP de B
+\item A cria uma frame com o endereço MAC de R como destino, e a frame contém o datagrama IP
+\item A frame é enviada de A para R
+\item A frame é recebida em R e o datagrama é passado para a camada IP
+\item R encaminha o datagrama com endereço IP emissor A, e destino B
+\item R cria uma frame com o endereço MAC de B como destino e o seu MAC como origem; a frame contém o datagrama IP
+\end{itemize}
+\subsection{Ethernet}
+Ethernet foi a primeira tecnologia LAN a ter grande aceitação e é a tecnologia LAN com fios dominante. É mais simples e mais barata do que alternativas como as token LANs e a rede ATM e conseguiu ir evoluindo à medida que as velocidades aumentavam. Existem duas topologias físicas ethernet:
+\begin{itemize}
+\item[Bus] - Todos os nós fazem parte do mesmo domínio de colisão 
+\item[Estrela] - Há um switch ativo no centro da rede e cada computador corre um protocolo Ethernet separado dos outros, e portanto não há colisões (em modo full duplex)
+\end{itemize}
+O ethernet é connectionless (não é necessário estabelecer nenhuma ligação) e não oferece garantias de fiabilidade (não são enviados ACKs).
+\subsubsection{Estrutura de uma frame Ethernet}
+O adaptador emissor encapsula datagramas IP (ou outro protocolo de rede) em frames Ethernet.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título18.png}
+\end{figure}
+\begin{itemize}
+\item[Preâmbulo] - 7 bytes com um padrão 10101010 seguido por um byte com padrão 10101011, Usado para sincronizar emissor e recetor
+\item[Endereços MAC] - 6 bytes para o emissor + 6 bytes para o destino
+\item[Tipo] - Indica qual o protocolo de nível superior
+\item[CRC] - Cyclic redundancy check, serve para detetar erros no destino. Se for detetado, a frame é descartada
+\end{itemize}
+\subsubsection{Standards Ethernet}
+Existem diversos standards ethernet, com diferentes taxas e meios físicos de transmissão, no entanto todos partilham o protocolo MAC e o formato da frame
+\subsection{Switches e Routers}
+Antes de haver os switches, havia os hubs, simples repetidores de sinal. Os bits que chegavam a uma interface eram copiados para todas as outras interfaces e caso recebesse tramas em duas interfaces diferentes simultaneamente haveria uma colisão.
+\subsubsection{Switches}
+Switches armazenam e encaminham frames Ethernet. Examinam o endereço MAC das frames que recebe, encaminham as frames para uma ou mais saídas, e usa CSMA/CD. Para além disto, são transparentes e plug-and-play.\\
+\\
+Para saber que computador está em cada uma das duas interfaces, cada switch tem uma tabela em que cada entrada contém:
+$$
+<MAC;\;interface;\;TTL>
+$$
+Esta tabela é criada a partir de um algoritmo de self learning, que funciona da seguinte forma:
+\begin{itemize}
+\item Guarda <interface de entrada, endereço MAC emissor>
+\item Indexa tabela usando <endereço MAC destinatário>
+\item Se encontrar entrada para <endereço MAC destinatário> então:
+\subitem Se destino estiver no segmento de onde chegou a frame, descarta-se
+\subitem Caso contrário encaminha-se frame pela interface indicada
+\item Caso contrário envia para todas as interfaces exceto aquela de onde chegou (flood)
+\end{itemize}
+Este algoritmo de self learning também é usado em interligações de switches, com a exceção de que  se houver loops é necessário usar o protocolo spanning tree para remover ligações redundantes.
+\subsubsection{Switches vs Routers}
+Ambos funcionam em modo store-and-forward, a única diferença é que os routers examinam cabeçalhos da camada de rede e os switches examinam cabeçalhos da camada de ligação.\\
+\\
+Ambos têm tabelas de forwarding, no entanto os routers  computam as tabelas com algoritmos de routing, usando endereços IP enquanto que os switches aprendem como popular a tabela usando flooding, learning, e usam endereços MAC.
+\subsection{Virtual Local Area Network (VLAN)}
+São switches configurados para definir múltiplas redes LAN virtuais na mesma infrastrutura física, com o propósito de isolar o tráfego. O forwarding entre VLANs é feito por routing, tal como seria feito com switches separados.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título19.png}
+\end{figure}
+\section{Redes em Data Centers}
+Data centers têm imensos servidores no mesmo edifício, sendo necessário gerir e balancear a carga nos servidores e na rede. Para esse efeito faz-se routing ao nível da camada de aplicação:
+\begin{itemize}
+\item Recebe pedidos dos clientes
+\item Direcionam o tráfego dentro do data center
+\item Retorna resultado ao cliente (escondendo detalhes internos do data center)
+\end{itemize}
+A rede de um data center é do tipo Clos, possui muitas ligações, permitindo aumentar as taxas de transferência entre racks e dando uma maior fiabilidade devido à elevada redundância.
+
+\chapter{Outros Tópicos}
+\minitoc
+\section{Redes Sem Fios}
+A comunicação usando ligações sem fios é um desafio pois está sujeita a múltiplas interferências, atenuações elevadas do sinal, reflexões, entre outros. No entanto é necessária, especialmente para lidar com utilizadores móveis.
+\subsection{Elementos de uma Rede sem Fios}
+\begin{itemize}
+\item[Terminais] - Podem ser estacionários ou móveis (portáteis, telemóveis...)
+\item[Estação Base] - Funciona como intermediário responsável por enviar pacotes entre a rede com fios e a rede sem fios na sua área
+\item[Ligação] - A ligação sem fios é usada para ligar os dispositivos móveis à estação base através de protocolos de acesso múltiplo que coordenam o acesso. Possui taxas de transmissão e distâncias muito variadas
+\end{itemize}
+Existem dois modos de operação:
+\subsubsection{Modo Infraestrutura}
+A estação base liga os dispositivos móveis à rede com fios. Utiliza o handoff, mecanismo para quando um dispositivo móvel muda de estação base.
+\subsubsection{Modo Ad Hoc}
+Não há estação base, os nós só transmitem para outros nós que estão dentro da sua área de cobertura, organizando-se em rede e encaminhando pacotes entre eles.
+\subsubsection{Taxonomia das Redes Sem Fios}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{Sem Título20.png}
+\end{figure}
+\subsubsection{Problema do Terminal Escondido}
+Para além dos problemas mencionados anteriormente existe ainda o problema do terminal escondido. Este problema acontece quando num conjunto de terminais nem todos os pares se conseguem escutar mutuamente e, portanto, não sabem que estão a interferir com a comunicação dos terminais que os ouvem ao mesmo tempo.
+\subsection{Redes WiFi}
+Existem vários tipos de redes WiFi, com diferentes frequências e larguras de banda, no entanto todos usam CSMA/CA como protocolo de acesso múltiplo e todos permitem ambos os modos infraestrutura e ad hoc.
+\subsubsection{Arquitetura LAN 802.11}
+O modo mais comum é o terminal sem fios comunicar com uma estação base (Access Point, AP). No modo infraestrutura uma célula (Basic Service Set, BSS) contém terminais sem fios e AP. No modo ad hoc só há terminais sem fios.
+\subsubsection{Canais 802.11b}
+Nas redes 802.11b o espetro é dividido em 14 canais em diferentes frequências, o administrador do AP escolhe a frequência para o seu AP. Para um terminal se associar com um AP faz um scan pelo canal à escuta de uma frame especial, a beacon frame, que contém o nome do AP (SSID) e o seu endereço MAC. De seguida escolhe o AP com que se quer associar (pode haver uma fase de autenticação). Tipicamente corre DHCP para obter um endereço IP para a subrede do AP.\\
+\\
+\\
+Como os sinais são muito fracos e podem existir casos como o do terminal escondido, é muito difícil detetar colisões, portanto usa-se CSMA/CA e uma outra técnica para evitar colisões:\\
+\\
+Emissor envia, primeiro, um pequeno pacote request-to-send (RTS) para a estação base usando CSMA. A BS faz o broadcast de um pacote clear-to-send CTS em resposta a um RTS. O CTS é escutado por todos os nós e o emissor pode transmitir a sua frame enquanto que os outros nós esperam.\\
+A ideia é permitir que o emissor reserve o canal, assim evitando colisões de pacotes de dados longos
+
+\section{Segurança de Redes}
+\end{document}

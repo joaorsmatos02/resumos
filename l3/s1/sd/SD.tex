@@ -1,0 +1,791 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{minitoc}
+\usepackage{hyperref}
+\title{\LARGE{Sistemas Distribuídos} \\ \vspace{0.5cm} \normalsize{Resumo}}
+\date{}
+\renewcommand{\mtctitle}{Conteúdos}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Objetivos e Tipos de Sistemas Distribuídos}
+\section{Objetivos dos Sistemas Distribuídos}
+\subsection{Suporte a Partilha de Recursos}
+Fornecer acesso a recursos remotos é o principal objetivo de um sistema distribuído.
+\subsection{Transparência de Distribuição}
+A transparência passa por simular o comportamento de um sistema não distribuído, ocultando falhas, concorrência, replicação, etc. \\
+É uma característica desejável, mas que por vezes não faz sentido. Por exemplo, não é possível esconder a latência de comunicação na internet, ou não seria boa ideia imprimir um documento numa impressora escolhida pelo sistema, quando seria melhor ser o utilizador a escolher. Por vezes é melhor deixar claro que estamos num sistema distribuído e dar mais controlo ao utilizador.
+\subsection{Abertura}
+Um sistema é aberto se tem regras e interfaces bem definidas. Para se atingir este objetivo temos de investir na definição de interfaces padronizadas, como acordos no uso de formatos e tipos de dados. Alguns conceitos relacionados são:
+\begin{itemize}
+\item Interoperabilidade
+\item Portabilidade
+\item Extensibilidade
+\end{itemize}
+\subsection{Escalabilidade}
+Um sistema distribuído deve ser descentralizado:
+\begin{itemize}
+\item Nenhuma máquina tem informação completa sobre o sistema
+\item As decisões são tomadas com a informação local
+\item Uma falha não impede o funcionamento do algoritmo
+\item Não se usa a hipótese da existência de relógios sincronizados
+\end{itemize}
+Para uma melhor escalabilidade deve-se esconder a latência, através de comunicação assíncrona, deve-se particionar e distribuir, e usar replicação.
+\section{Tipos de Sistemas Distribuídos}
+\subsection{Sistemas de Computação Distribuída}
+\subsubsection{Clusters}
+Um cluster é um conjunto de máquinas ligadas numa rede comum que trabalham em conjunto, geralmente usado para processamento paralelo num ambiente homogéneo (todas as máquinas são iguais e correm o mesmo software).\\
+\\
+Nos clusters é frequente o uso de virtualização, para uma maior facilidade de migração (portabilidade).
+\subsubsection{Grids}
+Por oposição aos clusters, as grids são usadas para computação em grande escala e apresentam um alto grau de heterogeneidade, em que cada nó pode ter um SO, hardware, rede diferentes.\\
+\\
+O middleware trata a homogeneidade e dá acesso a recursos a utilizadores da sua organização.
+\subsubsection{Computação na Nuvem}
+Na computação na nuvem um utilizador envia sua computação para um serviço e é cobrado pelo uso de recursos. A cloud caracteriza-se por oferecer acesso a um
+conjunto de recursos virtualizados.
+\subsection{Sistemas de Informação Distribuídos}
+\subsubsection{Sistemas de Processamento de Transações}
+As transações têm como objetivo proteger recursos contra acessos simultâneos de processos e permitir que um processo faça operações como se essas fossem uma operação atómica. As propriedades ACID das transações são:
+\begin{itemize}
+\item Atomicidade: para um observador externo, uma transação executa na sua totalidade ou não executa, i.e., acontece indivisivelmente
+\item Consistência: cada transação leva o sistema de um estado válido para um novo estado válido
+\item Seriabilidade:  se diversas transações forem executadas em paralelo sobre os mesmos recursos, o resultado é equivalente à execução dessas transações uma após a outra
+\item Persistência: os resultados de uma transação que fez commit (END\_TRANSACTION) permanecem depois desta acabar
+\end{itemize}
+\subsection{Sistemas Pervasivos Distribuídos}
+Este tipo de sistema é caracterizado pelo facto dos dispositivos pertencerem a um ambiente, em que a separação entre sistema, utilizador e ambiente não é muito clara.
+\begin{itemize}
+\item Sistemas ubíquos (omnipresentes)
+\item Sistemas móveis
+\item Redes de sensores
+\end{itemize}
+
+\chapter{Arquiteturas}
+\section{Estilos Arquiteturais}
+\subsection{Camadas}
+Os componentes são organizados em camadas, em que os pedidos geralmente descem e as respostas sobem. Um componente da camada $L_i$ só pode chamar componentes da camada $L_{i-1}$. O modelo em camadas pode ser usado na organização do software de um nó ou na organização de um sistema distribuído.
+\subsection{Objetos}
+Cada objeto encapsula um estado e suporta uma série de métodos que podem ser invocadas por outros objetos.
+\subsection{REST}
+Nas arquiteturas REST, os componentes são organizados como recursos, cada um com nome único mas interface idêntica. As 4 operações suportadas são:
+\begin{itemize}
+\item PUT
+\item GET
+\item DELETE
+\item POST
+\end{itemize}
+\subsection{Eventos}
+Os processos comunicam através da propagação de eventos que podem, ou não, conter dados. Para conseguir desacoplamento entre processos, a comunicação deve ser feita
+com ajuda de um middleware, que pode ser um barramento de eventos e/ou um espaço partilhado de dados, usando o modelo publish/subscribe.
+\section{Arquiteturas de Sistemas}
+\subsection{Arquiteturas Centralizadas}
+Numa arquitetura centralizada tem-se uma divisão de papéis entre os processos que oferecem e os que usam serviços.
+\subsubsection{Arquiteturas Cliente-Servidor}
+Para além dos servidores, distinguem-se dois tipos de clientes, os clientes magros, com menor escalabilidade, pior desempenho e maior facilidade de gestão, e os clientes gordos, por oposição.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título.png}
+\end{figure}
+\subsection{Arquiteturas Descentralizadas}
+É possível dividir aplicações cliente-servidor em camadas (interface, processamento e dados), segundo uma distribuição vertical, em que cada máquina tem um conjunto de obrigações diferentes, ou horizontal, em que cada máquina tem todo o conjunto de funcionalidades e só uma parte dos dados.\\
+\\
+Existe ainda o conceito de rede overlay, que representa as ligações lógicas entre dois nós do sistema distribuído, podendo seguir uma abordagem estruturada, com estrutura definida, ou não estruturada, correspondendo a um grafo aleatório.
+\subsubsection{Peer to Peer}
+\begin{itemize}
+\item[Estruturada] Dado um conjunto de processos contendo diferentes conjuntos de recursos, encontra os processos que contêm um certo recurso através do seu id único, permitindo resolver eficientemente o problema da localização de recursos. Este tipo de rede usa um índice independente da semântica da aplicação onde cada recurso é associado a uma chave e é útil em aplicações de partilha de ficheiros.   Segue-se um exemplo de uma rede DHT:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{Sem Título1.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{Sem Título2.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{Sem Título3.png}
+\end{figure}
+\item[Não Estruturada] A topologia de uma rede não estruturada é tipicamente um grafo aleatório. Numa overlay deste tipo, a pesquisa exata é complicada, mas é mais fácil lidar com falhas, sendo mais adequado para pesquisas por proximidade. As buscas são feitas por:
+\begin{itemize}
+\item[Flooding:] difusão da busca a todos os vizinhos
+\item[Random Walk:] escolhe um vizinho e pergunta, que segue em frente
+\item[Gossip:] cada nó retransmite apenas a alguns nós, escolhidos de acordo com alguma estratégia
+\end{itemize}
+Para recuperar de falhas e entradas/saídas de nós basta alterar a rede temporariamente.
+\end{itemize}
+\subsection{Arquiteturas Híbridas}
+Numa arquitetura híbrida existe uma rede overlay com vários nós e alguns servidores que desempenham papéis bem definidos.\\
+\\
+Um exemplo é o BitTorrent, onde cada nó contem um ficheiro de outros nós, de forma descentralizada, enquanto que o tracker é um servidor descentralizado que monitoriza que nós ativos têm esses blocos.
+
+\chapter{Comunicação}
+\section{Protocolos de Middleware}
+Frequentemente as aplicações não comunicam diretamente usando protocolos de transporte, fazendo uso de protocolos de middleware de alto nível, que podem suportar serviços como transações, autenticação, autorização e sincronização.
+\subsection{Tipos de Comunicação}
+A comunicação por protocolos de middleware pode ser classificada em dois parâmetros:
+\begin{itemize}
+\item Persistência
+\begin{itemize}
+\item Transitória: a mensagem é armazenada apenas enquanto o emissor e o recetor estão ativos
+\item Persistente: a mensagem é armazenada até ser entregue ao recetor
+\end{itemize}
+\item Sincronização na comunicação
+\begin{itemize}
+\item Síncrona: cliente bloqueia à espera da resposta do servidor
+\item Assíncrona: cliente não bloqueia e recebe notificação quando a resposta está disponível
+\end{itemize}
+\end{itemize}
+\section{Chamadas a Procedimentos Remotos (RPC)}
+No caso geral, a chamada a procedimentos permite a transferência de controlo e dados dentro de um programa. A chamada a procedimentos remotos é uma extensão deste modelo para o caso dos sistemas distribuídos. Numa chamada a um procedimento:
+\begin{itemize}
+\item Os argumentos (por valor, referência ou cópia/reposição) são colocados na pilha pela ordem inversa
+\item O procedimento é executado
+\item O endereço de retorno é usado para devolver o controlo ao procedimento que fez a chamada
+\end{itemize}
+\subsection{Empacotamento de Parâmetros}
+É fundamental que o cliente e o servidor usem o mesmo formato de mensagem de pedido e resposta.
+\subsubsection{Passagem Por Valor}
+São enviadas cópias dos parâmetros ao servidor. É necessário prestar atenção ao problema da representação dos dados: interpretação e conversão dos bytes recebidos no servidor. Para tal, é importante haver acordo sobre os tamanhos dos tipos básicos.
+\subsubsection{Passagem Por Referência}
+A passagem é feita por ponteiros para zonas de memória. Surge o problema dos endereços das estruturas de dados no cliente não terem significado válido no servidor. A solução passa por transformar os parâmetros por referência em cópia/reposição, que são alterados no servidor e depois retornados de volta ao cliente, juntamente com a resposta. Por exemplo, para tipos básicos passa-se o dado referenciado em vez do ponteiro ($int$ em vez $int*$), ou nos vetores, declara-se explicitamente o seu tamanho ($int[10]$ para um vetor de 10 inteiros).
+\subsection{Localização do Servidor}
+Pode-se codificar o endereço do servidor diretamente no cliente, mas é uma solução pouco flexível e com pouca transparência. A solução passa por uma associação dinâmica através de um serviço de nomes, que tem como desvantagem ser um ponto central de falha.
+\subsection{RPC Assíncrono}
+Os RPC assíncronos apresentam melhor desempenho, já que evitam o bloqueio do cliente quando o pedido está a ser processado.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{Sem Título4.png}
+\end{figure}
+Este padrão é usado para a chamada de procedimentos em vários servidores concorrentemente e essencial para a concretização da replicação.
+\section{Comunicação por Mensagens}
+\subsection{Comunicação Transitória por Mensagens}
+Os interlocutores precisam de estar ativos ao mesmo tempo. Existem os Berkley Sockets, centrados no conceito de socket, usada para ler e escrever mensagem e as Message-Passing Interfaces (MPI), que fornecem uma API mais elaborada para comunicação, sem preocupação com falhas e sincronização.
+\subsection{Comunicação Persistente por Mensagens}
+A comunicação persistente concretiza-se através de filas de mensagens, que removem a necessidade do interlocutor estar em funcionamento no momento da comunicação e o bloqueio do cliente enquanto o pedido é processado.\\
+\\
+Faz sentido usar este tipo de comunicação quando os interlocutores estão ligados através de redes de grande escala, para as quais a probabilidade de existirem desconexões não é desprezável.
+\subsection{Modelo das Filas de Mensagens}
+Existe um Message-Oriented Middleware, que fornece suporte a comunicação persistente e assíncrona, num espaço de armazenamento dentro do sistema. Fornece a seguinte interface:
+\begin{table}[H]
+\begin{tabular}{|c|c|}
+\hline
+PUT    & Colocar uma mensagem numa fila                                                                                                   \\ \hline
+GET    & Retirar a primeira mensagem e bloquear até que a fila não esteja vazia                                                           \\ \hline
+POLL   & \begin{tabular}[c]{@{}c@{}}Verificar se a fila tem uma mensagem e retirá-la nesse caso\\ (ou retornar sem bloquear)\end{tabular} \\ \hline
+NOTIFY & \begin{tabular}[c]{@{}c@{}}Definir uma função que será chamada sempre que uma\\ mensagem for colocada na fila\end{tabular}       \\ \hline
+\end{tabular}
+\end{table}
+\subsubsection{Arquitetura para um Sistema de Filas de Mensagens}
+\begin{itemize}
+\item As mensagens são enviadas para uma fila (com identificador único)
+\item O endereço da fila é mapeado num endereço do nível transporte (IP/porto) para que a mensagem possa ser enviada para o destino.
+\item A mensagem depois é entregue ou encaminhada por um conjunto de servidores (ou relays) até ser copiada para a fila no recetor
+\item Em várias localizações da rede existem buffers que permitem o armazenamento temporário das mensagens
+\end{itemize}
+\section{Comunicação por Streams}
+As streams são geralmente usadas para transmitir áudio e vídeo através da rede, pois dão maior importância ao instante em que os dados são recebidos.
+\subsection{Qualidade de Serviço (QoS)}
+Existe um acordo com o sistema de suporte da rede em que se estabelece uma especificação da qualidade de serviço. Podem ser definidos os seguintes parâmetros:
+\begin{itemize}
+\item Máximo de perdas
+\item Taxa de transmissão
+\item Jitter máximo
+\item ...
+\end{itemize}
+Ao criar uma Stream, a especificação da QoS tem de ser mapeada num conjunto de recursos a reservar na rede de forma a que os requisitos indicados possam ser garantidos.\\
+\\
+Para manter a QoS são usados vários mecanismos, tais como buffers de receção, que evitam furos e atrasos na apresentação de conteúdos.
+\subsection{Sincronização entre Streams}
+Por vezes é necessária sincronização entre diversas streams, tais como vídeo e legendas, ou áudio e vídeo.\\
+\\
+Esta sincronização pode ser feita por um middleware ou pelo SO, através da aplicação.
+\section{Resumo}
+\begin{itemize}
+\item Comunicação persistente: cada mensagem que enviada é mantida pelo sistema o tempo necessário para que o recetor a vá ler
+\begin{itemize}
+\item após o envio da mensagem o emissor pode terminar imediatamente
+\item o recetor não precisa de estar em execução quando ocorre a emissão
+\end{itemize}
+\item Comunicação transitória: as mensagens são apenas armazenadas pelo sistema enquanto o emissor e recetor se encontram em execução
+\begin{itemize}
+\item a mensagem é descartada se recetor não estiver em execução no momento do envio
+\end{itemize}
+\end{itemize}
+\begin{itemize}
+\item Comunicação assíncrona: o emissor continua a sua execução imediatamente após a submissão da mensagem
+\begin{itemize}
+\item isto sucede mal a mensagem tenha sido copiada para o tampão local ou do primeiro servidor
+\end{itemize}
+\item Comunicação síncrona: o emissor fica bloqueado até que:
+\begin{itemize}
+\item a mensagem seja copiada para o tampão da máquina do recetor,
+\item ou que o recetor a leia/receba,
+\item ou que o recetor a tenha processado
+\end{itemize}
+\end{itemize}
+\section{Comunicação em Grupo}
+Um grupo é um conjunto de processos que atuam de forma coordenada, com a principal característica que todas as mensagens enviadas para o grupo são recebidas por todos os seus membros.
+\subsection{Tipos de Grupos}
+Grupos podem ser classificados quando á sua abertura:
+\begin{itemize}
+\item Grupo fechado
+\begin{itemize}
+\item apenas os membros do grupo podem enviar mensagens para o grupo
+\item processos exteriores podem enviar mensagens para membros específicos
+\end{itemize}
+\item Grupo aberto
+\begin{itemize}
+\item qualquer processo pode enviar mensagens para o grupo
+\end{itemize}
+\end{itemize}
+Ou quanto á sua hierarquização:
+\begin{itemize}
+\item Grupo paritário
+\begin{itemize}
+\item todos os membros do grupo são tratados de forma igual
+\item as decisões são efetuadas com a cooperação de todos os membros
+\item melhor tolerância a faltas mas gestão mais complexa
+\end{itemize}
+\item Grupo hierárquico
+\begin{itemize}
+\item existem membros diferenciados e existe hierarquia
+\item muitas vezes existe um processo especial que coordena as tarefas
+\item menor tolerância a faltas mas gestão mais simples
+\end{itemize}
+\end{itemize}
+\subsection{Fiabilidade na Entrega de Mensagens}
+Sem fiabilidade alguns membros do grupo podem não receber a mensagem. Com fiabilidade existem duas hipóteses:\\
+\\
+Os membros do grupo não falham, não entram ou saem membros durante a execução do multicast e mensagens podem ser perdidas. Protocolo:
+\begin{itemize}
+\item O processo envia a mensagem para todo o grupo
+\item Sempre que um processo recebe uma mensagem verifica se já a recebeu; se sim descarta-a; caso contrário, envia a para todos os processos do grupo
+\end{itemize}
+Existem falhas, saídas e entradas durante o multicast:
+\begin{itemize}
+\item A principal questão que se levanta é determinar quais são os membros do grupo que devem receber a mensagem
+\item Em cada instante, o sistema determina quais são os membros do grupo, e sempre que existe uma alteração todos devem ser informados
+\item Quando uma mensagem é entregue, todos os membros nessa vista também entregam a mensagem
+\end{itemize}
+\subsection{Ordem na Entrega de Mensagens}
+Existem várias forma de ordenar a entrega de mensagens a um grupo:
+\begin{itemize}
+\item Sem ordem: não existem restrições em relação à ordem da recepção das mensagens pelos membros do grupo
+\item Ordem FIFO: se um processo envia a mensagem $m$ e depois a mensagem $m'$ então nenhum processo entrega à aplicação a mensagem  $m'$ antes de ter entregue a mensagem $m$
+\item Ordem causal: se um processo envia a mensagem $m$ que precede causalmente
+(happens before, $m \rightarrow m'$, dos relógios) uma mensagem $m'$ então nenhum processo entrega à aplicação a mensagem $m'$ antes de ter entregue a mensagem $m$
+\item Ordem total: se dois processos entregam à aplicação as mensagens $m$ e $m'$
+então o primeiro processo entrega $m$ antes de $m'$ se e só se o segundo processo
+entrega $m$ antes de $m'$
+\end{itemize}
+\subsubsection{Difusão Fiável com Ordem Total}
+Por fim, coloca-se a hipótese de os membros dos grupos poderem falhar, sem entradas ou saídas. O protocolo é o seguinte:
+\begin{itemize}
+\item O processo envia a mensagem $m$ para todo o grupo (com temporizadores e retransmissões)
+\item Sempre que um processo recebe uma mensagem verifica se já a recebeu; em caso afirmativo, descarta-a; caso contrário, envia-a para todos os processos do grupo (com temporizadores e retransmissões)
+\item Um membro (coordenador) define a ordem de entrega (número de sequência)
+$i$ para $m$ e envia a mensagem $<ORDER,m,i>$ a todos os processos (com
+temporizadores e retransmissões)
+\item Em caso de falha do coordenador, os membros executam um algoritmo de
+eleição de líder, escolhem um novo coordenador, e enviam lhe informações
+sobre as suas mensagens ordenadas e mensagens pendentes
+\end{itemize}
+
+\chapter{Nomes}
+Num sistema distribuído, nomes denotam entidades. Têm um papel fundamental, pois a sua gestão permite identificar, localizar e partilhar recursos.
+\section{Serviços de Nomes}
+Um serviço de nomes tem como tarefa fundamental a gestão de associações entre um nome e outra designação que permite localizar o recurso ou a entidade responsável pela sua gestão.\\
+\\
+Um serviço de nomes suporta operações de registo de associações ou resolução das mesmas.
+\subsubsection{Arquitetura dos Serviços de Nomes}
+Em sistemas distribuídos existe muitas vezes um serviço de nomes (SN), que satisfaz 3 propriedades:
+\begin{itemize}
+\item disponibilidade: a resolução de nomes tem de estar disponível
+\item desempenho: a resolução de nomes tem de ser eficiente
+\item escalabilidade: deve ser possível gerir um número elevado de nomes
+\end{itemize}
+Existem 3 soluções para a gestão dos nomes: replicar a informação de gestão em todas as máquinas, usar difusão na tradução do nomes (ARP) ou usar uma solução tipo cliente-servidor (DNS).
+\section{Agente (Cliente do Serviço de Nomes)}
+O agente pode ser uma biblioteca ligada aos processos ou um processo independente em cada máquina. Funciona da seguinte forma:
+\begin{itemize}
+\item Durante a inicialização tem de obter a localização do servidor. 3 opções:
+\begin{itemize}
+\item o SN está associado a um endereço (IP, porto) bem conhecido
+\item o SN difunde periodicamente o seu endereço
+\item o agente faz um pedido em difusão
+\end{itemize}
+\item Resolução de um nome, efetuada totalmente ou parcialmente pelo SN
+\item Se for parcialmente:
+\begin{itemize}
+\item iterativo: um SN indica outro SN por onde a busca pode continuar
+\item recursivo: um SN contacta outros SN até que consiga resolver o nome
+\end{itemize}
+\end{itemize}
+\section{Servidor de Nomes}
+Um servidor de nomes tem duas características que facilitam a sua construção: algumas inconsistências são toleráveis e os nomes mudam com pouca frequência, podendo-se usar mecanismos de caching e replicação. A resolução usa um algoritmo simples:
+\begin{itemize}
+\item se a associação nome-objeto existe localmente, responde-se ao agente
+\item caso contrário, o SN contacta o servidor responsável ou informa o cliente
+por onde a procura pode continuar
+\item para otimizar as resoluções remotas, o SN pode utilizar uma cache
+\item a disponibilidade pode ser aumentada através da replicação dos SN
+\end{itemize}
+\subsection{Mobilidade}
+As entidades são móveis, e quando ocorre mobilidade existem duas soluções:
+\begin{itemize}
+\item Forwarding pointers: antes de se mover, o serviço deixa um apontador no seu ponto de acesso que leva ao novo ponto de acesso
+\item Abordagem home-based: existe um agente na rede onde o serviço foi criado que sabe encontrá-lo a qualquer momento
+\end{itemize}
+\section{Tipos de Nomes}
+\begin{itemize}
+\item Nomes simples (flat names): Sequencias de bits sem nenhuma semântica associada, usados em PIDs ou portos.
+\item Nomes hierárquicos: Nomes são organizados de forma a manter uma hierarquia de contextos, usados em IPs ou URLs.
+\item Nomes baseados em atributos: Além de nomes, usam-se outros pares (atributos/valor) para descrever um objeto e podem também manter estruturas hierárquicas. Usam-se no MS Active Directory e LDAP.
+\end{itemize}
+
+\chapter{Sincronização e Relógios}
+\section{Relógios Físicos}
+Os relógios de um computador são normalmente baseados num cristal de quartzo submetido a uma dada tensão elétrica, oscilando com uma dada frequência.\\
+Existe um contador que é decrementado a cada oscilação e, ao chegar a 0, o valor do relógio é incrementado.\\
+\\
+Pretende-se então que os processos cheguem a um acordo em relação ao tempo e que esse seja próximo do tempo real. Mas os relógios físicos têm taxas de deriva (drift rates) diferentes, sendo $\rho$ a taxa de deriva máxima. Para garantir um erro entre relórios (clock skew) menor que $\delta$ é preciso sincronizar periodicamente, com período $\Delta t < \delta/2\rho$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título5.png}
+\end{figure}
+\subsection{Algoritmo de Cristian}
+O objetivo deste algoritmo é sincronizar os relógios dos clientes pelo relógio do servidor.\\
+\\
+Para acertar o relógio de $A$ a partir do relógio de $B$:
+\begin{itemize}
+\item Assumir que latência na comunicação é a mesma nos dois sentidos, i.e., $dT_{req} = dT{res}$
+\item Calcular o tempo gasto em comunicação ($\delta$):
+\begin{itemize}
+\item Na resposta o servidor envia os instantes temporais $T_3$ e $T_2$
+\item O cliente recebe a resposta e determina o valor de $\delta$: $\delta = ((T_2 - T_1) + (T_4 - T_3)) / 2$
+\end{itemize}
+\item Calcula o acerto ($\theta$), correspondente á diferença entre o tempo no servidor e o tempo local no cliente: $\theta = (T_3 + \delta) - T_4$
+\end{itemize}
+Se $\theta = 0$, $A$ e $B$ estão sincronizados, se $\theta > 0$, $A$ está atrasado em relação a $B$, se $\theta < 0$, $A$ está adiantado em relação a $B$ (acerta-se aos poucos, para evitar que o tempo ande para trás).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título6.png}
+\end{figure}
+\subsubsection{Network Time Protocol (NTP)}
+NTP é um algoritmo usado para sincronização de relógios na internet, com precisão de 1 a 50 ms. Funciona da seguinte forma:
+\begin{itemize}
+\item Cada par de máquinas $A$ e $B$ aplica o algoritmo de Cristian simetricamente de tempos em tempos e:
+\begin{itemize}
+\item Armazena os últimos 8 pares ($\theta, \delta$) calculados
+\item Escolhe o par ($\theta, \delta$) em que $\delta$ é menor e acerta o relógio com o $\theta$ correspondente: $C += \theta$
+\end{itemize}
+\end{itemize}
+Baseia-se no principio de que se fizermos muitas medições e escolhermos a de menor latência, usamos o valor de $\theta$ sujeito a menor erro.\\
+\\
+Pode acontecer que uma máquina com um relógio mais preciso se acerte por um relógio menos preciso. Para evitar isto, as máquinas são divididas em estratos, maiores quanto melhor o relógio. Uma máquina $A$, com estrato $n_A$, só sincroniza com $B$, de estrato $n_B$, se $n_A > n_B$. Após a sincronização, $n_A = n_B + 1$ ($A$ passa ao estrato acima de $B$).
+\section{Relógios Lógicos}
+Por vezes não é necessária uma noção absoluta de tempo, bastando acordo em relação á ordem com que ocorrem certos eventos.Os relógios lógicos são usualmente concretizados na camada de middleware.\\
+Relação happens-before($\rightarrow$):
+\begin{itemize}
+\item Se $a$ e $b$ são eventos no mesmo processo e $a$ ocorre antes de $b$, então $a \rightarrow b$ é verdade
+\item Se $a$ é um envio de uma mensagem e $b$ o evento da sua recessão, então $a \rightarrow b$ é verdade.
+\item Transitividade: se $a \rightarrow b$ e $b \rightarrow c$, então $a \rightarrow c$
+\item Eventos concorrentes: nem $a \rightarrow b$, nem $b \rightarrow a$
+\end{itemize}
+\subsection{Relógio Lógico de Lamport}
+Trata-se de um relógio tal que:
+\begin{itemize}
+\item Se $a \rightarrow b$ então $C(a) < C(b)$
+\item O valor de $C(e)$ nunca decresce
+\item Dois eventos nunca ocorrem ao mesmo tempo
+\end{itemize}
+\subsubsection{Construção do Relógio}
+\begin{itemize}
+\item Manter um contador $C(e)$ em cada processo, que é inicializado a 0
+\item Sempre que ocorre um evento interno (i.e., no mesmo processo) relevante, incrementa-se $C(e) = C(ultimo\_evento) + 1$, e atribui-se o seu valor ao evento
+\item Quando se transmite uma mensagem, anexa-se aos dados o valor atual do
+contador $C(e\_mesg)$
+\item Sempre que se recebe uma mensagem, atualiza-se se o contador:
+$$
+C(e) = max(C(e\_mesg), C(ultimo\_evento)) +1
+$$
+e atribui-se o seu valor ao evento de receção.
+\end{itemize}
+\subsection{Difusão com Ordem Total}
+É possível fazer com que todos os processos processem a mesma sequência de operações, seguindo o seguinte algoritmo:
+\begin{itemize}
+\item Todas as mensagens são enviadas a todos os processos do sistema
+\item Cada processo do sistema mantém uma fila de mensagens ordenada pelo contador de eventos da mensagem
+\item Quando um processo recebe uma mensagem, esta é colocada na fila e é enviada uma confirmação a todos os processos do sistema
+\item Uma mensagem $m$ da fila só é processada quando:
+\begin{itemize}
+\item $m$ está na cabeça da fila
+\item $m$ foi confirmada por todos os processos do sistema
+\end{itemize}
+\end{itemize}
+\section{Exclusão Mútua}
+Existem duas propriedades a serem satisfeitas: 
+\begin{itemize}
+\item Safety:
+\begin{itemize}
+\item S1: nunca há mais que um processo na secção crítica
+\end{itemize}
+\item Liveness:
+\begin{itemize}
+\item V1: se um processo é o único a tentar aceder à secção critica, ele consegue
+\item V2: se há um conjunto de processos a tentar aceder à secção critica, então um destes processos acabará por conseguir
+\item V3: qualquer processo que tente aceder à secção crítica acabará por conseguir
+\end{itemize}
+\end{itemize}
+\subsection{Algoritmo Centralizado}
+Neste algoritmo é selecionado um processo como coordenador e assume-se que os processos não falham e mensagens não são perdidas.
+\begin{itemize}
+\item Sempre que um processo quer entrar numa região crítica, envia uma mensagem ao coordenador com o identificador do recurso
+\item O coordenador devolve uma mensagem indicando que o processo pode continuar (OK), se nenhum outro processo estiver nesse momento na região crítica
+\item Caso contrário, o coordenador não devolve qualquer mensagem (ou retorna uma mensagem NOK indicando que o processo não tem permissão), e coloca o processo numa fila de espera
+\item Quando um processo deixa a região crítica, envia uma mensagem ao coordenador libertando o recurso
+\end{itemize}
+Satisfaz S1 e V3.
+\subsection{Algoritmo Descentralizado}
+Este algoritmo é semelhante ao centralizado, no entanto, são selecionados $n$ processos como coordenadores.
+\begin{itemize}
+\item Sempre que um processo quer entrar numa região crítica, envia uma mensagem aos coordenadores com o identificador do recurso a ser acedido
+\item Cada coordenador devolve uma mensagem OK indicando que o processo pode continuar, ou uma mensagem NOK indicando que o acesso ao recurso está cedido a outro processo
+\item Um processo apenas entra na sua secção critica se recebe pelo menos $m > n/2$ mensagens OK de diferentes coordenadores
+\item Se a maioria das mensagens for NOK, o processo avisa os coordenadores que votaram OK que ele não tem acesso e espera uma quantidade de tempo aleatória para voltar a tentar executar o algoritmo
+\end{itemize}
+Satisfaz S1 e V1. É possível usar difusão com ordem total para satisfazer também V3 (Descentralizado II).
+\subsection{Algoritmo Distribuído}
+Assume que é possível ordenar todos os eventos no sistema, com relógios lógicos e que os processos não falham, nem se perdem mensagens.
+\begin{itemize}
+\item Quando quer entrar numa região crítica o processo envia uma mensagem a todos os outros processos, com a seguinte informação:
+$$
+<identificador\_do\_recurso;\;identificador\_do\_processo;\;instante\_temporal>
+$$
+\item Quando um processo recebe uma mensagem:
+\begin{itemize}
+\item devolve OK se não está na região crítica e não pretende entrar
+\item guarda a mensagem numa fila e não responde se estiver na região crítica
+\item se quer entrar na região crítica:
+\begin{itemize}
+\item compara os instantes temporais do seu pedido e da mensagem
+\item devolve OK se o da mensagem for menor
+\item guarda a mensagem na fila e não responde se o do seu pedido for menor
+\end{itemize}
+\end{itemize}
+\item O processo só entra na região crítica quando recebe um OK de todos os processos
+\item Quando o processo deixa a região crítica, envia um OK a todos os processos que tenham mensagens na fila e depois apaga todas as mensagens
+\end{itemize}
+Satisfaz S1 v V3.
+\subsection{Algoritmo em Anel}
+Assume-se que os processos não falham e não se perdem mensagens.
+\begin{itemize}
+\item Quando o anel é iniciado, associa-se a um processo o testemunho (token)
+\item O testemunho é trocado entre os processos, sendo passado pela ordem lógica que define o anel
+\item Um processo apenas pode entrar numa região crítica quando detém o testemunho
+\item Um processo deve passar o testemunho quando sai da região crítica
+\item O testemunho continua a ser trocado entre os processos ainda que nenhum deles queira entrar numa região critica
+\end{itemize}
+Satisfaz S1 e V3.
+\subsection{Comparação}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título7.png}
+\end{figure}
+\section{Eleição de Líder}
+A eleição de um líder deve cumprir as propriedades de segurança (S): após a execução do algoritmo, existe apenas um líder que é conhecido por todos e vivacidade (V): a execução do algoritmo termina.
+\subsection{Algoritmo Bully}
+Um processo $P$ inicia o algoritmo quando deteta que o líder não responde:
+\begin{itemize}
+\item envia a mensagem ELEIÇÃO aos processos com identificadores superiores
+\item se ninguém responde, $P$ ganha a eleição e fica como líder
+\item se um processo com identificador superior responde OK, $P$ termina a execução do algoritmo
+\item Se um processo recebe ELEIÇÃO de um processo com identificador inferior, responde com uma mensagem OK e executa o algoritmo de eleição se ainda não o tinha feito
+\item Quando um processo percebe que vai ser o próximo líder (i.e., não recebe OK de nenhum processo com identificador superior a ele), envia uma mensagem COORDENADOR a todos os processos
+\item Quando um processo recebe uma mensagem COORDENADOR, define o seu emissor como sendo o líder eleito
+\item Quando um processo parado entra em funcionamento, executa o algoritmo. Se por acaso for o que tem identificador mais alto, envia uma mensagem COORDENADOR a todos os processos passando a ser o novo líder
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título8.png}
+\end{figure}
+\subsection{Algoritmo em Anel}
+Assume-se que existem tempos máximos para a comunicação e que os canais são fiáveis.
+\begin{itemize}
+\item Quando um processo P deteta que o líder não se encontra em funcionamento, constrói uma mensagem ELEIÇÃO e envia a ao seu sucessor:
+$$
+ELEIÇAO = < identificador\;do\;processo >
+$$
+Se o sucessor estiver em falta, então o processo envia a mensagem para os próximos sucessores até encontrar um em funcionamento
+\item Sempre que um processo recebe a mensagem ELEIÇÃO, adiciona lhe o seu identificador e passa a ao seu sucessor (ou seguinte que esteja ativo)
+\item Quando a mensagem retorna a $P$:
+\begin{itemize}
+\item escolhe deterministicamente o próximo coordenador (por exemplo, aquele que tiver o maior identificador)
+\item e em seguida faz circular uma mensagem:
+$$
+COORDENADOR = <coord=ident_i, lista\_de\_proc = ident_k,...>
+$$
+que contém a identificação do novo coordenador, bem como dos nós do novo anel
+\end{itemize}
+\item A mensagem é retirada do anel quando volta a $P$
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título9.png}
+\end{figure}
+\subsection{Eleição de Líder em Redes Ad Hoc sem Fios}
+É possível construir um algoritmo que não se baseia nas hipóteses de canais fiáveis ou topologia fixa. Este algoritmo consiste em organizar os processos em árvore, sendo o processo que inicia a eleição a raiz da árvore e o melhor nó é escolhido como líder.
+
+\chapter{Consistência e Replicação}
+\section{Consistência dos Dados}
+Dados são normalmente replicados para melhorar a fiabilidade ou o desempenho, no entanto, a replicação trás o problema da consistência dos dados, já que é preciso garantir que quando uma das réplicas é atualizada, as outras também são. Os acessos aos objetos podem ser divididos em:
+\begin{itemize}
+\item Leitura: pode ser feita em qualquer réplica
+\item Escrita: tem de ser propagada para todas as réplicas
+\end{itemize}
+\subsection{Modelos de Consistência de Baixo Nível}
+Um modelo de consistência é um contrato entre os clientes e o sistema em que os processos ficam obrigados a fazer os acessos de acordo com certas regras e o sistema tem de se comportar corretamente.
+\subsubsection{Modelo de Consistência Estrita}
+Uma leitura no objeto $x$ devolve o valor da escrita mais recente nesse objeto.\\
+\\
+Corresponde ao modelo ideal, equivalente a não replicar, mas difícil de implementar, visto que obriga à existência de um tempo absoluto global.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título10.png}
+\end{figure}
+\subsubsection{Modelo de Consistência Sequencial}
+O resultado de qualquer execução é equivalente ao que se observaria se as operações (de leitura e escrita) dos diversos processos fossem executados numa ordem sequencial e as operações de cada processo individual aparecessem nessa sequência na ordem especificada pelo seu programa.\\
+\\
+Neste modelo não existe qualquer referência ao tempo e qualquer sequencia de operações é válida, mesmo as executadas em paralelo.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título11.png}
+\end{figure}
+\subsubsection{Modelo de Consistência Causal}
+Escritas potencialmente relacionadas em termos de causa/efeito devem ser vistas por todos os processos do sistema na mesma ordem. Escritas concorrentes podem ser vistas em ordens diferentes por processos diferentes.\\
+\\
+Neste modelo é necessário construir um grafo de dependência entre as diversas escritas, de forma a suportar as relações de causa/efeito, o que pode ser feito através de um vetor de relógios.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título12.png}
+\end{figure}
+\subsection{Modelo de Consistência Centrados no Cliente}
+Muitas vezes uma operação a ser executada num servidor replicado consiste numa série de leituras e escritas atómicas, em vez das operações de baixo nível vistas anteriormente. Podem então ser usados modelos mais fracos, centrados no cliente e baseados em agrupamentos de operações.
+\subsubsection{Modelo de Consistência das Leituras Uniformes}
+Se um processo lê um valor de um objeto $x$, então qualquer posterior operação de leitura nesse mesmo objeto por esse processo deverá sempre devolver o mesmo valor ou um valor mais recente.\\
+\\
+A ideia principal é de que se um processo vê um dado valor num instante, então ele nunca verá um valor mais antigo num instante posterior. É usado em sistemas de armazenamento de emails.
+\subsubsection{Modelo de Consistência das Escritas Uniformes}
+Uma operação de escrita de um processo num objeto $x$ é terminada antes de qualquer outra operação de escrita posterior executada pelo processo em $x$.\\
+\\
+Baseado na ideia de que as escritas feitas por um processo num objeto são executadas pela mesma ordem FIFO em todas as cópias desse objeto. Útil na aplicação de patches.
+\subsubsection{Modelo de Consistência "Ler suas Escritas"}
+O efeito de uma operação de escrita de um processo num objeto $x$, será sempre visto pelas operações de leitura posteriores executadas por este processo em $x$.
+\subsubsection{Modelo de Consistência "Escritas seguem Leituras"}
+Uma operação de escrita de um processo num objeto $x$ que sucede uma leitura executada por este processo em $x$ vai afetar sempre o mesmo valor lido pelo processo ou um valor mais recente.
+\section{Gestão da Replicação}
+A replicação aumenta a fiabilidade, já que os dados se encontram em várias máquinas, prevenindo falhas e melhorando o desempenho, escalando com o número de utilizadores. Existem vários tipos de réplicas:
+\begin{itemize}
+\item Réplicas permanentes: são as réplicas originais do serviço de armazenamento
+\item Réplicas iniciadas pelo servidor: são criadas temporariamente pelo dono do sistema de armazenamento para melhorar o desempenho
+\item Réplicas iniciadas pelo cliente: são usadas para armazenar temporariamente objetos que possam vir a ser acedidos no futuro
+\end{itemize}
+É possível propagar as atualizações através de uma notificação de modificação de estado, a transferência de uma cópia do estado atualizado ou a propagação da operação que fez a atualização.
+\subsection{Protocolos de Consistência}
+O protocolo de consistência é responsável por manter as réplicas atualizadas de acordo com um dado modelo de consistência. Podem ser do tipo:
+\begin{itemize}
+\item Push: Os servidores iniciam o processo. A réplica mais utilizada contacta as outras
+\item Pull: O cliente inicia o processo. As réplicas desatualizadas contactam a mais atualizada
+\item Protocolos push provisório (lease): o servidor só envia as atualizações durante um período; passado esse intervalo, o cliente volta a pedir mais tempo ou passa a usar um método de pull
+\end{itemize}
+\subsubsection{Replicação Passiva}
+Na replicação passiva cada objeto tem associada uma réplica primária responsável por coordenar as atualizações no objeto. Existem duas variantes:
+\begin{itemize}
+\item  Réplica primária fixa: todas as atualizações têm de ser propagadas para esta réplica; as outras réplicas (locais) podem ser acedidas para leitura
+\item Réplica primária móvel: antes da atualização poder ser efetuada, a réplica primária é movida para o sistema local; a escrita depois é efetuada localmente
+\end{itemize}
+Se o primário falhar, esta falha tem de ser detetada e deve haver eleição de um novo primário (usando um protocolo de eleição).
+\subsubsection{Replicação Ativa}
+Na replicação ativa todas as réplicas têm de começar no mesmo estado e executar os mesmos comandos pela mesma ordem. As réplicas devem ser deterministas, se uma falhar não deve ser feito nada de especial e ao reiniciar é necessário fazer uma transferência de estado.
+\subsubsection{Replicação com Quóruns}
+Um quórum é um conjunto de réplicas. Num sistema de quóruns as operações de leitura e escrita são executadas em quóruns de réplicas, onde cada objeto tem um número de versão associado e antes de efetuar uma escrita ou leitura é preciso obter votos das réplicas, com quóruns maioritários, por exemplo:
+\begin{itemize}
+\item Escrita: contactam-se e atualizam-se metade mais uma das réplicas; essas réplicas passam a ter um número de versão maior que o anterior
+\item Leitura: contactam-se metade mais uma das réplicas e obtém-se os seus números de versão; faz-se a leitura da réplica com o maior número de versão
+\end{itemize}
+Em geral tem-se:
+\begin{itemize}
+\item $N$ = número total de réplicas
+\item $N_R$ = número de elementos do quórum de leitura
+\item $N_W$ = número de elementos do quórum de escrita
+\end{itemize}
+E é preciso garantir que:
+\begin{itemize}
+\item $N_R + N_W > N$
+\item $N_W > N/2$
+\end{itemize}
+Isto é, existe sempre intersecção entre quóruns de leitura e de escrita e há sempre interseção entre quóruns de escrita
+
+\chapter{Tolerância a Faltas}
+Os sistemas distribuídos são inerentemente suscetíveis a falhas parciais, que não devem comprometer o funcionamento do mesmo
+\section{Noções Fundamentais}
+\begin{itemize}
+\item Falta (fault): causa do estado incorreto do sistema (software ou hardware): avaria de um dos componentes, interferência do ambiente, desenho incorreto
+\item Erro: manifestação da falta no programa ou na estrutura de dados
+\item Falha (failure): ocorre quando o serviço prestado pelo sistema difere da especificação
+\end{itemize}
+As faltas podem ser permanentes, intermitentes ou transitórias.
+\section{Redundância}
+O método usado para tolerar faltas no sistema é a redundância. Existem vários tipos de redundância:
+\begin{itemize}
+\item Redundância de informação
+\begin{itemize}
+\item Incluem-se bits extra nos blocos de dados de tal forma que, mesmo que alguns bits do bloco sejam corrompidos, ainda é possível ler o bloco corretamente
+\end{itemize}
+\item Redundância temporal
+\begin{itemize}
+\item Repetir uma ação várias vezes para ter certeza que ela tem efeito
+\end{itemize}
+\item Redundância física
+\begin{itemize}
+\item Usar várias réplicas de um mesmo componente físico
+\end{itemize}
+\end{itemize}
+\subsection{Sistemas Replicados Tolerantes a Faltas}
+Um sistema com $n$ replicas é dito tolerante a $k$ faltas se funciona bem mesmo que $k$ das $n$ réplicas falhem.
+\begin{itemize}
+\item Falhas por crash: basta que uma réplica envie respostas corretas aos clientes. Devemos ter, pelo menos, $n \geq k + 1$
+\item Falhas arbitrárias (Bizantinas): A maioria das réplicas devem ser corretas para evitar que as que falham enviem o mesmo valor incorreto de uma resposta. Devemos ter, pelo menos, $n \geq 2k + 1$
+\end{itemize}
+\section{Acordo em Sistemas Sujeitos a Faltas}
+Por vezes é necessário um acordo entre nós num sistema sujeito a faltas, como na ordenação de mensagens ou sincronização.
+\subsection{Consenso Baseado em Flooding}
+Cada processo:
+\begin{itemize}
+\item Envia a lista propostas que conhece (inicialmente só a sua) a todos
+\item Espera propostas dos outros e as junta a sua lista
+\item Se recebeu de todos, decide deterministicamente por uma delas e participa apenas na próxima ronda.
+\item Se algum falhou passa para a próxima ronda, com a lista atualizada
+\end{itemize}
+Só funciona porque conseguimos detetar falhas perfeitamente (impossível na internet).
+\subsection{Problema dos Generais Bizantinos}
+É um problema fundamental, em que existem $n$ generais e até $k$ podem ser traidores. É impossível de resolver com $2k + 1$ processos.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título13.png}
+\end{figure}
+\subsection{Algoritmo com Mensagens Orais}
+Assume-se que:
+\begin{itemize}
+\item Todas as mensagens são entregues corretamente
+\item O recetor da mensagem sabe quem a enviou
+\item A perda de uma mensagem pode ser detetada
+\end{itemize}
+Este algoritmo calcula $maioria(v_1,v_2,...,v_{n-1})$, em que o valor $v_i$ é a maioria (se existir) ou "retirado". Para $OM(t)$, $t$ > 0 ($t$ é o número de falhas a tolerar):
+\begin{itemize}
+\item O comandante envia sua ordem a todos os subordinados.
+\item Para o subordinado $i$ , $v_i$ é o valor que ele recebeu do comandante ou "retirada" caso ele não tenha recebido ordem.\\
+\\
+O subordinado $i$ age como comandante no algoritmo $OM(t-1)$ para enviar $v_i$ a cada um dos outros $n-2$ subordinados.
+\item Para cada $i$ e cada $j \neq i$ , $v_j$ é o valor que o subordinado $i$ recebeu do subordinado $j$ no passo anterior ou "retirada" se ele não recebeu nenhum valor.
+\item O subordinado $i$ decide $maioria(v_1,...,v_j,v_{n-1})$.
+\end{itemize}
+E para $OM(0)$:
+\begin{itemize}
+\item O comandante envia a sua ordem a todos os subordinados.
+\item Cada subordinado usa o valor recebido pelo comandante ou "retirada" caso não receba nenhum valor.
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título14.png}
+\end{figure}
+\section{Semântica do RPC na Presença de Falhas}
+Na presença de falhas, é difícil fazer com que as RPCs tenham um comportamento idêntico às chamadas locais de procedimentos.
+\subsection{Erro na Localização do Servidor}
+Neste caso é necessário devolver o erro, através de um retorno de -1 ou lançamento de uma exceção.
+\subsection{Perda do Pedido/Resposta}
+Aqui uma solução consiste na retransmissão periódica do pedido até que a resposta seja retornada ao cliente.
+\subsection{O Servidor tem uma Falha}
+O maior problema consiste na determinação do momento em que a falha ocorre, pois, na prática, o cliente apenas percebe a ausência de resposta. Existem várias filosofias de recuperação:
+\begin{itemize}
+\item Pelo menos uma vez: pedido é executado uma ou mais vezes. Espera
+se o reboot do servidor ou usa se outro servidor
+\item No máximo uma vez: pedido é executado zero ou uma vez. Basta desistir logo e dar erro
+\item Exatamente uma vez: pedido é executado uma vez. Em geral não se consegue garantir
+\end{itemize}
+\subsection{O Cliente tem uma Falha}
+A falha de um cliente após ter enviado um pedido ao servidor pode criar computações órfãs indesejáveis. Existem três possíveis soluções, que não resolvem todos os problemas possíveis:
+\begin{itemize}
+\item Exterminação: antes do cliente enviar o pedido, anota o num log em disco; quando o cliente é reiniciado os órfãos são terminados
+\item Reencarnação: divisão do tempo em épocas. Começa se uma época sempre que um cliente é reiniciado e faz se broadcast da nova época; quando um servidor recebe mensagem de indicação de nova época, termina todas as computações desse cliente.
+\item Expiração: associar um tempo $T$ a cada RPC; servidor pede mais $T$ se a RPC precisa de mais tempo; antes de reiniciar o cliente espera $T$
+\end{itemize}
+\section{Confirmação Atómica}
+Em transações distribuídas, na execução de uma sequência de operações com atomicidade, ou se executa tudo, ou nada.\\
+\\
+Numa transação que envolva acessos a várias bases de dados é necessário que todas tomem a mesma decisão sobre o término de uma transação.
+\subsection{Confirmação em Uma Fase}
+Num sistema sem falhas basta que uma máquina coordenadora envie uma mensagem definindo se haverá commit ou abort da transação. Essa máquina repetirá a mensagem até que todos os participantes confirmem a operação.\\
+\\
+Esta abordagem tem algumas limitações: Um participante não pode decidir unilateralmente por um abort se o cliente pedir um commit e o coordenador não sabe se um participante teve um crash ou foi substituído durante a transação.
+\subsection{Confirmação em Duas Fases}
+Este protocolo consegue resolver o problema da confirmação atómica. Considera-se uma máquina coordenadora e as restantes participantes. Aqui, nos algoritmos que se seguem os processos (coordenador e participantes) escrevem as suas ações num log estável, de tal forma que possam ser recuperadas após a recuperação do processo, em caso de falha. Assim, qualquer participante pode abortar a sua parte da transação, se uma parte é abortada, toda a transação será abortada.
+\subsection{Confirmação em Três Fases}
+Confirmação em duas fases pode não chegar a qualquer decisão se o coordenador falhar em certas fases da execução do protocolo, o que resulta no bloqueio dos participantes até que o coordenador recupere. A confirmação em três fases evita esses bloqueios, adicionando um estado de pre-commit com timeout.
+\section{Recuperação de Falhas}
+Para recuperar de falhas, é necessário armazenar pelo menos parte do processo em memória, para que as operações interrompidas possam ser retomadas após uma falha. Existem duas técnicas complementares:
+\begin{itemize}
+\item Checkpointing: armazenamento periódico do estado do sistema
+\item Logging de mensagens: armazenamento de mensagens entre checkpoints
+\end{itemize}
+
+\chapter{Sistemas Distribuídos de Ficheiros e na Web}
+\section{Sistemas de Ficheiros Distribuídos}
+\subsection{NFS}
+No NFS existe o $fhandle$, que atua como um identificador que representa que representa de forma unívoca um ficheiro num dado servidor. Trata-se de uma estrutura completamente opaca para os clientes.\\
+\\
+O servidor devolve um $fhandle$ em todas as operações que envolvem a tradução de um nome ou a criação de um ficheiro. O cliente envia o $fhandle$ sempre que quer efetuar uma operação no ficheiro. Algumas operações suportadas são:
+\begin{itemize}
+\item LOOKUP
+\item CREATE
+\item READ
+\item ...
+\end{itemize}
+\subsection{GFS}
+O GFS é o sistema de ficheiros usado nos data centers da Google. Possui a seguinte organização:
+\begin{itemize}
+\item Master: servidor que controla os meta-dados do sistema de ficheiros ("serviço de nomes")
+\item Chunk server: armazena blocos de dados (tipicamente de 64M)
+\end{itemize}
+Escala porque o controlo é centralizado, mas o master não é o bottleneck. Os chunk servers fazem a maior parte do trabalho, mas os dados para tradução são mantidos na memória primária do master.
+\section{Sistemas Distribuídos na Web}
+\subsection{Nomes na Web}
+Na web usa-se o Unified Resource Identifier (URI). Existem dois tipos de URI:
+\begin{itemize}
+\item URN (UR Name): nome independente da localização
+\item URL (UR Location): nome dependente da localização
+\end{itemize}
+\subsection{RPC na Web}
+Para RPC geralmente utiliza-se o SOAP: Simple Object Access Protocol. O SOAP é uma sintaxe de protocolo centrada em XML. As mensagens são enviadas em envelopes SOAP com cabeçalho e corpo e a comunicação pode ser concretizada sobre SMTP ou HTTP.
+\subsection{Clusters de Servidores Web}
+Um servidor Web pode ser acedido por muitos clientes ao mesmo tempo. Para aumentar a escalabilidade, replicam se os servidores e faz se balanceamento de carga. Na prática, utiliza-se a distribuição de pedidos de acordo com seu conteúdo, ou content aware request distribution.
+\subsection{Replicação na Web}
+Existem duas formas básicas de caches na Web:
+\begin{itemize}
+\item Cache dos navegadores
+\item Proxies de rede
+\end{itemize}
+Sistemas mais avançados utilizam redes overlay de distribuição de conteúdos, onde geralmente são replicados conteúdos embebidos, ex: Akamai.
+\end{document}

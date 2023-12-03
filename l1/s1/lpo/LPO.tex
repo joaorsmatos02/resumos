@@ -1,0 +1,291 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\begin{document}
+
+\chapter{Classificação}
+\begin{itemize}
+\item[Sentença] Uma sentença é uma sequência finita de símbolos que se distingue da fórmula pelo facto de não possuir variáveis livres
+\item[Sentença atómica] Uma sentença atómica é uma sentença que não pode ser dividida em outras sentenças mais simples.
+\item[Fórmula] Fórmulas são idênticas ás sentenças com a diferença de possuírem variáveis livres.
+\item[Formula atómica]Uma fórmula atómica é uma fórmula que não contém conectivos lógicos nem quantificadores, ou seja, uma fórmula que não contém sub-fórmulas.
+\end{itemize}
+\vspace{1.5cm}
+\begin{center}
+Possui variáveis livres?\\
+$\swarrow$ \hspace{3cm} $\searrow$\\
+Sim \hspace{3.3cm} Não\\
+$\downarrow$ \hspace{3.7cm} $\downarrow$\\
+Pode ser dividida em fragmentos?\\
+$\swarrow$ \hspace{1cm} $\searrow$ \hspace{2.5cm} $\swarrow$ \hspace{1cm} $\searrow$\\
+Sim \hspace{1cm} Não \hspace{2cm} Sim \hspace{1cm} Não \\
+$\downarrow$ \hspace{1.5cm} $\downarrow$ \hspace{2.5cm} $\downarrow$ \hspace{1.5cm} $\downarrow$\\
+Fórmula \hspace{0.5cm} Fórmula \hspace{1.3cm} Sentença \hspace{0.3cm} Sentença\\
+\hspace{1.9cm} atómica \hspace{3.3cm} atómica\\
+\vspace{1.5cm}
+* Uma variável diz-se livre se não está sobre o efeito de nenhum quantificador\\ ($\exists$ ou $\forall$).
+\end{center}
+\begin{itemize}
+\item[símbolos predicativos] Servem para exprimir relações entre objetos de acordo com as as
+seguintes regras:
+\begin{itemize}
+\item cada símbolo predicativo tem uma aridade igual ao número de
+argumentos da relação correspondente;
+\item a relação expressa deve ser bem determinada.
+\end{itemize}
+Por exemplo: $Tet(a), Samesize(a, b), Between(a, b, c)$ de aridade 1, 2 e 3, respetivamente.
+\item[símbolos funcionais] São símbolos, cada um com uma aridade, usados para construir os
+termos, em particular, os termos fechados.
+\item[termos fechados] Os termos fechados permitem obter outras designações para objetos
+de acordo com regras similares às regras para as constantes. São construidos de acordo com as seguintes regras:
+\begin{itemize}
+\item todas as constantes são termos fechados e todas as variáveis são termos;
+\item se $f$ é um símbolo funcional de aridade $n$ e $t_1, ... , t_n$ são $n$ termos
+fechados, então a expressão $f(t_1, ..., t_n)$ é um termo fechado;
+\item apenas as expressões obtidas aplicando as regras anteriores um
+número finito de vezes são termos fechados.
+\item Um termo diz-se fechado se nele não ocorrem variáveis.
+\end{itemize}
+\end{itemize}
+Nota: Conectivos booleanos (<, >, $\neg$) são usados para formar sentenças novas a partir de sentenças validas pré existentes. Não podem, no entanto, ser usados em termos.\\
+Em geral, num exercício de classificação deve-se:
+\begin{itemize}
+\item Verificar a sintaxe (colocação de virgulas, parênteses, etc.)
+\item Verificar se as aridades foram respeitadas
+\item Verificar se os símbolos predicativos ocorrem sempre fora dos funcionais e de outros predicativos
+\item Verificar se foram usados conectivos booleanos sem a presença de predicativos
+\end{itemize}
+
+\chapter{Valor de verdade em mundos}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.65]{Sem Título.png}
+\end{figure}
+\begin{figure}[h]
+\hspace{-0.8cm}
+\includegraphics[scale=0.55]{Sem Título1.png}
+\end{figure}
+\begin{figure}[h]
+\hspace{-0.7cm}
+\includegraphics[scale=0.55]{Sem Título2.png}
+\end{figure}
+
+\chapter{tt}
+\section{Satisfazibilidade}
+Uma sentença diz-se tt-satisfazível se há pelo menos uma linha da
+tabela de verdade em que o seu valor é V ou 1 (verdadeiro). Não confundir com tautologia, que é verdadeiro em todas as linhas. Por exemplo $P$:
+\begin{table}[h]
+\centering
+\begin{tabular}{c}
+P \\ \hline
+0 \\
+1
+\end{tabular}
+\end{table}
+\section{Equivalência}
+Duas sentenças P e Q são tt-equivalentes (ou tautologicamente
+equivalentes) se, na tabela de verdade conjunta para P e Q, em cada
+uma das linhas as sentenças P e Q têm o mesmo valor lógico.
+Por exemplo, as sentenças $P$ e $P \land (P \lor Q)$:
+\vspace{0.5cm}
+\begin{table}[h]
+\centering
+\begin{tabular}{c|c|c|c|c}
+P & Q & P $\lor$ Q & P $\land$ (P $\lor$ Q) & P \\ \hline
+0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 1 & 0 & 0 \\
+1 & 0 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1 & 1
+\end{tabular}
+\end{table}
+\section{Consequência}
+Uma sentença $Q$ é tt-consequência de $P$ se e só se $P \rightarrow Q$ é uma tautologia. Se $Q$ é tt-consequência de $P$ escreve-se $P \Rightarrow Q$. Numa tabela de verdade conjunta verifica-se que $Q$ é tt-consequência de $P$ e $S$ se $Q$ não é falsa quando $P$ e $S$ são verdadeiras, i.e. $Q$ só não é tt-consequência de $P$ e $S$ se existir uma linha em que  $P$ e $S$ são verdadeiras e $Q$ é falsa.
+
+\chapter{Formas}
+\section{Forma normal disjuntiva}
+Uma fórmula está na forma normal disjuntiva se é apenas composta por disjunções.
+\subsection{Conversão para fnd}
+\begin{itemize}
+\item Remoção das equivalências:
+$$
+A \leftrightarrow B = (A \rightarrow B) \land (B \rightarrow A)
+$$
+\item Remoção das implicações:
+$$
+A \rightarrow B = \neg A \lor B
+$$
+\item Aplicar as leis de De Morgan:
+$$
+\neg(A \lor B) = (\neg A \land \neg B), \neg(A \land B) = (\neg A \lor \neg B)
+$$
+\item Eliminação das negações duplas:
+$$
+\neg \neg A = A
+$$
+\item Utilizar as leis distributivas para colocar a fórmula resultante na fnd:
+$$
+((\neg p \lor \neg q) \lor r) \land s = (\neg p \land s) \lor (\neg q \land s) \lor(r \land s) 
+$$
+\end{itemize}
+\section{Forma normal conjuntiva}
+Uma fórmula está na forma normal conjuntiva se é apenas composta por conjunções.
+\subsection{Conversão para fnc}
+O algoritmo de conversão para fnc é exatamente igual ao para fnd, porém, usam-se leis
+distributivas para se obter uma conjunção de disjunções, por exemplo:
+\begin{align}
+((p \land q) \rightarrow r&) \land s =\\
+=(\neg(p \land q) \lor r&) \land s =\\
+=(\neg p \lor \neg q \lor r&) \land s
+\end{align}
+\section{Forma normal prenexa}
+Uma fórmula de uma LPO está na forma normal prenexa (fnp) se e só
+se é livre de quantificadores ou é da forma:
+$$
+Q_1x_1Q_2x_2...Q_nx_nS
+$$
+onde $Q \in \{\exists, \forall\}, x_1, ..., x_n$ são variáveis e S é uma fórmula da LPO livre
+de quantificadores.
+\subsection{Conversão para fnp}
+Conjunção e disjunção:
+\begin{align}
+(\forall x \phi) \land \psi& = \forall x(\phi \land \psi)\\
+(\forall x \phi) \lor \psi& = \forall x (\phi \lor \psi)\\
+(\exists x \phi) \land \psi& = \exists x(\phi \land \psi)\\
+(\exists x \phi) \lor \psi& = \exists x (\phi \lor \psi)
+\end{align}
+Negação:
+\begin{itemize}
+\item $\neg \exists x \phi$ é equivalente a $\forall x \neg \phi$, uma vez que se não há ao menos um $x$ onde $\phi$ é verdade, então, para todo $x$, $\phi$ não é verdade.
+\item $\neg \forall x \phi$ é equivalente a $\exists x \neg \phi$, uma vez que, se nem para todo $x$, $\phi$ é verdadeiro, então para algum $x$, $\phi$ é falso.
+\end{itemize}
+Implicação:
+\begin{itemize}
+\item[] Remover quantificadores dos antecedentes:
+\item $(\forall x \phi) \rightarrow \psi$ é equivalente a $\exists x (\phi \rightarrow \psi)$
+\item $(\exists x \phi) \rightarrow \psi$ é equivalente a $\forall x (\phi \rightarrow \psi)$
+\item[] Remover quantificadores dos consequentes:
+\item $\phi \rightarrow (\exists x \psi)$ é equivalente a $\exists x (\phi \rightarrow \psi)$
+\item $\phi \rightarrow (\forall x \psi)$ é equivalente a $\forall x (\phi \rightarrow \psi)$
+\end{itemize}
+
+
+\section{Skolemização}
+Uma fórmula na forma normal prenexa diz-se que está na forma de skolem se todos os seus quantificadores são universais ($\forall$). A skolemização assenta no facto de que $\exists = \neg \forall$ e $\neg \exists = \forall$.
+\subsection{Skolemização I}
+A skolemização I aplica-se quando a formula se inicia com um quantificador existencial, $\exists$. A skolemização
+I consiste em substituir as variáveis por objectos concretos, por exemplo:
+\begin{align}
+\exists x \exists y(Cube(x) \land& Larger(x, y))\\
+\exists y(Cube(c) \land& Larger(c, y)) \hspace{1.4cm} skolem. I\\
+Cube(c) \land& Larger(c, d) \hspace{1.5cm} skolem.I
+\end{align}
+\subsection{Skolemização II}
+A skolemização II aplica-se quando a formula se inicia com um quantificador universal, $\forall$. A skolemização II consiste em substituir as variáveis por simbolos, por exemplo:
+\begin{align}
+\forall u \exists u \exists z(Tet(c) \land Tet(u) \rightarrow& Between(u, y, z)))\\
+\forall u \exists z(Tet(c) \land (Tet(u) \rightarrow& Between(u, f(u), z))) \hspace{1.5cm} skolem.II\\
+\forall u(Tet(c) \land (Tet(u) \rightarrow& Between(u, f(u), g(u)))) \hspace{1cm} skolem.II
+\end{align}
+
+\chapter{Algoritmos}
+\section{Horn}
+\subsection{Fórmulas de Horn}
+Uma fórmula de Horn é uma sentença na fnc tal que em cada disjunção
+de literais há no máximo um literal positivo.
+\subsection{Algoritmo de Horn}
+O algoritmo de Horn serve para verificar se uma fórmula de Horn $S$ é tt-satisfazível.
+\begin{itemize}
+\item[Passo 1 -] Fazer a lista das implicações que ocorrem em $S$ na forma
+condicional.
+\item[Passo 2 -] Algoritmo \begin{itemize}
+\item[Input:] lista das implicações que ocorrem em $S$ na forma condicional
+\item[Output:] $S$ é tt-satisfazível ou $S$ não é tt-satisfazível
+\end{itemize}
+\end{itemize}
+\subsection{Condições de paragem}
+\begin{itemize}
+\item[a)] Se ocorre em S uma implicação do tipo $(A_1 \land ... \land A_k ) \rightarrow \top $com $A_1, ... ,
+A_k \in V$, terminar e concluir que $S$ não é tt-satisfazível.
+\item[b)] Enquanto ocorrerem em S implicações do tipo $(A_1 \land ... \land A_k ) \rightarrow B $ com $A_1, ..., A_k \in V$, fazer:
+$$
+V = V \cup \{B\}
+$$
+e regressar a a)
+\item[c)] Terminar e concluir que $S$ é tt-satisfazível, atribuindo às sentenças
+atómicas em $V$ o valor lógico 1 e às restantes o valor lógico 0.
+\end{itemize}
+\subsection{Exemplo}
+$$
+S = A \land (B \lor \neg C \lor \neg D) \land (C \lor \neg A \lor \neg D) \land (D \lor \neg B) \land(\neg A \lor B) \land \neg E
+$$
+Passo 1: Fazer a lista das implicações que ocorrem em $S$ na forma condicional:
+$$
+\top \rightarrow A, (C \land D) \rightarrow B, (A \land D) \rightarrow C, B \rightarrow D, A \rightarrow B, E \rightarrow \bot
+$$
+Passo 2: Executar o Algoritmo:
+\begin{align}
+1.& A\\
+-& ----\\
+2.& B\\
+3.& D\\
+4.& C
+\end{align}
+Logo $S$ é tt-satisfazível
+\section{Resolução}
+\subsection{Algoritmo}
+A sentença $S$ é tt satisfazível?
+Passo 1 - Pôr $S$ na fnc. Formar a lista $C$ das cláusulas  de $S$.
+Passo 2 - Algoritmo:
+\begin{itemize}
+\item[Input:] lista $C$ das cláusulas de $S$
+\item[Output:] $S$ é tt-satisfazível ou $S$ não é tt-satisfazível
+\end{itemize}
+\subsection{Condições de paragem}
+\begin{itemize}
+\item[a)] Se $\{\} \in C$, terminar e concluir que $S$ não é tt-satisfazível.
+\item[b)] Enquanto existirem cláusulas $C_1, C_2 \in C$ tais que para alguma sentença
+atómica $P$ temos:
+\begin{itemize}
+\item $P \in C_1$
+\item $\neg P \in C_2$
+\item O resolvente 
+$$
+C_2 = (C_1\\\{P\}) \cup (C_2\\\{\neg P\})
+$$
+de $C_1$ e $C_2$ não está em $C$, fazer:
+$$
+C = C \cup \{C_2\}
+$$
+e regressar a a).
+\end{itemize}
+\item[c)] Terminar e concluir que $S$ é tt-satisfazível.
+\end{itemize}
+\subsection{Exemplo}
+$$
+S = \neg A \land (B \lor C \lor B) \land (\neg C \lor \neg D) \land (A \lor D) \land (\neg B \lor \neg D)
+$$
+Passo 1: $S$ já está na fnc, logo, formar a lista das cláusulas:
+$$
+C = \{\neg A\}, \{B, C\}, \{\neg C, \neg D\}, \{A, D\}, \{\neg B, \neg D\}
+$$
+Passo 2: Executar o algoritmo:
+\begin{align}
+1.& \{\neg A\}\\
+2.& \{B, C\}\\
+3.& \{\neg C, \neg D\}\\
+4.& \{A, D\}\\
+5.& \{\neg B, \neg D\}\\
+-&-----------\\
+6.& \{B, \neg D\} \hspace{1cm} Res(2, 3)\\
+7.& \{\neg D\} \hspace{1.4cm} Res(5, 6)\\
+8.& \{A\} \hspace{1.6cm} Res(4, 7)\\
+9.& \{ \} \hspace{1.8cm} Res(1, 8)
+\end{align}
+Logo $S$ não é tt-satisfazível
+\end{document}

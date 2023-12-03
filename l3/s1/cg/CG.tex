@@ -1,0 +1,446 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{minitoc}
+\DeclareMathOperator{\arccotg}{arccotg}
+\usepackage{hyperref}
+\title{\LARGE{Computação Gráfica} \\ \vspace{0.5cm} \normalsize{Resumo}}
+\date{}
+\renewcommand{\mtctitle}{Conteúdos}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Transformações}
+
+\section{Transformações Geométricas em 2D}
+
+\subsection{Translação}
+Uma translação consiste na aplicação de um vetor de deslocamento $v = (t_x, t_y)$, em que para cada ponto inicial $(x,y)$ se obtém $x'= x + t_x$ e $y'=y+t_y$. Em notação matricial tem-se:
+$$
+\begin{bmatrix}
+1& 0& x'\\
+0& 1& y'\\
+0& 0& 1
+\end{bmatrix} = \begin{bmatrix}
+1 & 0 & t_x\\
+0 & 1 &t_y\\
+0 & 0 & 1
+\end{bmatrix} + \begin{bmatrix}
+1& 0& x\\
+0& 1& y\\
+0& 0& 1
+\end{bmatrix}
+$$
+Transformação inversa:
+$$
+\begin{bmatrix}
+1 & 0 & -t_x\\
+0 & 1 & -t_y\\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+\subsection{Rotação}
+Uma rotação de ângulo $\alpha$ tem como centro a origem do referencial, sendo este o seu ponto invariante. Dado $(x,y)$, após uma rotação de ângulo $\alpha$ tem-se:
+$$
+x'=x\cdot \cos \alpha - y\cdot \sin \alpha
+$$$$
+y'=x\cdot \sin \alpha + y\cdot \cos \alpha
+$$
+Em notação matricial:
+$$
+\begin{bmatrix}
+x'\\
+y'\\
+1
+\end{bmatrix} = 
+\begin{bmatrix}
+\cos \alpha & -\sin \alpha & 0\\
+\sin \alpha & \cos \alpha & 0\\
+0 & 0 & 1
+\end{bmatrix}\cdot \begin{bmatrix}
+x\\
+y\\
+1
+\end{bmatrix}
+$$ 
+Transformação inversa:
+$$
+\begin{bmatrix}
+\cos -\alpha & -\sin -\alpha & 0\\
+\sin -\alpha & \cos -\alpha & 0\\
+0 & 0 & 1
+\end{bmatrix}
+$$
+\subsection{Mudança de Escala}
+Na mudança de escala de fator $s_x$/$s_y$ a origem é o seu ponto invariante ou ponto fixo, em que:
+$$
+x'=x\cdot s_x
+$$
+$$
+y'=y\cdot s_y
+$$
+Se $s_x = s_y$, a mudança de escala é uniforme, caso contrário é uniforme. Em notação matricial:
+$$
+\begin{bmatrix}
+x'\\
+y'\\
+1
+\end{bmatrix} = 
+\begin{bmatrix}
+s_x & 0 & 0\\
+0 & s_y & 0\\
+0 & 0 & 1
+\end{bmatrix}\cdot \begin{bmatrix}
+x\\
+y\\
+1
+\end{bmatrix}
+$$ 
+Transformação inversa:
+$$
+\begin{bmatrix}
+1/s_x & 0 & 0\\
+0 & 1/s_y & 0\\
+0 & 0 & 1
+\end{bmatrix}
+$$
+A mudança de escala não é uma transformação de corpo-rígido(não mantém ângulos nem comprimentos), mas mantém as relações de paralelismo. É uma transformação afim.
+\subsection{Composição de Transformações Geométricas}
+Numa composição de transformações geométricas, obtém-se uma matriz de pontos transformados a partir de uma multiplicação de uma matriz da transformação geométrica pela matriz dos pontos originais.\\
+\\
+A composição de Translações, Rotações e Mudanças de Escala é uma Transformação Afim (mantém as relações de paralelismo), mas não comutativa, exceto na concatenação de transformações do mesmo tipo ou na concatenação de uma rotação e mudança de escala com fatores de escala iguais.\\
+\\
+Numa composição de transformações, as matrizes são multiplicadas pela ordem inversa da aplicação das transformações geométricas, analogamente á composições de funções matemáticas. Por exemplo:
+$$
+P' =  R(\alpha)\cdot T(x_r,y_r)\cdot P
+$$
+Neste caso, processa-se primeiro a translação, seguida da rotação.\\
+\\
+Para transformações que têm a origem como ponto fixo, de forma serem efetuadas em relação a um ponto $(x,y)$ arbitrário é necessário:
+\begin{itemize}
+\item Aplicar uma translação ao objeto por forma a que o ponto arbitrário coincida com a origem
+\item Aplicar a mudança de escala em relação à origem
+\item Aplicar ao objeto a translação inversa da primeira, por forma a levar o ponto arbitrário para a posição original
+\end{itemize}
+\subsection{Transformação Clipping Window-Viewport}
+Para exibir uma imagem é necessário transformar a clipping window pretendida num viewport de apresentação.\\
+\\
+Esta transformação processa-se através de uma mudança de escala, pelo que é necessário ter em conta a razão de aspeto de ambas as partes, de forma a não deformar a imagem.\\
+\\
+Em alguns casos, o sistema de coordenadas da área de desenho tem a sua origem no canto superior esquerdo e é preciso garantir que a imagem não fica invertida. para isso deve-se aplicar o fator $y$ inverso na mudança de escala.
+
+\section{Transformações Geométricas em 3D}
+\subsection{Translação}
+$$
+T(t_x, t_y, t_z) = \begin{bmatrix}
+1 & 0 & 0 & t_x\\
+0 & 1 & 0 & t_y\\
+0 & 0 & 1 & t_z\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+\subsection{Mudança de Escala}
+Mudança de escala em relação à origem e aos eixos principais:
+$$
+S(s_x, s_y, s_z) = \begin{bmatrix}
+s_x & 0 & 0 & 0\\
+0 & s_y & 0 & 0\\
+0 & 0 & s_z & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+\subsection{Rotação}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título.png}
+\end{figure}
+Rotação em torno de $x$:
+$$
+R_x(\alpha) = \begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & \cos(\alpha) & -\sin(\alpha) & 0\\
+0 & \sin(\alpha) & \cos(\alpha) & 0\\
+0 & 0 & 0 & 1\
+\end{bmatrix}
+$$
+Rotação em torno de  $y$:
+$$
+R_y(\alpha) = \begin{bmatrix}
+\cos(\alpha) & 0 & \sin(\alpha) & 0\\
+0 & 1 & 0 & 0\\
+-\sin(\alpha) & 0 & \cos(\alpha) & 0\\
+0 & 0 & 0 & 1\
+\end{bmatrix}
+$$
+Rotação em torno de $z$:
+$$
+R_z(\alpha) = \begin{bmatrix}
+\cos(\alpha) & -\sin(\alpha) & 0 & 0\\
+\sin(\alpha) & \cos(\alpha) & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 & 1\
+\end{bmatrix}
+$$
+\subsubsection{Rotação em Torno de um Eixo Arbitrário}
+O problema geral da rotação em 3D é a rotação em torno de um eixo arbitrário, uma transformação composta. O problema resume-se a encontrar um referencial privilegiado no qual a rotação pretendida seja uma rotação em torno de um dos eixos principais. Temos portanto 3 passos:
+\begin{itemize}
+\item Fazer a mudança para o referencial privilegiado
+\item Efetuar a rotação
+\item Desfazer a mudança inicial
+\end{itemize}
+No caso genérico:
+\begin{itemize}
+\item Considera-se um eixo definido pela direção $(a,b,c)$ e pelo ponto $(x_0,y_0,z_0)$
+\item Admitimos que a parte positiva do eixo é a que se encontra no semi-espaço $y>0$.
+\item Pretende-se calcular a rotação de ângulo $\alpha$ em torno deste eixo
+\end{itemize}
+Uma sequência possível é:
+$$
+T(x_0,y_0,z_0) \cdot R_z(-\beta) \cdot R_x(-\theta) \cdot R_z(\alpha) \cdot R_x(\theta) \cdot R_z(\beta) \cdot T(-x_0,-y_0,-z_0)
+$$
+Pela ordem das transformações, da direita para a esquerda:
+\begin{itemize}
+\item O eixo fica a passar pela origem
+\item O eixo fica rebatido sobre o plano $YZ$
+\item O eixo fica coincidente com o eixo $ZZ$
+\item Realiza-se a rotação pretendida
+\item Nas últimas e transformações desfazem-se as modificações iniciais
+\end{itemize}
+Para calcular a matriz resultante é necessário descobrir os $\sin$ e $\cos$ dos ângulos $\beta$ e $\theta$. Para $\beta$ é útil ter em conta o seguinte referencial:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título1.png}
+\end{figure}
+Em que $\beta = \arctan(a/b)$, logo $\cos \beta = b/h$ e $\sin \beta = a/h$, em que $h = \sqrt{a^2+b^2}$, sendo a matriz da rotação:
+$$
+R_z(\beta) = \begin{bmatrix}
+\frac{b}{h} & -\frac{a}{h} & 0 & 0\\
+\frac{a}{h} & \frac{b}{h} & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+Para $\theta$ usa-se o seguinte referencial:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título2.png}
+\end{figure}
+Em que $\theta = \arccos(c/H)$, logo $\cos \theta = c/H$ e $\sin \theta = h/H$, em que $H = \sqrt{h^2+c^2}$, sendo a matriz da rotação:
+$$
+R_x(\theta) = \begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & \frac{c}{H} & -\frac{h}{H} & 0\\
+0 & \frac{h}{H} & \frac{c}{H} & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+\chapter{Projeções}
+Para representar objetos tridimensionais em superfícies de visualização bidimensionais, temos de recorrer às projeções, o que representa sempre uma perda de informação.
+\section{Projeções Planares}
+A projeção planar geométrica de um ponto é a interseção da reta projetante desse ponto com o plano de projeção, podendo ser de dois tipos:
+\begin{itemize}
+\item Paralelas: projetantes paralelas entre si
+\item Perspetivas: projetantes convergem no centro de projeção
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título3.png}
+\end{figure}
+O tamanho da projeção obtida varia em função da posição relativa entre o objeto projetado, o plano de projeção e o centro de projeção.\\
+\\
+A câmara virtual pode apenas captar a imagem dos objetos que se encontram no volume de visualização (view volume). Para eliminar os objetos fora deste volume procede-se a uma operação de clipping. O view volume pode ser um frustrum (porção de um cone ou pirâmide) ou um paralelepípedo.
+\subsection{Projeções Perspetivas}
+Numa projeção perspetiva, as projeções das retas paralelas a uma direção $D$, não paralela ao plano de projeção, convergem para um ponto de fuga. Se $D$ for uma direção principal, o ponto de fuga designa-se por ponto de fuga principal, caso contrário, designa-se por ponto de fuga secundário.\\
+\\
+As projeções perspetivas são classificadas em função do seu número de pontos de fuga principais.
+\subsection{Projeções Paralelas}
+Existem diversas classificações de projeções paralelas:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título4.png}
+\end{figure}
+\begin{itemize}
+\item As projeções paralelas ortogonais são usadas em alçados e plantas de edifícios.
+\item As projeções paralelas ortogonais axonométricas são classificadas como isométricas, dimétricas ou trimétricas se têm, respetivamente, um, dois ou três componentes iguais em valor absoluto
+\item As projeções paralelas oblíquas são obtidas por projetantes oblíquas ao plano de projeção
+\begin{itemize}
+\item Na projeção cavaleira, o ângulo entre a direção de projeção e o plano de projeção é de $45^{\circ}$
+\item Na projeção gabinete, o ângulo entre a direção de projeção e o plano de projeção é de $\arccotg(0,5) \approx 64^{\circ}$
+\end{itemize}
+\end{itemize}
+\subsubsection{Representação Matricial de Projeções Paralelas Ortográficas}
+Matrizes das projeções paralelas ortográficas do tipo de vista
+\begin{itemize}
+\item Sobre o plano $XY$: $$
+\begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+\item Sobre o plano $YZ$: $$
+\begin{bmatrix}
+0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+\item Sobre o plano $XZ$: $$
+\begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & 0 & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+\end{itemize}
+Em relação às projeções ortográficas axonométricas, é possível obter a sua matriz sabendo que qualquer projeção ortográfica pode ser reduzida a uma projeção sobre um plano principal. Basta realizar rotações que levem a direção de projeção (perpendicular ao plano de projeção) a coincidir com a direção de um dos eixos principais.\\
+\\
+Assim, para calcular a matriz de uma projeção axonométrica, por exemplo, calculam-se as matrizes $R_x(\alpha)$ e $R_z(\beta)$ de forma a transformar a projeção numa vista sobre o plano $XY$ e por fim calcula-se o produto $M(XY) \cdot R_x(\alpha) \cdot R_z(\beta)$.
+
+\chapter{Cor}
+\section{Modelos de Cor}
+Os modelos de cor definem o sistema de coordenadas e o sub espaço de cores visíveis.
+\subsection{Modelo CIE}
+Este modelo define 3 cores primárias imaginárias $X,, Y, Z$, que podem gerar todas as cores do espectro visível. As cores visíveis encontram-se dentro de um volume aproximadamente cónico.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título5.png}
+\end{figure}
+\begin{itemize}
+\item Qualquer cor $C$ pode ser obtida por combinação linear das 3 primárias
+$$
+C = xX + yY + zZ
+$$
+\item Quando duas cores são misturadas, a cor resultante situa-se no segmento de reta que as une
+\item Duas cores complementares encontram-se nos extremos de um segmento de reta que une as duas cores e que intersecta a posição correspondente ao branco
+\end{itemize}
+Este modelo permite representar todas as cores visíveis mas não é intuitivo nem adequado para CG.
+\subsection{Modelo RGB}
+O modelo RGB utiliza um sistema de eixos cartesianos e o sub espaço das cores visíveis é um cubo de aresta unitária. As cores observadas resultam da mistura das 3 cores em percentagens diferentes.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título6.png}
+\end{figure}
+\begin{itemize}
+\item A origem das coordenadas corresponde ao preto ou ausência de luz, pelo que o branco se obtém com as três componentes no valor máximo
+\item RGB é adequado quando há emissão de luz
+\end{itemize}
+\subsection{Modelo CMY}
+Este modelo utiliza o mesmo referencial que o RGB, mas as cores resultam da mistura de ciano, magenta e amarelo em percentagens diferentes e na forma de pigmentos.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título7.png}
+\end{figure}
+\begin{itemize}
+\item A origem das coordenadas corresponde ao branco, pelo que o preto se obtém sobrepondo ao branco as três componentes no valor máximo
+\item CMY é adequado quando há reemissão de luz
+\item As cores funcionam como um filtro, apenas são reemitidas as cores existentes no filtro.
+\end{itemize}
+As cores primárias do RGB são complementares das cores primárias do CMY:
+$$
+C = 1 - R \;\;\;\; M = 1 - G \;\;\;\; Y = 1 - B
+$$
+\subsection{Outros Modelos}
+\subsubsection{CMYK}
+Este modelo é idêntico ao CMY mas usa um meio tom para variar a quantidade de tinta transferida para o papel durante a impressão
+\subsubsection{sRGB}
+sRGB é o espaço de cor RGB geralmente usado na internet e em monitores.
+\subsubsection{HSV}
+HSV significa Hue, Saturation e Value. Diz-se ser um modelo orientado ao utilizador pois estes parâmetros correspondem á nossa forma de perceber a cor.\\
+\\
+A relação entre os modelos RGB e HSV é uma relação não linear o que implica, entre outras coisas, que a interpolação de cores nos dois modelos não dê o mesmo resultado.
+\subsubsection{HSL}
+HSL é semelhante ao HSV, com a componente Value substituída por Lightness. 
+\chapter{Iluminação}
+Os modelos de iluminação como objetivo determinar a simulação de atributos luminosos, com vista a determinar a cor de um ponto numa superfície. Têm em conta a interação luminosa entre os diferentes objetos.
+\section{Modelos de Iluminação local}
+Estes modelos consideram:
+\begin{itemize}
+\item fontes de luz pontuais iluminando diretamente a superfície dos objetos
+\item uma componente de luz ambiente para compensar a não consideração das interações luminosas entre objetos
+\end{itemize}
+Quando a luz incide sobre um objeto opaco há reemissão de luz:
+\begin{itemize}
+\item Por difusão:
+$$
+I_d = I_pk_d \cos(\theta)
+$$
+Em que a intensidade difundida não depende da posição do observador.
+\item Por reflexão:
+$$
+I_s = I_p k_s [\cos(\alpha)]^n
+$$
+O brilho que se observa num objeto depende da nossa posição.
+\end{itemize}
+Existe ainda uma atenuação da luz com a distância, expressa por:
+$$
+f_{at} = \frac{1}{d_L^2}
+$$
+A equação do modelo de iluminação local corresponde á soma das componentes difundida, refletida e ambiente:
+$$
+I = I_ak_a + I_pf_{at}[k_d(L\cdot N) + k_s (R\cdot V)^n]
+$$
+Quando há múltiplas fontes de luz somam-se as contribuições de cada uma delas.
+\section{Modelos de Iluminação Global}
+Os modelos de iluminação global tratam de forma explícita a interação luminosa entre objetos
+\subsection{Ray-Casting}
+O ray-casting consiste em inverter o sentido do trajeto dos raios de luz, passando o utilizador a ser a fonte.\\
+\\
+Baseia-se nos métodos de ótica geométrica que determinam os percursos dos raios de luz. Quando se usa projeção perspetiva, os raios divergem do centro de projeção, passam pelo centro de um pixel e continuam através da cena.
+\subsection{Ray-Tracing}
+No ray-tracing são também emitidos raios secundários, a partir do ponto de interseção mais á frente na cena.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título11.png}
+\end{figure}
+Este algoritmo combina a eliminação de superfícies ocultas com shading devido a iluminação direta e global e determinação de sombras. Resumidamente consiste em:
+\begin{itemize}
+\item Traçar um raio a partir da posição do observador, atravessando o centro de um pixel
+\item Intersetar o raio com os modelos da cena
+\item Determinar o ponto de intersecção mais próximo
+\item Calcular a iluminação nesse ponto de interseção
+\item Atribuir a cor ao pixel
+\end{itemize}
+Para calcular sombras é lançado um raio adicional a partir do ponto de interseção com a superfície para cada uma das fontes de luz presentes na cena.
+\subsection{Radiosidade}
+Baseia-se nos princípios da troca de radiação térmica entre superfícies. Este método incide unicamente sobre a radiação luminosa difusa; não permite o cálculo de quaisquer componentes especulares. As imagens não apresentam zonas de brilho.
+\section{Shading}
+O shading consiste na aplicação de um modelo de iluminação, determinando a cor aparente de um conjunto de pontos de uma superfície. 
+\subsection{Flat Shading}
+No flat shading atribui-se a mesma cor a todos os pixeis de um dado polígono. A descontinuidade entre polígonos adjacentes é facilmente detetável pelos nossos olhos.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título8.png}
+\end{figure}
+\subsection{Shading de Gouraud}
+Neste modelo as intensidades nos vértices são calculadas a partir das normais nos vértices. Em cada vértice considera-se como normal à superfície a média das normais dos polígonos que partilham o vértice.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título9.png}
+\end{figure}
+Na figura, a intensidade $I_a$ é obtida por interpolação linear de $I_1$ e $I_2$ e a intensidade em $I_B$ é obtida por interpolação linear de $I_1$ e $I_3$. A intensidade no pixel $I_p$ é a interpolação linear de $I_a$ e $I_b$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título10.png}
+\end{figure}
+\subsection{Shading de Phong}
+No método de Phong começa-se por calcular a normal nos vértices da mesma forma que no método de Gouraud. Seguidamente, em vez de interpolar intensidades, interpolam-se as normais, primeiro ao longo das arestas, depois ao longo das linhas de varrimento.\\
+\\
+Este método é mais rigoroso mas mais pesado computacionalmente, visto que interpolar vectores exige mais operações do que interpolar escalares e o cálculo das intensidades tem de ser repetido para cada pixel.
+\end{document}

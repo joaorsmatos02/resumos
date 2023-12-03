@@ -1,0 +1,227 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{hyperref}
+\addto\captionsportuguese{\renewcommand{\chaptername}{Grupo}}
+\title{\Huge{Tópicos de Exame em Introdução à Investigação Operacional}}
+\date{}
+\begin{document}
+\maketitle
+\chapter{Programação Matemática}
+\section{Formulação em Programação Linear}
+O processo de formulação de um problema em programação linear envolve a extração das variáveis em questão e a determinação dos respetivos limites. Durante o processo de formulação deve-se também determinar qual a função objetivo em questão e qual a sua natureza, i.e., se esta função deve ser maximizada ou minimizada. Um exemplo de formulação em programação linear é:
+\begin{align}
+Max \hspace{1cm} &z = 800x_1 + 600x_2\\
+s.a.: \hspace{0.8cm} &5x_1 + 3x_2 \leq 30\\
+&2x_1 + 3x_2 \leq 24\\
+&x_1 + 3x_2 \leq 18\\
+&x_1, x_2 \geq 0
+\end{align}
+\section{Representação Gráfica}
+Para representar graficamente uma formulação em programação linear devem-se representar, num referencial cartesiano, todas as retas de restrições, tendo em atenção o seu sentido, bem como a função objetivo. Caso as restrições não formem uma área fechada, o problema diz-se ilimitado ou quando as restrições são incompatíveis o problema é impossível.Seguindo o exemplo anterior, a sua representação gráfica seria:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título.png}
+\end{figure}
+\section{Ponto ótimo}
+O ponto ótimo de um problema de programação linear é obtido através das restrições impostas e da função objetivo. Concretamente, trata-se do ponto limite de maximização ou minimização da função objetivo (conforme pedido) dentro da região admissível das restrições. Graficamente, o ponto ótimo pode ser observado ao deslocar verticalmente a reta da função objetivo dentro da região admissível. O processo de determinação do ponto ótimo está ilustrado na figura seguinte. 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título1.png}
+\end{figure}
+As restrições que delimitam o ponto ótimo designam-se restrições ativas e a sua alteração pode deslocar o ponto ótimo. Analogamente, uma restrição que não delimita o ponto ótimo diz-se não ativa e uma restrição que não delimita a região admissível diz-se redundante. Na eventualidade de da reta da função objetivo ser paralela á reta de uma das restrições pode existir uma infinidade de pontos igualmente ótimos. Nesse caso teriamos:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título2.png}
+\end{figure}
+\section{Valores Marginais}
+Designa-se por valor marginal (associado a uma restrição), a taxa de variação instantânea do valor ótimo do problema se houver um aumento no termo independente. Em geral, o valor marginal pode determinar-se avaliando a variação sofrida pelo valor ótimo se o termo independente em causa aumentar uma unidade:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título3.png}
+\end{figure}
+Neste caso, uma alteração de 1 unidade na primeira restrição aumentou o lucro em 150. Conclui-se portanto que o valor marginal associado a esta restrição é 150. Os valores marginais das restrições de um problema de programação linear mantêm-se enquanto o conjunto de restrições ativas no ponto ótimo não se alterar. Não há garantias da sua manutenção se o conjunto de restrições ativas for aumentado.
+\section{Determinação dos Limites de um Valor Marginal}
+Determina-se o intervalo de valores para o termo independente dessa restrição de forma que o conjunto de restrições ativas não se altere. Seguindo o exemplo anterior, para a primeira restrição:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título15.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título16.png}
+\end{figure}
+\section{Análise de Coeficientes na Função Objetivo}%-> Slide 77 do conjunto 2
+Dada uma função objetivo da forma $z = c_1x_1 + c_2x_2$, esta é equivalente a ter $x_2 = (-c_1/c_2)x_1 + z/c_2$. Nesta forma:
+\begin{itemize}
+\item Uma alteração de $c_1$ ou $c_2$ provoca uma ateração do declive das retas associadas à função objetivo
+\item Com uma alteração de $c_2$ pode alterar-se o sentido da otimização
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título10.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título11.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título12.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título13.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título14.png}
+\end{figure}
+\section{Excel Solver}
+O solver permite resolver problemas de programação linear com várias variáveis rapidamente. A figura seguinte demonstra um exemplo de resultado:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título4.png}
+\end{figure}
+Este resultado deve ser interpretado da seguinte forma:
+\begin{itemize}
+\item A coluna intitulada «Valor Final» representa a solução ótima para cada variável e restrição 
+\item A coluna «Preço Sombra» representa os valores marginais de cada restrição
+\item As colunas «Restrição Lado Direito», «Permissível Aumentar» e «Permissível Diminuir» na tabela de restrições representam a possível variação nos termos independentes sem que os valores marginais se alterem. No caso, o intervalo seria, para $r_1$:
+$$
+r_1 \in ]26-1; 26+1,5[ = ]25; 27,5[
+$$
+\item As colunas «Objetivo Coeficiente», «Permissível Aumentar» e «Permissível Diminuir» na tabela de variáveis representam a possível variação nos coeficientes da função objetivo sem que a solução ótima se altere. No caso, o intervalo seria, para $x_2$:
+$$
+x_2 \in ]10-\infty; 10+3,5[ = ]-\infty; 13,5[
+$$
+\end{itemize}
+
+\chapter{Grafos}
+\section{Definições e Classificação}
+\subsection{Grau Externo e Interno}
+O número de arcos cujo nodo inicial é o vértice $i$ designa-se por grau externo do vértice $i$ e representa-se por $d^+(i)$ e o número de arcos cujo nodo terminal é o vértice $i$ designa-se por grau interno do vértice $i$ e representa-se por $d^-(i)$. O número de adjacentes de $i$ designa-se por grau do vértice $i$ e representa-se por $d(i)$.
+\subsection{Caminho e Circuito}
+Chama-se caminho no grafo orientado a uma sequência de arcos em que o vértice
+terminal de um coincide com o vértice inicial do seguinte e chama-se circuito no grafo a um caminho em que o vértice terminal do último arco coincide com o vértice inicial do primeiro arco. Um caminho ou circuito diz-se simples se não passa mais do que uma vez pelo mesmo arco (aresta) e diz-se elementar se não passa mais do que uma vez por cada vértice.\\
+\\
+Analogamente, num grafo não orientado, a definição de caminho corresponde a  uma cadeia e a definição de circuito corresponde a um ciclo.
+\subsection{Euleriano e Hamiltoniano}
+Uma cadeia em $G$ diz-se euleriana se contiver todas as arestas de $G$ uma e uma só vez. Um ciclo em $G$ diz-se euleriano se contiver todas as arestas de $G$ uma e uma só vez. $G$ diz-se euleriano se tiver pelo menos um ciclo euleriano.\\
+\\
+Um ciclo em $G$ diz-se hamiltoniano se contém todos os vértices de $G$ uma e uma só vez. $G$ diz-se hamiltoniano se contiver algum ciclo hamiltoniano.
+\section{Caminho Mais Longo e Mais Curto}
+Seja $G=(X,A)$ um grafo orientado e seja $s \in X$. Admita-se ainda que existe pelo menos um caminho entre $s$ e todos os outros vértices. $\lambda(j)$ é o comprimento do caminho mais curto entre $s$ e $j$ se e só se:
+$$
+\lambda(j) = min \{\lambda (i) + c_{ij}\}
+$$
+E $\mu(j)$ é o comprimento do caminho mais longo entre $s$ e $j$ se e só se:
+$$
+\mu (j) = max \{\mu(i) + c_{ij}\}
+$$
+Em que $c_{ij}$ representa o comprimento da aresta entre $i$ e $j$.
+\section{Datas Mais Cedo e Mais Tarde}
+Seja $G = (X,A)$ uma rede de atividades. A data mais cedo em que é
+possível ocorrer o acontecimento a que corresponde o vértice $j \in X$
+designa-se por data mais cedo do vértice $j$ e representa-se por $E_j$:
+$$
+E (j) = max \{E(i) + t_{ij}\}
+$$
+E a data mais tarde em que é possível ocorrer o acontecimento a que corresponde o vértice $j \in X$ de forma a que todo o projeto fique concluído na data mais cedo $(E_n)$ designa-se por data mais tarde do vértice $j$ e representa-se por $L_j$:
+$$
+L (j) = min \{L(i) - t_{ji}\}
+$$
+Em que $t_{ij}$ representa a duração da atividade $(i,j)$.\\
+A diferença $F_j = L_j - E_j - t_{ij}$ representa a folga do acontecimento associado ao vértice $j$. Se $F_j = 0$, o acontecimento diz-se crítico.
+Considere-se a seguinte atividade:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título5.png}
+\end{figure}
+\begin{itemize}
+\item[$E_i$] representa a data mais cedo de início da atividade $(i,j)$
+\item[$E_i + t_{ij}$] representa a data mais cedo de conclusão da atividade $(i,j)$
+\item[$L_j$] representa a data mais tarde de conclusão da atividade $(i,j)$
+\item[$L_j - t_{ij}$] representa a data mais tarde de início da atividade $(i,j)$
+\end{itemize}
+\section{Cronograma}
+A partir das datas mais cedo e mais tarde, é possível construir um cronograma das atividades, da seguinte forma:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título17.png}
+\end{figure}
+No final, o cronograma deverá ter o seguinte aspeto:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título18.png}
+\end{figure}
+
+\chapter{}
+\section{Afetação}
+\subsection{Algoritmo Húngaro}
+O algoritmo Húngaro tem 4 etapas:
+\begin{itemize}
+\item[1] Dada uma matriz de custos, subtrai-se o elemento mais baixo a cada linha e coluna, de forma a que todos os elementos sejam não negativos e haja pelo menos um zero em cada linha e coluna.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título6.png}
+\end{figure}
+\item[2] De seguida, determina-se o número de riscos necessário para cobrir totalmente todos os zeros presentes.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título7.png}
+\end{figure}
+\item[3] A seguir aplica-se o teste de terminação e verifica-se se a afetação é completa, isto é, compara-se o número de traços com o número de linhas/colunas. Se for menor então segue-se para o próximo passo. Se for igual, então a afetação é completa e determinam-se os pares afetos como sendo as coordenadas onde está presente um zero e não existem mais zeros na sua linha e coluna.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título8.png}
+\end{figure}
+Neste exemplo, os pares afetos são $(1,4)$, $(2,3)$, $(3,2)$ e $(4,1)$ (ou $(3,1)$ e $(4,2)$), logo a máquina 1 faz a tarefa 4, a máquina 2 faz a tarefa 3, etc.
+\item[4] Ultimamente, determina-se $m$ como sendo o mínimo dos elementos não cobertos por um risco e subtrai-se $m$ aos elementos não cobertos e adiciona-se $m$ aos elementos duplamente cobertos. Retorna-se ao passo 2.
+\end{itemize}
+
+Nota: O algoritmo Húngaro pode ser utilizado para resolver um problema de afetação em que o objetivo seja a maximização de uma medida de performance. Para tal basta multiplicar por $-1$ todos os elementos da matriz de custos aplicando o algoritmo à matriz obtida.
+
+\section{Gestão de Stocks}
+\subsection{Notação}
+\begin{itemize}
+\item[$d$] Procura/consumo por unidade de tempo
+\item[$c$] Custo unitário de aquisição/produção
+\item[$K$] Custo fixo de encomenda
+\item[$h$] Custo de armazenamento por unidade do artigo e por unidade de tempo
+\item[$Q$] Número de unidades a encomendar de cada vez
+\item[$T$] Duração de um ciclo ou período (tempo entre dois re-abastecimentos consecutivos)
+\end{itemize}
+\subsection{Modelo Determinístico Básico}
+O nível do stock no instante $t$ é dado por:
+$$
+S(T) = Q - dt
+$$
+Os custos associados a uma encomenda são dados por $K + c \times Q$ e os custos de armazenamento por $h \times \frac{Q^2}{2d}$, logo o custo total por período é:
+$$
+K + c \times Q + h \times \frac{Q^2}{2d}
+$$
+O custo total por unidade de tempo $f(Q)$ é dado pelo custo total por período a dividir pela duração de um período, $f(Q) = \frac{dK}{Q} + cd + \frac{hQ}{2}$.\\
+A quantidade ótima a encomendar $Q^*$ é o ponto mínimo de $f(Q)$ e calcula-se por $Q^* = \sqrt{\frac{2dK}{h}}$, sendo que o custo ótimo por unidade de tempo é $f(Q^*) = cd + \sqrt{2dKh}$. O comprimento de um período ótimo $T^* = \frac{Q^*}{d}$.
+\subsection{MDB com Tempo de Entrega}
+É possível considerar uma variante do modelo determinístico básico em que se tem em conta o tempo de entrega, $l$. Neste modelo, o momento em que deve ser lançada a encomenda para que não haja rutura do stock é $T - l$, sendo o stock nesse momento igual a $dl$, apelidado de ponto de encomenda.
+\subsection{MDB com Descontos por Quantidade}
+Por vezes são oferecidos descontos por quantidade, neste caso, $f(Q)$ tem o seguinte aspeto:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título9.png}
+\end{figure}
+A solução ótima é $Q^*$ ou um dos $q_j$ maiores ou iguais a $Q^*$. Para determinar a quantidade ótima a encomendar procede-se da seguinte forma:
+\begin{itemize}
+\item Determinar $Q^*$ e $f(Q^*)$
+\item Seja $q_s = min \{q_j : q_j > Q^*\}$
+\item Seja $i = s$; enquanto $i \leq n-1$, se $f(q_i) < f(Q^*)$ fazer $Q^* = q_i$ e $i = i + 1$.
+\end{itemize}
+\end{document}

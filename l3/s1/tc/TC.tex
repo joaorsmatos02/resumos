@@ -1,0 +1,638 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{minitoc}
+\usepackage{hyperref}
+\title{\LARGE{Teoria da Computação} \\ \vspace{0.5cm} \normalsize{Resumo}}
+\date{}
+\renewcommand{\mtctitle}{Conteúdos}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Teoria dos Autómatos}
+\section{Autómatos Finitos Deterministas}
+Um autómato finito determinista é um 5-tuplo $M = (Q,\Sigma,\delta,q_0,F)$, em que:
+\begin{itemize}
+\item $Q$ é um conjunto finito de estados
+\item $\Sigma$ é o alfabeto (conjunto finito de símbolos)
+\item $\delta: Q \times \Sigma \rightarrow Q$ é a função de transição
+\item $q_0 \in Q$ é o estado inicial
+\item $F \subseteq Q$ é o conjunto dos estados de aceitação
+\end{itemize}
+Chama-se $palavra$ sobre $\Sigma$ a uma sequência finita de símbolos de $\Sigma$ e $linguagem$ a um conjunto de palavras formadas com símbolos de um alfabeto $\Sigma$. O conjunto de todas as palavras formadas sobre $\Sigma$ é o fecho do alfabeto, $\Sigma^*$.
+\subsection{Computação por um AFD}
+Seja $M = (Q,\Sigma,\delta,q_0,F)$ um AFD e $w = w_0w_1...w_n$ uma string de $\Sigma^*$.\\
+\\
+Diz-se que $M$ aceita $w$ se, e somente se, existe uma sequência de estados $r_0, ..., r_n, r_{n+1} \in Q$ tal que:
+\begin{itemize}
+\item $r_0 = q_0$ a computação inicia-se no estado inicial
+\item $\delta(r_i,w_i) = r_{i+1} \forall i \in \{0,...,n\}$ a computação segue de estado para estado de acordo com a função de transição
+\item $r_{n+1} \in F$ termina num estado de aceitação
+\end{itemize}
+\subsubsection{Linguagem Reconhecida por um AFD}
+A linguagem reconhecida por um AFD $M$ define-se como sendo:
+$$
+L(M) = \{w \in \Sigma^*:M \: \text{aceita} \: w\}
+$$
+Uma linguagem diz-se regular se existe um AFD que a reconhece.
+
+\section{Operações e Expressões Regulares}
+\subsection{Operações Regulares}
+Sejam $A$ e $B$ duas linguagens. Definem-se as seguintes operações regulares:
+\begin{itemize}
+\item União: $A\cup B = \{x | x \in A \lor x \in B\}$
+\item Concatenação: $A.B = \{x.y| x \in A \lor x~y \in B\}$
+\item Estrela (Fecho de Kleene): $A^* = \{x_1.x_2...x_k | k \geq 0 \land x_i \in A, 1 \leq i \leq k\}$
+\end{itemize}
+\subsubsection{Definição de Fecho}
+Diz-se que um conjunto é fechado sob uma operação n-ária se ao ser aplicada a qualquer n-uplo de elementos do conjunto se obtém um elemento do conjunto.\\
+\\
+As linguagens regulares são fechadas para todas as operações regulares.\\
+\begin{minipage}{.5\textwidth}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.25]{Sem Título.png}
+\caption{Fecho da União}
+\end{figure}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.25]{Sem Título1.png}
+\caption{Fecho da Concatenação}
+\end{figure}
+\end{minipage}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.25]{Sem Título2.png}
+\caption{Fecho da Estrela}
+\end{figure}
+
+\subsection{Expressões Regulares}
+$R$ é uma expressão regular sobre um alfabeto $\Sigma$ se é:
+\begin{itemize}
+\item $a$, para algum $a \in \Sigma$
+\item $\varepsilon$
+\item $\phi$
+\item $(R_1.R_2)$, onde $R_1$ e $R_2$ são expressões regulares
+\item $(R_1.R_2)$, onde $R_1$ e $R_2$ são expressões regulares
+\item $(R_i)^*$, onde $R_i$ é uma expressão regular
+\end{itemize}
+Cada expressão regular $R$ denota uma linguagem regular: a linguagem $L(R)$.\\
+\\
+As operações nas expressões regulares têm a seguinte ordem de prioridade:
+\begin{itemize}
+\item Estrela
+\item Concatenação
+\item União
+\end{itemize}
+Uma linguagem é regular se e só se alguma expressão regular a denota.
+
+\section{Autómatos Finitos Não Deterministas}
+Um autómato finito não determinista é um 5-tuplo $M = (Q,\Sigma,\delta,q_0,F)$, em que:
+\begin{itemize}
+\item $Q$ é um conjunto finito de estados
+\item $\Sigma$ é o alfabeto (conjunto finito de símbolos)
+\item $\delta: Q \times \Sigma_\varepsilon \rightarrow \mathcal{P}(Q)$ é a função de transição, em que $\Sigma_\varepsilon = \Sigma \cup \{\varepsilon\}$
+\item $q_0 \in Q$ é o estado inicial
+\item $F \subseteq Q$ é o conjunto dos estados de aceitação
+\end{itemize}
+Os AFND diferem dos AFD na função de transição. Nos AFND esta permite $\varepsilon$ como input e o resultado da sua aplicação é um conjunto de estados de $Q$, i.e. o conjunto das partes de $Q$.
+\subsection{Computação por um AFND}
+Seja $M = (Q,\Sigma,\delta,q_0,F)$ um AFND e $s'=s_1'...s_m'$ uma string sobre $\Sigma$. $M$ aceita $s'$ se existe uma sequência de estados $a_0,a_1,...,a_n$ e $s'$ pode ser escrita como $s=s_1s_2...s_n$ em que $s_i = s_j'$ ou $s_i = \varepsilon$ de tal modo que:
+\begin{itemize}
+\item $a_0$ é o estado inicial da máquina
+\item $a_{i+1} \in \delta(a_i,s_{i+1} \forall i \in \{0,...,n-1\}$
+\item $a_n \in F$ 
+\end{itemize}
+\subsubsection{Fecho-$\varepsilon$}
+Define-se por fecho épsilon de um estado $q$ o conjunto de todos os estados atingíveis a partir de $q$ por um caminho de zero ou mais transições épsilon. Representa-se por $E_\varepsilon(q)$. Se $R$ é um conjunto de estados, define-se:
+$$E_\varepsilon(R) = \bigcup_{q\in R} E_\varepsilon(q)$$
+\subsection{Equivalência entre autómatos}
+Dois autómatos dizem-se equivalentes se reconhecem a mesma linguagem.\\
+Cada AFND tem um AFD equivalente.
+\subsubsection{Equivalência entre AFND e AFD}
+Seja $N=(Q,\Sigma,\delta,q_0,F)$ um AFND. É possível construir um AFD $M=(Q',\Sigma,\delta',q_0',F')$ tal que $L(N)=L(M)$.
+\begin{itemize}
+\item $Q' = \mathcal{P}(Q)$
+\item $q_0' = E_\epsilon(q_0)$, i.e. o conjunto dos estados atingíveis por caminhos vazios a partir do estado inicial.
+\item $\forall q' \in Q$ considere-se $R\subset Q:R = q'$. Para cada $a \in \Sigma$ definimos $\delta'(q',a) = \delta'(R,a) = \bigcup_{r\in R} E_\varepsilon(\delta(r,a)) = \{q\in Q: \exists r \in R,q \; \text{atingível por transição} \; \varepsilon \; \text{de} \; \delta(r,a)\}$
+\item $F' = \{R\in Q':R \; \text{contém algum estado de aceitação de} \; N\}$
+\end{itemize}
+\subsection{Autómatos Finitos Não Deterministas Generalizados}
+Um autómato finito não determinista generalizado é um 5-tuplo $M =(Q,\Sigma,\delta,q_{start},q_{accept})$ onde:
+\begin{itemize}
+\item $Q$ é um conjunto de estados
+\item $\Sigma$ é o alfabeto de entrada
+\item $\delta:(Q-\{q_{accept}\}) \times (Q-\{q_{start}\}) \rightarrow R$ é a função de transição, em que $R$ é a coleção de todas as expressões regulares definidas sobre $\Sigma$
+\item $q_{start}$ é o estado inicial
+\item $q_{accept}$ é o estado de aceitação
+\end{itemize}
+Um AFNG possui expressões regulares nas etiquetas das transições, por oposição aos símbolos isolados, podendo numa só transição consumir a palavra inteira do input. Num AFNG:
+\begin{itemize}
+\item O estado inicial tem transições para todos os outros estados, mas não recebe nenhuma transição a partir de outro estado, nem de si próprio.
+\item Só há um estado de aceitação, que recebe transições de todos os outros estados, mas não tem transições a sair.
+\item Com exceção do estado inicial e do estado de aceitação há uma transição de cada estado para todos os estados, incluindo o próprio.
+\end{itemize}
+\subsubsection{Computação Por Um AFNG}
+Se um AFNG aceita uma palavra $w = w_1w_2...w_k$ sobre $\Sigma$ então existe uma sequência de estados $q_0,q_1...q_k$, tal que:
+\begin{itemize}
+\item $q_0 = q_{start}$ é o estado inicial
+\item $q_k = q_{accept}$ é o estado de aceitação
+\item $\forall w_i, w_i \in L(R_i)$ onde $R_i = \delta(q_{i-1},q_i)$, i.e. $R_i$ é e expressão regular da transição de $q_{i-1}$ para $q_i$.
+\end{itemize}
+\subsubsection{Converter AFD/AFND em AFNG}
+\begin{itemize}
+\item Adicionar um novo estado inicial $q_{start}$ com uma transição-$\varepsilon$ para o estado inicial original.
+\item Adicionar um único estado de aceitação $q_{accept}$ e transições-$\varepsilon$ de todos os estado de aceitação atuais para $q_{accept}$
+\item Se existem transições com múltiplas etiquetas ou múltiplas transições entre dois estados, substituir cada uma por uma única transição etiquetada com a união das etiquetas originais.
+\item Adicionar transições etiquetadas com $\phi$ entre pares de estados para os
+quais não havia transições, exceto para $q_{start}$ e $q_{accept}$.
+\end{itemize}
+\subsubsection{Converter AFNG em Expressão Regular}
+Seja $G$ um AFNG e $k$ o seu número de estados. Se $k = 2$ então a ER é a etiqueta de $q_{start}$ para $q_{accept}$. Caso contrário executa-se o seguinte algoritmo até $k = 2$:
+\begin{itemize}
+\item Seleciona-se um estado $q_{rip}$, diferente de $q_{start}$ e $q_{accept}$
+\item Determina-se todos os pares $(q_i,q_j)$ para os quais há um caminho $q_i \rightarrow q_{rip} \rightarrow q_j$
+\item Remove-se $q_{rip}$
+\item Adicionam-se as transições $q_i \rightarrow q_j$, etiquetadas de acordo com o seguinte esquema:
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Sem Título3.png}
+\caption{Remoção de estados em AFNG}
+\end{figure}
+
+\section{Lema do Bombeamento Para Linguagens Regulares}
+O lema do bombeamento para linguagens regulares é usado para demonstrar que uma linguagem não é regular. Apesar de necessário, não é condição suficiente para mostrar que uma linguagem é regular, i.e. todas as linguagens regulares verificam o lema do bombeamento, mas algumas linguagens não regulares também.
+\subsection{Enunciado}
+Seja $L$ uma linguagem regular infinita. Existe $p \geq 1$, tal que cada palavra $w \in L, |w| \geq p$ pode ser decomposta em $w = xyz$ tal que:
+\begin{itemize}
+\item $|y| \geq 1$
+\item $|xy| \leq p$
+\item $\forall i \geq 0, xy^iz \in L$
+\end{itemize} 
+
+\section{Gramáticas Livres de Contexto}
+Uma gramática é um 4-tuplo $G = (V,\Sigma, R, S)$ onde:
+\begin{itemize}
+\item $V$ é o conjunto de variáveis não terminais
+\item $\Sigma$ é o alfabeto de símbolos terminais ($\Sigma \cap V = \emptyset$)
+\item $R \subseteq (V \times (V \cup \Sigma)^*)$ é o conjunto de regras de produção
+\item $S \in V$ é o símbolo inicial
+\end{itemize}
+Uma gramática diz-se livre (ou independente) do contexto quando todas as suas produções são da forma:
+$$
+A \rightarrow \beta \; \text{onde} \; A \in V \land \beta \in (V\cup \Sigma)^*
+$$
+Se todas as produções de uma GIC forem da forma:
+$$
+A \rightarrow \alpha X
+$$
+$$
+A \rightarrow X \alpha
+$$
+$$
+A \rightarrow \alpha \; \text{onde} \; A, X \in V, \alpha \in \Sigma^*
+$$
+Então só tem produções lineares e gera uma linguagem regular.
+\subsection{Ambiguidade}
+Uma palavra $w$ deriva-se ambiguamente numa GIC $G$ se existirem duas ou mais derivações esquerdas de w em $G$. Também existem duas árvores de derivação diferentes e duas derivações direitas.\\
+\\
+Uma gramática diz-se ambígua se derivar alguma string $w$ ambiguamente.
+\subsection{Gramática Reduzida}
+Uma GIC diz-se reduzida se não tem símbolos  inúteis, isto é, que são improdutivos ou inacessíveis. Para obter a GIC reduzida eliminam-se as variáveis improdutivas e de seguida os símbolos inacessíveis.
+\subsubsection{Marcar Variáveis Produtivas}
+Para marcar as variáveis produtivas usa-se o algoritmo PROD:
+\begin{itemize}
+\item Marcar a variável $A \in V$ que tenha alguma produção $A \rightarrow x$, com $x \in \Sigma^*$
+\item Marcar todo o símbolo $A \in V$ que tenha alguma produção $A \rightarrow X_1X_2...X_k$ onde $X_i$ são variáveis marcadas até não ser possível marcar mais nenhuma variável.
+\end{itemize}
+\subsubsection{Marcar Símbolos Acessíveis}
+Para marcar os símbolos acessíveis usa-se o algoritmo ACESS:
+\begin{itemize}
+\item Marcar o símbolo inicial $S$
+\item Marcar todo o símbolo $X$ (terminal ou variável) que ocorra no lado direito de alguma produção onde o membro esquerdo esteja já marcado, até não ser possível marcar mais nenhum símbolo.
+\end{itemize}
+\subsection{Gramática Livre-$\varepsilon$}
+Uma produção-$\varepsilon$ é da forma:
+$$
+A \rightarrow \varepsilon, A \in V
+$$
+Um símbolo $A \in V$ diz-se $nulável$ se pode derivar em $\varepsilon$.\\
+\\
+Uma GIC $G$ diz-se livre-$\varepsilon$ se não tem produções $\varepsilon$ com exceção de $S \rightarrow \varepsilon$ e $S$ não ocorre no membro direito de outras produções.
+\subsubsection{Marcar Símbolos Nuláveis}
+Para marcar os símbolos nuláveis usa-se o algoritmo NUL:
+\begin{itemize}
+\item Marcar todo o símbolo $A \in V$ que tenha alguma produção $A \rightarrow \varepsilon$
+\item Marcar todo o símbolo $A \in V$ que tenha alguma produção $A \rightarrow X_1X_2...X_k$ onde $X_i$ são variáveis já marcadas, até não ser possível marcar mais nenhum símbolo.
+\end{itemize}
+\subsubsection{Converter em Gramática Livre-$\varepsilon$}
+Dada uma GIC $G = (V, \Sigma, R, S)$ existe uma GIC livre-$\varepsilon$ equivalente a $G$:
+\begin{itemize}
+\item Determinar os símbolos nuláveis de $G$
+\item Para cada produção $A \rightarrow X_1X_2...X_k$:
+\begin{itemize}
+\item Para cada $X_i$ nulável introduzimos uma produção em que concretizamos $X_i$ em $\varepsilon$
+\item Para cada combinação de vários $X_i$ nuláveis na mesma produção, introduzimos uma produção em que concretizamos esses $X_i$ em $\varepsilon$.
+\end{itemize}
+\item Eliminamos todas as produções $\varepsilon$
+\item Se $S$ é nulável, introduzimos $S_0$ com as produções $S_0 \rightarrow S$ e $S_0 \rightarrow \varepsilon$
+\end{itemize}
+\subsection{Produções Singulares}
+Uma produção diz-se singular se for da forma $A \rightarrow B$, com $A, B \in V$. Dada uma gramática livre-$\varepsilon$ é possível encontrar e eliminar as produções singulares.
+\subsubsection{Algoritmo SING-$A$}
+O algoritmo SING-$A$ permite marcar todos os símbolos atingíveis por produções singulares a partir de $A$, numa gramática livre-$\varepsilon$. Executa-se SING-$A$ para cada $A \in V$:
+\begin{itemize}
+\item Marcar o símbolo $A$
+\item Marcar cada $X \in V$ que ocorra em alguma produção singular onde o membro esquerdo esteja já marcado, até que não seja possível marcar mais variáveis.
+\end{itemize}
+\subsubsection{Converter em GIC sem Produções Singulares}
+Para obter uma GIC livre-$\varepsilon$ sem produções singulares:
+\begin{itemize}
+\item $\forall A \in V$ determinar os símbolos deriváveis por produções singulares a partir de $A$, através de SING-$A$
+\item $\forall X \in$ SING-$A, X \in V$ introduzir produções a partir de $A$, com os membros direitos não singulares que saiam de $X$
+\item Cortar todas as produções singulares
+\end{itemize}
+\subsection{Forma Normal de Chomsky}
+Uma GIC está na forma normal de Chomsky (FNC) sse todas as suas produções estão numa das formas:
+\begin{itemize}
+\item $A \rightarrow BC, A,B,C \in V$
+\item $A \rightarrow a, A \in V, a \in \Sigma$
+\item $S \rightarrow \varepsilon, S$ é o axioma e $S$ não ocorre no membro direito de outras produções
+\end{itemize}
+\subsubsection{Conversão para FNC}
+Dada uma GIC reduzida, livre-$\varepsilon$ e sem produções singulares:
+\begin{itemize}
+\item Substituem-se regras onde o membro direito tem mais que 2 símbolos:
+$$
+A \rightarrow u_1u_2...u_k, k \geq 3, u_i \; \text{é um terminal, substitui-se por:}
+$$
+$$
+A \rightarrow u_1A_1; ...; A_{k-1} \rightarrow u_{k-1}u_k \; \text{onde} \; A_i \; \text{são novas variáveis}
+$$
+\item Eliminam-se regras onde o membro direito tem terminais e variáveis. Para cada $u_i$ terminal no membro direito de uma produção com comprimento 2:
+\begin{itemize}
+\item Juntar uma produção $U_i \rightarrow u_i, U_i$ nova variável
+\item Substituir $u_i$ por $U_i$ nos membros direitos de produções que incluam terminais e variáveis
+\end{itemize}
+\end{itemize}
+
+\section{Autómatos de Pilha}
+Um autómato de pilha é um 6-tuplo $(Q, \Sigma, \Gamma, \delta, q_0, F)$ onde:
+\begin{itemize}
+\item $Q$ é um conjunto finito de estados
+\item $\Sigma$ é o alfabeto de entrada
+\item $\Gamma$ é o alfabeto da pilha
+\item $\delta : Q \times \Sigma_\varepsilon \times \Gamma_\varepsilon \rightarrow P(Q\times\Gamma_\varepsilon)$ é a função de transição
+\item $q_0 \in Q$ é o estado inicial
+\item $F \subset Q$ é o conjunto de estados de aceitação 
+\end{itemize}
+Geralmente, o símbolo \$ é usado para denotar o fundo da pilha.
+\subsection{Função de transição num Autómato de Pilha}
+$\delta (q, a, \alpha) = \{(q',u),...\}$ é a função de transição não determinista, interpretada da seguinte forma:\\
+\\
+Estando no estado $q$, por leitura do símbolo $a \in \Sigma_\varepsilon$ e estando a ver $\alpha \in \Gamma_\varepsilon$ no topo da pilha.\\
+O AP transita para uma configuração onde o estado é $q'$ e o topo da pilha foi substituído pela palavra $u$:
+\begin{itemize}
+\item Se $u = \varepsilon$ fez $pop$ do topo da pilha
+\item Se $u = \alpha$ a pilha ficou igual
+\item Se $u = \beta\alpha$ fez $push$ de $\beta$
+\item Caso contrário, $\alpha$ foi substituído por $u$
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título4.png}
+\caption{Exemplo de autómato que aceita a linguagem $\{0^n1^n | n \geq 0\}$.  A etiqueta num arco $a, b \rightarrow c$ significa ler $a$ na
+fita, ver $b$ no topo da pilha, substituir $b$ por $c$}
+\end{figure}
+\subsection{Configuração de um Autómato de Pilha}
+Um AP está numa configuração $(q,w,u)$ se está no estado $q$, $w$ é o conteúdo por consumir na fita e $u$ é o conteúdo da pilha.\\
+\\
+$(q,aw,\alpha v) \vdash (q',w,\beta v)$ por leitura de $a$ a partir de $q$, mudou de configuração para o estado $q'$ e substituiu $\alpha$ por $\beta$ no topo da pilha.\\
+\\
+$\vdash^*$ significa zero ou mais mudanças de configuração.
+\subsection{Computação por um Autómato de Pilha}
+Um AP $M = (Q, \Sigma, \Gamma, \delta, q_0, F)$ aceita um input $w$ se $w$ pode ser escrito como $w_1w_2...w_m,w_i \in \Sigma_\varepsilon$ e existe uma sequência de estados $r_0,r_1,...,r_m \in Q$ e uma sequência de palavras em $\Gamma^*$ $s_0,s_1,...,s_m$ de forma a:
+\begin{itemize}
+\item $r_0 = q_0$ e $s_0 = "$, M inicia no estado $q_0$ com a pilha vazia
+\item $(r_{i+1},b) \in \delta(r_i,w_{i+1},a), i=0,...,m-1, s_i = at, s_{i+1} = bt: a, b \in \Gamma_\varepsilon$ e $t\in \Gamma^*$, existe uma transição de $r_i$ para $r_{i+1}$ por leitura de $w_{i+1}$ quando $a$ está no topo da pilha, que é substituído por $b$
+\item $r_m \in F$, um estado de aceitação é atingido quando o input foi consumido
+\end{itemize}
+Isto é, $w$ é aceite se $(q_0,w,\varepsilon) \vdash^* (q_f,\varepsilon,X), q_f \in F$. Diz-se que os autómatos de pilha funcionam pelo critério dos estados de aceitação, o conteúdo da pilha é irrelevante.
+\subsubsection{Linguagem de um Autómato de Pilha}
+A linguagem de um AP $M = (Q, \Sigma, \Gamma, \delta, q_0, F)$ é:
+$$
+L(M) = \{ w \in \Sigma^* : (q_0,w,\varepsilon) \vdash^* (q_f,\varepsilon, X), q_f \in F
+$$
+Uma linguagem é independente do contexto se e só se existe um autómato de pilha que a reconhece:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título5.png}
+\caption{Diagrama de Venn das linguagens regulares e livres de contexto}
+\end{figure}
+Se uma linguagem é independente do contexto então existe algum autómato de pilha que a reconhece.
+\subsection{Obter AP a Partir de GIC}
+\begin{itemize}
+\item Introduzir estados $q_{start}$, $q_{loop}$ e $q_{accept}$
+\item Introduzir transições:
+\begin{itemize}
+\item $q_{start}$ para $q_{loop}$ com empilhamento de $S\$$
+\item $q_{loop}$ para $q_{accept}$ que limpa \$ depois do input estar consumido
+\item $q_{loop}$ para $q_{loop}$:
+\begin{itemize}
+\item Por cada terminal $a$ consumir $a$ na fita a fazer $pop$ $a$ na pilha
+\item Por cada variável $A$ empilhar o lado direito das produções de $A$
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título6.png}
+\caption{Grafo de execução do algoritmo}
+\end{figure}
+
+\section{Máquinas de Turing}
+Uma máquina de Turing é um 7-tuplo $MT = (Q, \Sigma, \Gamma, \delta, q_0, q_{aceita}, q_{rejeita})$ onde:
+\begin{itemize}
+\item $Q$ é um conjunto finito de estados
+\item $\Sigma$ é o alfabeto de entrada (não contém o símbolo branco)
+\item $\Gamma$ é o alfabeto de fita $\Sigma \subset \Gamma$ (inclui branco)
+\item $\delta: Q \times \Sigma \rightarrow Q \times \Gamma \times \{L,R\}$  é a função de transição
+\item $q_0$ é o estado inicial
+\item $q_{aceita}$ é o estado de aceitação
+\item $q_{rejeita}$ é o estado de rejeição
+\end{itemize}
+\subsection{Computação por uma Máquina de Turing}
+A computação inicia com a cabeça o mais à esquerda na fita, posicionada sobre o primeiro símbolo do input.
+As células da fita à direita do input contêm branco.\\
+\\
+Se em algum momento a máquina tenta mover a cabeça para a esquerda do início, a cabeça permanece na mesma posição.
+A computação termina quando a máquina entra num dos estados de aceitação ou rejeição. Se nenhum desses casos ocorre, a computação continua para sempre.\\
+\\
+Por contraste aos autómatos finitos, uma MT tanto pode ler a partir da fita como escrever sobre ela, a cabeça pode mover-se tanto para a esquerda quanto para a direita.
+A máquina para quando entra num estado de aceitação ou rejeição, independentemente do
+conteúdo da fita. indeterminadamente.
+\subsection{Configuração de uma Máquina de Turing}
+Uma configuração de uma MT mostra o conteúdo da fita, o estado em que a máquina está e a posição onde está a cabeça de leitura/escrita.
+\begin{itemize}
+\item A configuração inicial é $q_0w$
+\item Uma configuração de aceitação tem o estado $q_{accept}$ e de rejeição tem o estado $q_{reject}$
+\end{itemize}
+\subsection{Linguagem de uma Máquina de Turing}
+A linguagem de uma máquina de Turing $M$, $L(M)$ é o conjunto das palavras para as quais $M$ para numa configuração de aceitação.
+\subsubsection{Linguagem Turing-Reconhecível}
+Uma linguagem $L$ é Turing-reconhecível se existe uma máquina de Turing $M$ tal que para toda a palavra $x$ pertence a $L$, $M$ e aceita $x$.
+\subsubsection{Linguagem Turing-Decidível}
+Máquinas que nunca entram em loop são $decisores$.\\
+Uma linguagem $L$ é Turing-decidível (ou decidível), se alguma máquina de Turing $M$ a decide: $\forall x \in L, M$ para e aceita $x$, $\forall x \in \overline{L}, M$ para e rejeita $x$.\\
+\\
+Uma linguagem Turing-decidível é sempre reconhecível, mas o oposto nem sempre se verifica.\\
+\\
+Duas máquinas de Turing dizem-se equivalentes se reconhecem a mesma linguagem.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{Sem Título7.png}
+\caption{Diagrama de Venn das linguagens formais, incluindo as linguagens Turing-reconhecíveis}
+\end{figure}
+\subsection{Variantes da Máquina de Turing}
+Existem diversas variantes da máquina de Turing, todas com o mesmo poder computacional.
+\subsubsection{Variante Stay}
+A função de transição admite "stay".
+\subsubsection{Variante Multi-fita}
+A função de transição é do tipo:
+$$
+\delta: Q \times \Gamma^k \rightarrow Q \times Q \times \Gamma^k \times \{L,R,S\}^k
+$$
+Onde $k$ é o número de fitas. 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título8.png}
+\caption{Ideia da prova de equivalência de MT multi-fita com MT tradicional}
+\end{figure}
+\subsubsection{Variante Não Determinista}
+\begin{itemize}
+\item A função de transição devolve subconjuntos de ternos:
+$$
+\delta: Q \times \Gamma \rightarrow \mathcal{P}(Q\times \Gamma \times \{L,R\})
+$$
+\item A computação é uma árvore de configurações onde a raiz é a configuração inicial
+\item Uma palavra é aceite se alguma folha é uma configuração de aceitação
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Sem Título9.png}
+\caption{Ideia da prova de equivalência de MT não determinista com MT tradicional}
+\end{figure}
+
+\chapter{Decidibilidade}
+\section{Correspondência}
+Considerem-se dois conjuntos $A$ e $B$ e uma função $f: A \rightarrow B$:
+\begin{itemize}
+\item $f$ é uma correspondência um-para-um se é injetiva
+\item $f$ é $onto$ (sobrejetiva) se $\forall b \in B, \exists a \in A: f(a) = b$
+\item $A$ e $B$ são do mesmo tamanho se existe $f: A \rightarrow B$ (correspondência) que é um-para-um e $onto$
+\item Numa correspondência todo o elemento de $A$ mapeia num único elemento de $B$ e cada elemento de $B$ tem um elemento de $A$ que mapeia nele.
+\end{itemize}
+\subsection{Contabilidade}
+Um conjunto diz-se contável sse é finito ou do tamanho de $\mathbb{N}$.
+\subsubsection{Teorema}
+Algumas linguagens não são Turing-reconhecíveis.
+\begin{itemize}
+\item O conjunto de todas as strings é contável
+\item É possível mapear o conjunto das máquinas de Turing no conjunto das strings binárias, codificando cada máquina $M$ em $<M>$.
+\item O conjunto de todas as strings binárias infinitas não é contável
+\item É possível mapear o conjunto de todas as linguagens no conjunto de todas as strings binárias infinitas, logo o conjunto de todas as linguagens não é contável.
+\end{itemize}
+\section{Redução por Mapeamento}
+Uma linguagem $A$ é reduzível por mapeamento a $B$, $A \leq_m B$ se existe uma função computável $f:\Sigma^* \rightarrow \Sigma^*$ tal que $\forall w \in A \Leftrightarrow f(w) \in B$. A $f$ chama-se redução de $A$ para $B$.
+\subsection{Resumo}
+Seja $A \leq_m B$ uma redução por mapeamento computável (para as classes de complexidade assume-se ser polinomial): 
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+A                       & $\leq_m$ & B                       \\ \hline
+Decidível               & $\Leftarrow$ & Decidível               \\ \hline
+Indecidível             & $\Rightarrow$ & Indecidível             \\ \hline
+Turing-Reconhecível     & $\Leftarrow$ & Turing-Reconhecível     \\ \hline
+Não Turing-Reconhecível & $\Rightarrow$ & Não Turing-Reconhecível \\ \hline
+$\mathbb{P}$            & $\Leftarrow$ & $\mathbb{P}$     \\ \hline
+$\mathbb{NP}$-completo     & $\Rightarrow$ & $\mathbb{NP}$-completo, sse $\in \mathbb{NP}$     \\ \hline
+$\mathbb{NP}$     & $\Leftarrow$ & $\mathbb{NP}$     \\ \hline
+\end{tabular}
+\end{table}
+\section{Máquina de Turing Universal}
+Existe uma máquina de Turing $U$ que aceita como input uma outra máquina de Turing $M$ codificada como $M \rightarrow <M>$ na fita de $U$. $U$ pode simular o comportamento de qualquer máquina de Turing $<M>$, pelo que é apelidada de máquina universal.
+\subsection{Problemas Decidíveis}
+Problemas de aceitação:
+\begin{itemize}
+\item $A_{DFA}$
+\item $A_{NFA}$
+\item $A_{REX}$
+\item $A_{CFG}$
+\end{itemize}
+Problemas de vacuidade:
+\begin{itemize}
+\item $E_{DFA}$
+\item $E_{CFG}$
+\end{itemize}
+Problema de equivalência:
+\begin{itemize}
+\item $EQ_{DFA}$
+\end{itemize}
+\subsection{Problemas Indecidíveis}
+Problema de aceitação:
+\begin{itemize}
+\item $A_{TM}$
+\end{itemize}
+Problema de vacuidade:
+\begin{itemize}
+\item $E_{TM}$
+\end{itemize}
+Problemas de equivalência:
+\begin{itemize}
+\item $EQ_{CFG}$
+\item $EQ_{TM}$
+\end{itemize}
+Também o problema da paragem é indecidível:
+$$
+HALT_{TM} = \{<M,w> | M \text{ é uma } MT \; \text{ e } M \text{ pára sobre o input } w\}
+$$
+E o problema da linguagem regular:
+$$
+Regular_{TM} = \{<M> | M \text{ é uma } MT \; \text{ e } L(M) \text{ é uma linguagem regular}\}
+$$
+\subsubsection{Resumo}
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|}
+\hline
+Problema   & Decidível & Turing-Reconhecível & Co-Turing-Reconhecível \\ \hline
+$A_{TM}$  & Não       & Sim                 & Não                    \\ \hline
+$EQ_{TM}$ & Não       & Não                 & Não                    \\ \hline
+$\overline{A_{TM}}$  & Não       & Não                 & Sim                    \\ \hline
+$\overline{EQ_{TM}}$ & Não       & Não                 & Não                    \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Teorema de Rice}
+O problema de determinar se a linguagem de uma dada máquina de Turing tem uma propriedade $P$, não trivial, é indecidível.
+Seja $P$ a linguagem de todas as descrições de máquinas de Turing, onde $P$:
+\begin{itemize}
+\item É não trivial, i.e., contém algumas mas não todas as descrições de MT.
+\item $P$ representa uma propriedade da linguagem dessas MTs:
+\begin{itemize}
+\item Sempre que $L(M1) = L(M2)$, tem-se $\langle M1 \rangle \in P$ sse $\langle M2 \rangle \in P$, $M1$ e $M2$ quaisquer MTs.
+\end{itemize}
+\item $P$ é uma linguagem indecidível
+\end{itemize}
+
+\chapter{Complexidade Temporal}
+Seja $M$ uma máquina de Turing determinística que pára sobre todos os inputs. A complexidade temporal de $M$ é uma função $f: \mathbb{N} \rightarrow \mathbb{N}$, onde $f(n)$ é o número máximo de passos que $M$ usa sobre qualquer input de tamanho $n$.
+\section{Notação}
+Sejam $f,g: \mathbb{N} \rightarrow \mathbb{R}^+$ duas funções.
+\subsection{O-grande}
+Diz-se que $f(n) = O(g(n))$ se $\exists c, n_0: \forall n \geq n_0, f(n) \leq cg(n)$. $g(n)$ é um limite superior assintótico para $f(n)$.
+\subsection{o-pequeno}
+Diz-se que $f(n) = o(g(n))$ se $\exists c, n_0: \forall n \geq n_0, f(n) < cg(n)$. $f(n)$ é assintoticamente menor que $g(n)$.
+\section{Complexidade e Modelo de Computação}
+A complexidade temporal de alguns problemas depende do modelo de computação utilizado.
+\subsection{Multi-Fita e Uni-Fita}
+Seja $t(n)$ uma função, onde $t(n) \geq n$. Toda a MT multi-fita de tempo $t(n)$ tem uma MT uni-fita equivalente que corre em tempo $O(t^2(n))$.\\
+\\
+A ideia da prova consiste em simular a MT multi-fita na uni-fita. Como simular cada passo da multi-fita demora, no máximo $O(t(n)$, o tempo total usado é $O(t^2(n))$.
+\subsection{Determinística e Não Determinística}
+Seja $M$ um decisor não determinístico. O tempo de execução de $M$ é $f:\mathbb{N} \rightarrow \mathbb{N}$, onde $f(n)$ é p número máximo de passos que $M$ usa em qualquer ramo da sua computação.\\
+\\
+Seja $t(n)$ uma função, onde $t(n) \geq n$. Toda a MT não determinística uni-fita de tempo $t(n)$ tem uma MT determinística uni-fita equivalente de tempo $2^{O(t(n))}$.\\
+\\
+A ideia da prova consiste em criar uma MT determinística que simula a árvore de computação da MT não determinística. Num input de tamanho $n$, cada ramo tem, no máximo, comprimento $t(n)$ e cada nó tem $b$ filhos, onde $b$ é o número máximo de escolhas da função de transição. O número máximo de folhas é $b^{t(n)}$. Como a simulação visita todos os nós de uma dada profundidade antes de partir para a próxima, o tempo para atravessar da raiz até um nó é $O(t(n))$, pelo que o tempo de execução é $O(t(n)b^{t(n)}) = 2^{O(t(n))}$.
+\section{Classes de Complexidade}
+\subsection{Classe TIME}
+Seja $t: \mathbb{N} \rightarrow \mathbb{N}$ uma função. A classe de complexidade temporal TIME é:
+$$
+TIME(t(n)) = \{L |\; L \text{é uma linguagem decidida por uma } MT \text{ de tempo } O(t(n))\}
+$$
+\subsection{Classe $\mathbb{P}$}
+$\mathbb{P}$ é a classe das linguagens que são decidíveis em tempo polinomial numa MT determinística uni-fita:
+$$
+\mathbb{P} = \bigcup_k TIME(n^k)
+$$
+$\mathbb{P}$ corresponde à classe dos problemas que podem ser realisticamente resolúveis num computador.
+\subsubsection{PATH}
+O problema PATH define-se da seguinte forma:
+$$
+PATH = \{<G,s,t> |\; G \text{ é um grafo direcionado que tem um caminho de } s \text{ para } t\}
+$$
+Tem-se que PATH $\in \mathbb{P}$. A seguinte MT é um decisor para PATH que corre em tempo polinomial:
+\begin{itemize}
+\item Marcar nó $s$
+\item Repetir até que mais nenhum nó seja marcado:
+\begin{itemize}
+\item Verificar todos os arcos de $G$. Se $(a,b)$ é um arco onde $a$ está marcado e $b$ não está marcado, marcar $b$.
+\item Se $t$ foi marcado, aceitar. Senão, rejeitar.
+\end{itemize}
+\end{itemize}
+Se $G$ tem $n$ nós existem $n^n$ caminhos possíveis de $s$ para $t$. No terceiro passo marca-se, no mínimo, um nó a cada iteração e o segundo passo repete-se, no máximo, $n-1$ vezes. A MT corre em $O(n^2)$.
+\subsection{Classe NTIME}
+NTIME(t(n)) é a classe de complexidade temporal não determinística:
+$$
+NTIME(t(n)) = \{L |\; L \text{ é uma linguagem decidível por uma } MT \text{ não determinística de tempo } O(t(n))\}
+$$
+\subsection{Classe $\mathbb{N}\mathbb{P}$}
+Uma linguagem está em $\mathbb{N}\mathbb{P}$ sse é decidível por alguma MT não determinística de tempo polinomial:
+$$
+NP = \bigcup_k NTIME(n^k)
+$$
+É fácil verificar que P $\subseteq$ $\mathbb{N}\mathbb{P}$. Esta classe pode ainda ser definida como a classe das linguagens que possuem verificadores em tempo polinomial.
+\subsubsection{Verificador}
+Um verificador para uma linguagem $A$ é um algoritmo $V$, onde:
+$$
+A = \{w |\; V \text{ aceita } <w,c> \text{ para alguma } string \; c\}
+$$
+O tempo de execução do verificador é medido exclusivamente em termos do comprimento de $w$. Um verificador usa ainda um certificado, $c$, para verificar que $w \in A$. Para verificadores polinomiais, $c$ tem comprimento polinomial no comprimento de $w$.
+\subsubsection{CLIQUE}
+O problema CLIQUE define-se da seguinte forma:
+$$
+CLIQUE = \{<G,k> |\; G \text{ é um grafo não direcionado com uma } k-clique\}
+$$
+Em que uma $k-clique$ é um sub-grafo onde todos os pares de nós estão ligados por uma aresta (sub-grafo completo). Tem-se que CLIQUE $\in \mathbb{N}\mathbb{P}$. O seguinte verificador para CLIQUE corre em tempo polinomial, sobre o input $<<G,k>,c>$:
+\begin{itemize}
+\item Testar se $c$ é um sub-grafo com $k$ nós em $G$
+\item Testar se $G$ contém todas as arestas que ligam os nós em $c$
+\item Se ambos os testes passam, aceitar. Senão, rejeitar.
+\end{itemize}
+\subsubsection{$\mathbb{N}\mathbb{P}$-completude}
+Uma linguagem $B$ diz-se $\mathbb{N}\mathbb{P}$-completa se:
+\begin{itemize}
+\item $B \in \mathbb{N}\mathbb{P}$
+\item $\forall A \in \mathbb{N}\mathbb{P}$, $A$ é redutível em tempo polinomial a $B$
+\end{itemize}
+Se $B \in $ P e $B$ é $\mathbb{N}\mathbb{P}$-completa, então $\mathbb{P}$=$\mathbb{N}\mathbb{P}$.\\
+\\
+A linguagem:
+$$
+SAT = \{\varphi | \; \varphi \text{ é uma expressão booleana satisfazível}\}
+$$
+É $\mathbb{N}\mathbb{P}$-completa. Algumas outras linguagens $\mathbb{N}\mathbb{P}$-completas são:
+\begin{itemize}
+\item $3SAT$
+\item $CLIQUE$
+\item $HAMPATH$
+\item $UHAMPATH$
+\item $VERTEX-COVER$
+\end{itemize} 
+\end{document}
