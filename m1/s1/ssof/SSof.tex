@@ -228,6 +228,50 @@ When user visits trigger page, Torpig asks injection server for another page (e.
 \centering
 \includegraphics[scale=0.5]{2.png}
 \end{figure}
-\end{document}
+\section{Protection in Operating Systems}
+Protection is emplyed to ensure that objects are not accessed by unauthorized subjects. There are two aspects: separation and mediation.
+\subsection{Separation}
+Common operating systems (Unix, Windows) run software basically in two modes, enforced by the CPU:
+\begin{itemize}
+\item Kernel mode: software can play with any system resource (memory, I/O devices,...)
+\item User mode: access to resources is controlled by the OS. Software has to call the OS kernel to make privileged
+operations
+\end{itemize}
+There are several forms of separation:
+\begin{itemize}
+\item Physical separation: different processes use different devices (e.g. printers for different levels of security)
+\item Temporal separation: processes with different security requirements are executed at different times
+\item Logical separation: processes operate under the illusion than no other processes exist
+\item Cryptographic separation: processes use cryptography to conceal their data and/ or computations in a way that they become unintelligible to other processes
+\end{itemize}
+\subsubsection{Memory Protection}
+Logical separation is often used to achieve memory protection. The most common solutions are segmentation (program is split in pieces with logical unit, such as code, data, stack...) and paging (program is divided in pages of the same size).\\
+\\
+From a protection point of view, pages are similar to segments: a process can only  access a segment only if appears in its segment translation table or can only see a page if it appears on its table.
+\subsection{Access Control}
+Access control is concerned with validating the access rights of subjects to resources of the system. It should be implemented by a reference monitor, following 3 principles:
+\begin{itemize}
+\item Completeness: it must be impossible to bypass
+\item Isolation: it must be tamperproof
+\item Verifiability: it must be shown to be properly implemented
+\end{itemize}
+Some basic access control mechanisms include:
+\begin{itemize}
+\item Access control lists (ACLs): Each object is associated with a list of pairs (subject, rights)
+\item Capabilities: Each subject has a list of objects that it may access, i.e. pairs (object, rights). Capabilities are cryptographically protected against modification and forging
+\item Access control matrix: A matrix with lines per subject, columns per object, rights in the cells
+\end{itemize}
+There are also two basic access control policies:
+\begin{itemize}
+\item Discretionary Access Control (DAC): access policy defined by the user
+\item Mandatory Access Control (MAC): access policy defined by an administrator
+\end{itemize}
+\subsubsection{Unix Access Control}
+In Unix, each user has a username and a user ID (UID) and belongs to one or more groups, each with a group ID (GID).\\
+\\
+Each object has its owner UID and GID and specific access permissions (rwx), for owner, group and world. When objects are accessed by processes, the effective UID (EUID) and the effective GID (EGID) are compared with the object permissions to grant/deny access.\\
+\\
+There are also two more access bits: setuid and setgid. When the setuid/setgid bit is set on an executable file, the program is executed with the effective user ID / group ID of the file's owner. Privilege escalation attacks in Unix often aim programs with setuid and owner UID 0.
 
-% next: LBS 3 / VSSD 2
+\end{document}
+% next: LBS 3 / VSSD 3
