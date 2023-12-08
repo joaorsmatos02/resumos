@@ -93,6 +93,97 @@ We use a  standard imperative language where information containers are variable
 \end{figure}
 We want to ensure that propagation of information by programs respects information flow policies, i.e. there are no illegal flows. This means an attacker cannot infer secret input or affect critical output by inserting inputs into the system and observing its outputs.
 
+\section{Noninterference}
+\subsection{Definition}
+A program is secure if, for every observational level $L$, for any two runs of the program that are given the same low inputs, if the program terminates in both cases, then it produces the same low outputs.
+\subsection{Attackers}
+\subsubsection{Concurrent Attacker}
+An attacker program that is concurrently composed with the observed program does not depend on its termination. It has access to "low" outputs, and possibly non-termination (or even intermediate steps). Considering the following programs:
+\begin{itemize}
+\item $p_L$="$file_L$"; if RUID access to $p_L$ then $f$=open($p_L$);$f=0$ (has RUID=$L$ and EUID=$H$)
+\item $p_L = file_H$
+\end{itemize}
+Both are safe according to our notion of noninterference, but when composed concurrently, the program is insecure.\\
+\\
+Possibilistic Input-Output Noninterference: is sensitive to whether the program is capable of terminating and producing certain final outputs.
+\subsubsection{Intermediate-Step Attacker}
+\begin{itemize}
+\item $x_L := y:H ; x_L := 1$
+\end{itemize}
+Possible low outcomes do not depend on $y_H$. However, the intermediate steps differ.\\
+\\
+Intermediate-step-sensitive Noninterference: is sensitive to intermediate steps of computations.
+\subsubsection{Time-Sensitive Attacker}
+\begin{itemize}
+\item $x_L:=0$ ; if $y_H$ then skip else skip;skip;skip;skip ; $x_L:=1$
+\end{itemize}
+Possible outcomes and intermediate steps do not depend on $y_H$. However, the time it takes to change the value of $x_L$ is different.\\
+\\
+Temporal Noninterference: is sensitive to the time it takes to produce outputs.
+\subsubsection{Probabilistic Attacker}
+\begin{itemize}
+\item $x_L := y_H$ || $x_L$ := random(100)
+\end{itemize}
+Possible outcomes do not depend on $y_H$. However, the probability of the value of $x_L$ revealing that of $y_H$ is higher.\\
+\\
+Probabilistic Noninterference: is sensitive to the likelihood of outputs.
+\subsection{Downgrading}
+Noninterference is simple and provides strong security guarantees. But sometimes we need to leak information in a controlled way.
+\begin{itemize}
+\item Declassification (for confidentiality)
+Example: flow declarations locally enable more flows
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{3.png}
+\end{figure}
+\item Endorsement (for integrity)
+Example: pattern matching in Perl’s taint mode
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{4.png}
+\end{figure}
+\end{itemize}
+\section{Formal Semantics}
+We will use two techniques to define the semantics of a programming language:
+\begin{itemize}
+\item Denotational semantics for expressions: defines mathematically what is the result of a computation.
+\item Operational semantics for instructions: describes how the effect of a computation is produced when executed on a machine
+\end{itemize}
+\subsection{WHILE Language}
+This language has the following syntatic categories:
+\begin{itemize}
+\item $c$: constants
+\item $x$: variables
+\item $a$: arithmetic expressions
+\item $t$: tests
+\item $S$: statements
+\end{itemize}
+And follows the grammar:
+\begin{itemize}
+\item Operations: $op:: = + | - | \times | /$
+\item Comparisons: $cmp ::= < | \leq | = | \neq | \geq | >$
+\item Expressions: $a::= c | x | a_1 \; op \; a_2$
+\item Tests: $t ::= a_1 \; cmp \; a_2$
+\item Statements: $S ::= x:=a | skip | S_1; S_2 | if \; t\; then \; S \; else \; S | while \; t \; do \; S$
+\end{itemize}
+The state/memory is represented as a function that maps variables to integers, $\rho$, for example, $\rho(x) = 1$. Now, we define the following semantic functions:
+\begin{itemize}
+\item $\mathcal{A}$: function that maps pairs of arithmetic expression and state to integers ($\mathcal{A}(x)_\rho = \rho(x)$)
+\item $\mathcal{B}$: function that maps pairs of test and state, to booleans ($\mathcal{B}(a_1 \; cmp \; a_2)_\rho = \mathcal{A}(a_1)_\rho \; cmp \; \mathcal{A}(a_2)_\rho$)
+\item $\mathcal{S}$: partial function that maps pairs of statement and state to state ($<S,\rho> \rightarrow \rho'$: when executing program $\mathcal{S}$ on memory $\rho$ we obtain the new memory $\rho$'. $<S,\rho> \rightarrow <\mathcal{S}', \rho'>$: Performing one step of program $\mathcal{S}$ on memory $\rho$ leaves the continuation $\mathcal{S}'$ and produces new memory $\rho$')
+\end{itemize}
+The list of big-step axioms and rules is as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{5.png}
+\end{figure}
+For example, the sequential composition rule could be read as follows: When the first program starting on $\rho$ produces $\rho$' and the second program starting on $\rho$' produces $\rho$'', then  the entire sequential
+composition starting on $\rho$ produces $\rho$''. The following is an example of a chaining of these rules:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{6.png}
+\end{figure}
+
 \chapter{Vulnerabilites And Secure Software Design}
 In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.
 \section{Vulnerabilities}
@@ -138,3 +229,5 @@ When user visits trigger page, Torpig asks injection server for another page (e.
 \includegraphics[scale=0.5]{2.png}
 \end{figure}
 \end{document}
+
+% next: LBS 3 / VSSD 2
