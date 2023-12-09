@@ -176,7 +176,47 @@ Implementations of MAC could be as follows:
 \item Using a keyed-function (CMAC, usually with CBC)
 \item Using a keyed-hash (HMAC)
 \end{itemize}
+\section{Asymmetric Ciphers}
+Asymmetric cryptography uses a pair of public/private keys. It allows for confidentiality, authentication and integrity (digital signatures). Has the advantage of only needing $N$ key pairs, but the performance is much worse.\\
+\\
+For confidentiality, the public key is used to cipher and the private to decipher. For authentication it's the opposite.
+\subsection{One-way Functions}
+Also known as trapdoor functions. The idea is for the function to be easy to compute in one direction, but hard to invert. These are usually used in asymmetric cryptography.
+\subsection{Algorithms}
+\subsubsection{RSA}
+In this algorithm, the plaintext is divided into blocks, which are treated as a number. The keys are generated as follows:
+\begin{itemize}
+\item Choose two prime numbers $p$ and $q$
+\item Define $n = pq$ and $z = \phi(n) = (p-1)(q-1)$
+\item Choose $e < n$ such that $e$ is coprime with $z$
+\item Calculate $d$ such that $ed \mod z = 1$
+\item The public key is $K_u = (e, n)$, and the private key is $K_r = (d, n)$
+\end{itemize}
+To encrypt, compute:
+$$
+E(K_u, m) = m^e \mod n = c
+$$
+And to decrypt:
+$$
+D(K_r, c) = c^d \mod n = m
+$$
+RSA is often used to produce signatures. To sign $M$ we calculate $S = (hash(M))^d \mod n$ and to verify we check $hash(M) == S^e \mod n$. Only the owner of the private key can sign, but anyone with the public key can verify the signature.
+\subsubsection{ECC}
+Elliptic curve cryptography offers the same security as RSA with smaller bit sizes. In this case, the "hard" problem is the elliptic curve logarithm:
+\begin{itemize}
+\item $Q = k \cdot P$, where $Q, P$ belong to an elliptic curve (e.g. $y^2 = x^3 - 3x + b \mod p$)
+\item Easy to compute $Q$, given $k$ and $P$
+\item Hard to find $k$, given $Q$ and $P$
+\item $P$ is a base point (parameter of the curve)
+\end{itemize}
+\subsection{Digital Signatures}
+Digital signatures use an asymmetric cipher and a hash function. The basic algorithm is as follows:
+\begin{itemize}
+\item Sign: $S(doc) = E(K_r, hash(doc))$
+\item Validate: $D(K_u, S(doc)) == hash(doc)$
+\end{itemize}
+Today often ECDSA is adopted (with elliptic curve encryption).
 
 \end{document}
 
-%next: 3b
+%next: 4a
