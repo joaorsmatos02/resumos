@@ -216,7 +216,60 @@ Digital signatures use an asymmetric cipher and a hash function. The basic algor
 \item Validate: $D(K_u, S(doc)) == hash(doc)$
 \end{itemize}
 Today often ECDSA is adopted (with elliptic curve encryption).
+\chapter{Networks}
+\section{Network Models}
+\subsection{OSI and Internet}
+There are seven layers in the OSI model:
+\begin{enumerate}
+\item Physical
+\item Data Link
+\item Network
+\item Transport
+\item Session
+\item Presentation
+\item Application
+\end{enumerate}
+The network is not just computers and servers, there are also:
+\begin{itemize}
+\item Hubs: Send signals everywhere
+\item Switches: Send frames only where they need to go
+\item Routers: Look at the IP address from the incoming packet and forwards it. Have MAC address too.
+\item Gateways: Access point to other networks, with possible change of addressing and networking technology.
+\end{itemize}
+\subsection{Address Resolution}
+In layers 2 and 3, MAC and IP addresses are used, respectively. IP addresses identify the network and
+the machine and MAC addresses may be converted to IPs with the ARP protocol. Some network ranges were reserved for private addressing.
+\section{Network Vulnerabilities}
+\subsection{Physical Layer}
+\subsubsection{Hubs}
+Hubs broadcast information on a shared medium, thus, are at threat of information leakage through sniffers.\\
+\\
+Anyone can connect to a hub even if it is physically secure.
+\subsubsection{Sniffers}
+Usually, network adapters operate in a non-promiscuous mode (only listen to what is sent to their MAC). Sniffers, on the other hand, read all frames, regardless of MAC.\\
+\\
+It is possible to indentify sniffers using tools (with several methods: latency, dns, os-specific, ...) or using the ARP method:
+\begin{itemize}
+\item Machines cache ARPs
+\item Send a non-broadcast ARP with our correct MAC address
+\item Then send a broadcast ping with the right IP but wrong MAC address
+\item Only a machine which has our correct MAC address from the sniffed ARP will respond
+\end{itemize}
+To prevent sniffing, switches may be used instead of hubs (does not fully solve). It is also possible to prevent the effectiveness of sniffing by using one-time passwords and encryption.
+\subsection{Data Link Layer}
+Switches typically send frames only to the destination MAC address, and thus, reduce the sniffing problem. There are, however, some ARP vulnerabilities present:
+\begin{itemize}
+\item MAC flooding: attacker sends several unsolicited ARP messages, overwhelming the switch with entries. When the table is filled, some switches stop accepting connections and others revert to Hub mode
+\item ARP Spoofing/Poisoning: An attacker sends a non-requested ARP message with a false IP-MAC address correspondence. ARP messages are in no way signed, so it is easy to falsify a message from any given MAC
+\end{itemize}
+Some preventive measures include the use of tools like $arpwatch$, to monitor the ARP to IP translation and the use of switches with fixed tables (with a cost in flexibility).
+\subsection{Network Layer}
+Routers support the indirect delivery of IP datagrams through the use of routing tables. Some threats in this layer include:
+\begin{itemize}
+\item Packet integrity: Data is not authenticated, so an attacker can change the source address of IP packets
+\item Information lead and DoS: Users have little to no guarantee concerning the routing path taken by the packets. An attacker might corrupt the routing tables by sending routing-update messages and effectively hijack the route
+\end{itemize}
 
 \end{document}
 
-%next: 4a
+%next: 4b
