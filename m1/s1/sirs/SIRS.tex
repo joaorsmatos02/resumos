@@ -269,7 +269,66 @@ Routers support the indirect delivery of IP datagrams through the use of routing
 \item Packet integrity: Data is not authenticated, so an attacker can change the source address of IP packets
 \item Information lead and DoS: Users have little to no guarantee concerning the routing path taken by the packets. An attacker might corrupt the routing tables by sending routing-update messages and effectively hijack the route
 \end{itemize}
-
+\subsection{Transport Layer}
+\subsubsection{UDP}
+UDP  can be used to send and receive individual packets, without an established connection. It's just a thin addition to IP and is vulnerable to the same attacks.
+\subsubsection{TCP}
+TCP  can be used establish a connection to send and receive a data stream of bytes. An example of a TCP handshake:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{9.png}
+\end{figure}
+There are different techniques for TCP hijecking, depending on the attacker’s capability to intercept communications:
+\begin{itemize}
+\item Full adversary-in-the-middle: the attacker is positioned to fully intercept the communication and  can intercept the sequence numbers and take over the connection. The tool $shijack$ is capable of doing this.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{10.png}
+\end{figure}
+\item Weak adversary-in-the-middle TCP hijack: the attacker can only eavesdrop and spoof packets (cannot drop packets). Attacker must now exploit de-synchronization between hosts. Once the sender and the receiver are desynchronized, only the attacker can create data segments with correct numbers
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{11.png}
+\end{figure}
+The de-synchronization can be forged during the
+creation of a TCP/IP connection with a reset and with false acknowledgements. It can also be done for an already established connection by sending blank data to displace sliding windows.
+\item Blind TCP hijack: The attacker cannot capture return traffic from the host connection and only blindly sends malicious or manipulated packets. The attacker does not receive any confirmation of the desired effect through a packet capture and for  the attack to be successful, the attacker must guess the sequence numbers of the TCP packets
+\end{itemize}
+Another common TCP attacks is syn flooding. It consists of overloading a host with incomplete TCP/IP connection requests. There is no definite solution for IPv4 SYN flooding; SYN cookies may also be used to mitigate flooding:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{12.png}
+\end{figure}
+Cooperation with firewalls and attack detectors is also helpful:
+\begin{itemize}
+\item Handshake relay: firewall stands in front of server and protects it until the handshake is complete
+\item Gateway: firewall keeps the connection alive on server and terminates it if the client leaves the connection open but without traffic
+\end{itemize}
+\subsection{Application Layer}
+\subsubsection{DNS}
+DNS translates domain names to IP addresses. In 2008 the Kaminsky attack was found:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{13.png}
+\end{figure}
+The attack is successful if it can guess the query ID value.\\
+\\
+DNSSEC is DNS with digitally signed responses. Each zone has its own key-pair for signing and public Keys are published in the DNS itself. DNSSEC provides integrity and authenticity for RRs of the signed zones.
+\subsubsection{RCE}
+Remote code execution is a  class of software security vulnerabilities. Most programming languages have some way to generate code in runtime and execute it, which has the potential of being abused by a malicious actor.\\
+\\
+To prevent code injection, one must avoid using data as code as much as possible, as well as sanitize inputs.
+\section{Network Security Models}
+Gatekeeper for access control:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{14.png}
+\end{figure}
+Secure communication channel:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{15.png}
+\end{figure}
 \end{document}
 
-%next: 4b
+%next: 5a
