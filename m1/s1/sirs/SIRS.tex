@@ -404,6 +404,60 @@ There are several criteria to classify IDS:
 \item Active: respond to attacks
 \end{itemize}
 \end{itemize}
+
+\section{SSH and TLS}
+SSH is a secure communication application and
+protocol over TCP. Allows secure remote sessions, file transfer and tunneling of traffic, while providing confidentiality and integrity.\\
+\\
+It has server authentication, being a trust-on-first-use model (vullnerable to man-in-the-middle). SSH also uses Diffie-Hellman for key exchange. User authentication may be done through a password or a signature with the client's private key.
+\subsection{SSH Tunneling}
+In the client machine, a mapping is created between a local TCP port and a port in the remote machine. The client application is configured to use the local port and, when using it, it will securely interact via SSH.\\
+\\
+Tunneling is transparent for apps, but complex for admins and provides low flexibility for devs and users.
+\subsection{TLS}
+TLS provides secure channels over TCP/IP, authentication, integrity, confidentiality, and key distribution.
+\begin{itemize}
+\item Handshake:
+\begin{itemize}
+\item Alice and Bob use their certificates, private keys to authenticate each other and exchange a shared secret
+\end{itemize}
+\item Key derivation: 
+\begin{itemize}
+\item Alice and Bob use shared secret to derive set of keys
+\end{itemize}
+\item Data transfer:
+\begin{itemize}
+\item Data to be transferred is broken up into series of records
+\item Data records: the stream is broken into a series of records, each with its length and MAC
+\item Sequence numbers are used to prevent replay attacks and the order of records
+\item Record types are used to prevent truncation (early closure) attacks. Type 0 is for data and type 1 is for closure
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{20.png}
+\end{figure}
+\subsection{TLS Protocols}
+There are two TLS protocols:
+\begin{itemize}
+\item Record protocol: creation and verification of secure messages
+\item Handshake Protocol: exchange of identity and supported cipher suites, authentication of the communicating parties and key distribution
+\end{itemize}
+The record protocol can be described as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{21.png}
+\end{figure}
+And the handshake is as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{22.png}
+\end{figure}
+\subsection{Key Derivation}
+The client nonce, server nonce, and pre-master secret input into pseudo random-number generator, produce a master secret.\\
+\\
+Master secret and nonces input into another pseudo
+random-number generator, produce key block, cut into several other keys, such as the server and client MAC and encryption keys and initialization vectors.
 \end{document}
 
-%next: 5a
+%next: 6a
