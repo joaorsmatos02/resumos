@@ -350,5 +350,60 @@ A function is reentrant if it works correctly even if its thread is interrupted 
 \\
 In some cases, unix signals may be useful in indicating asynchronous events to a process.
 
+\section{Web Application Vulnerabilities}
+Web suffers from all the 3 causes of trouble: complexity, extensibility, connectivity.
+\subsection{Cross Site Scripting (XSS)}
+XSS allows attacker to execute script in the victim’s browser. There are different types of XSS:
+\begin{itemize}
+\item Reflected XSS (or non-persistent): page reflects user supplied data directed to the user’s browser
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{7.png}
+\end{figure}
+\item Stored XSS (or persistent): hostile data (script) is stored in a database, file, etc., and is later sent to user’s browser
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{8.png}
+\end{figure}
+\item DOM based XSS (Document Object Model): manipulates JavaScript code and attributes instead of HMTL
+\end{itemize}
+In reflected and stored XSS the server injects the script. In DOM based XSS, the client injects the script.\\
+\\
+Some protection mechanisms are:
+\begin{itemize}
+\item Server-side input validation
+\item Strong output encoding
+\item Content Security Policy (level 2)
+\item State tracking mechanisms
+\end{itemize}
+\subsection{CRLF Injection}
+It is similar to reflected XSS but the injection is in the response header, while in reflected XSS the injection is in the responde body.\\
+\\
+The attacker inserts a carriage return (CR) and a life feed (LF) creating a new field in the header, or a second response (HTTP response splitting).\\
+\\
+Just as in the reflected XSS, the attacker sends the victim a URL of a vulnerable website.
+\subsection{Direct Object Reference}
+Occours when a site exposes a reference to an internal object and no proper access control (e.g. files, database records, keys, ...).\\
+\\
+Should be prevented by forbidding the exposure of object references and by doing proper access control.
+\subsection{Cross Site Request Forgery (CSRF)}
+Many sites do certain actions based on an automatically submitted, fixed, ID, typically a session cookie. The attack consists of forcing the user to execute unwanted actions in a vulnerable site in which it is authenticated. Can be done by sending a link by email or chat.\\
+\\
+The solution is similar to XSS, but may also consist on using nonces or requiring re-authentication for critical actions.
+\subsection{Security Misconfiguration}
+Misconfiguration vulnerabilities can exist at any level (OS, web/app server, ...). An attacker can access several things to gain unauthorized access to or knowledge of the system.\\
+\\
+Protection consists of deploying automated scanners  for detecting missing patches, misconfigurations, use of default accounts, unnecessary services, etc.
+\subsection{Failure to Restrict URL Access}
+Pages that are "protected" simply by being inaccessible from the "normal" web tree. The attack consists of forced browsing: guess links and brute force to find unprotected pages.\\
+\\
+Protection relies in having good access control, no "hidden" pages as a form of protection.
+\subsection{Unvalidated Redirects and Forwards}
+Applications frequently redirect users to other pages. Sometimes the target page is specified in an unvalidated parameter, allowing attackers to choose the destination page.
+\subsection{Insecure Cryptographic Storage}
+Can be cause by sensitive data not being encrypted, use of home-grown or weak algorithms, ...
+\subsection{Insecure Transport Layer Protection}
+Sensitive traffic or authenticated sessions may be unencrypted. HTTPS should be used.
+
 \end{document}
-% next: LBS 4 / VSSD 4
+% next: LBS 4 / VSSD 5
