@@ -329,6 +329,81 @@ Secure communication channel:
 \centering
 \includegraphics[scale=0.45]{15.png}
 \end{figure}
+\section{Firewalls and Intrusion Detection Systems}
+A Firewall is a means of protecting a local system or network of systems from network threats, creating a perimeter of defense.\\
+\\
+Incoming TCP and UDP traffic should be denied by default and malformed packets should be blocked.
+\subsection{Firewall Placement}
+\subsubsection{Dual-Homed Host Firewall}
+This architecture uses a bastion host with 2 home networks: IN and OUT
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{16.png}
+\end{figure}
+It's a simple an resource-efficient topology, but has some disadvantages: compromising the machine deactivates the firewall, all the processing load is in a single machine, and public servers are within the protected network.
+\subsubsection{Screened subnet}
+This approach also has two internal subnets: IN and DMZ.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{17.png}
+\end{figure}
+There is a lower risk regarding the public services and of the firewall being compromised. However, there is also less control over the activities going on in the DMZ machines.
+\subsection{Iptables}
+Iptables has 3 chains (lists of rules): input, output forward. When a packet reaches a chain, the chain’s rules decide the packet’s fate: drop or accept.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{18.png}
+\end{figure}
+\subsection{Types of Firewall}
+There are several types of firewall:
+\begin{itemize}
+\item Packet filter:
+\begin{itemize}
+\item Reject packets depending on the IP and transport layer headers
+\item Can be stateful or stateless
+\end{itemize}
+\item Circuit-level gateway:
+\begin{itemize}
+\item Control iterations at the transport layer (typically TCP "circuit")
+\item Similar to application-level gateways
+\end{itemize}
+\item Application-level gateway:
+\begin{itemize}
+\item Control iterations at the application layer
+\item Protocol-specific proxy
+\end{itemize}
+\end{itemize}
+Packet filters are faster but harder to configure and are unable to protect against "misbehaving" protocols. On the other hand, application-level gateways are slower but easier to configure, allow for more authentication mechanisms and more fine-grained control, with the disadvantage of being less adaptable to new protocols.
+\subsection{Intrusion Detection Systems}
+An IDS is a software that has the function to detect, identify, and respond to unauthorized or abnormal activities in the targeted system. IDS' complement firewalls and are capable of:
+\begin{itemize}
+\item Deep packet inspection (look at packet contents)
+\item Examine correlation among multiple packets
+\end{itemize}
+IDS' generate alarms and, as such, are prone to generate false positives/negatives.
+\subsection{IDS classification}
+There are several criteria to classify IDS:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{19.png}
+\end{figure}
+\begin{itemize}
+\item Detection method:
+\begin{itemize}
+\item Misuse detection: system activity analysis in search of known attack patterns (attack signatures)
+\item Anomaly Detection: matches observed behavior with a model of normal behavior
+\end{itemize}
+\item Data source:
+\begin{itemize}
+\item  Network-Based IDS: capture and do traffic analysis on network data (e.g., packets)
+\item Host-Based IDS: capture and do analysis on host data
+\end{itemize}
+\item Reaction:
+\begin{itemize}
+\item Passive: only detect and report the detection results
+\item Active: respond to attacks
+\end{itemize}
+\end{itemize}
 \end{document}
 
 %next: 5a
