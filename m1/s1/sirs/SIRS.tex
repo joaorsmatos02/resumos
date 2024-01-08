@@ -216,6 +216,143 @@ Digital signatures use an asymmetric cipher and a hash function. The basic algor
 \item Validate: $D(K_u, S(doc)) == hash(doc)$
 \end{itemize}
 Today often ECDSA is adopted (with elliptic curve encryption).
+
+\section{Public Key Management}
+In the past, public keys were distributed by means of public directories or announcements. Currently, the distribution is done through the use of digital certificates.
+\subsection{Digital Certificates}
+Certificates are documents signed by a certification entity (CA, public organization or company)
+\begin{itemize}
+\item Public documents
+\item Have a digital signature
+\item Used to distribute public keys through unsecure channels
+\item Contain version, serial number (of the CA), issuer, validity, etc.
+\end{itemize}
+\subsubsection{Certificate Issuance}
+\begin{itemize}
+\item Keys to assure confidentiality
+\begin{itemize}
+\item The public key of $X$ is used by the sender to assure confidentiality of the data sent to $X$
+\item The private key of $X$ is used to decipher the received information
+\item These keys can be refreshed frequently
+\end{itemize}
+\item Keys to assure authentication
+\begin{itemize}
+\item The private key of X is used to sign the content
+\item The corresponding public key to validate the signature
+\item These keys should not be renewed frequently
+\end{itemize}
+\end{itemize}
+\subsubsection{Certificate Distribution}
+There is a PKI (Public Key Infrastructure) to manage certificates in a certain context (e.g. the web). It encompasses a set of CAs (and similar entities), policies and mechanisms, and supports several operations, like the creation of key pairs or distribution of certificates.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{23.png}
+\end{figure}
+A CA can establish trust relations by issuing public key certificates of other CAs or by requiring certification of its public key to other CAs. Some typical trust relations include:
+\begin{itemize}
+\item Flat: only the root CA is trusted. Verifying entities check the certificates validity with the public key of the CA.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{24.png}
+\end{figure}
+\item Hierarchical: there is a tree of CAs. CAs issue certificates to subscribers and other CAs and verifying entities verify the certificates of the subscribers by
+sequentially checking the certificates up to the root certificate (verifying entitites trust CA1)
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{25.png}
+\end{figure}
+The use of intermediary certificates protects the PKI root certificate and delegates the signing authority to another organization (better for scalability)
+\item List of certificates: The verifying entities trust the keys of several root CAs. The verifying entities validate the chain of certificates that lead to any of the CAs
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{26.png}
+\end{figure}
+\end{itemize}
+Browsers and operating systems have root stores with lists of trusted CAs.
+\subsubsection{Certificate Revocation}
+A certificate may be withdrawn for several reasons:
+\begin{itemize}
+\item Corresponding private key compromised
+\item Certificate owner does not operate service any longer
+\item Key ownership has changed
+\item ...
+\end{itemize}
+Two approaches may be used:
+\begin{itemize}
+\item Certificate revocation lists (CRL)
+\begin{itemize}
+\item Lists of revoked certificates
+\item Should be regularly checked by the certificate holders
+\item Intermediate certificates should be checked too
+\item CRLs can become large
+\end{itemize}
+\item Online Certificate Status Protocol (OCSP)
+\begin{itemize}
+\item Allows live revocation checks over the network
+\item Uses a request-response model
+\item Information must be fresh
+\item Servers must have high availability
+\end{itemize}
+\end{itemize}
+There is also a method called OCSP stapling. The idea is that the web server obtains a fresh OCSP response and
+"staples" it to the certificate given to the web browser. This is more efficient and secure, but not universally supported.
+
+\section{Secret Key Management}
+The management of secret keys deals with several aspects, such as key generation, distribution and lifetime.
+\subsection{Key Generation}
+Adequate random values generators should be used for appropriate key generation. Several sources of entropy may be used to create a random number:
+\begin{itemize}
+\item Ticks since boot
+\item Current time
+\item Low-level system info
+\item ...
+\end{itemize}
+Key size depends on the algorithm's strength, lifetime and usage of the key, as well as the attacker's power.
+\subsection{Key Distribution}
+Perfect forward secrecy (PFS) is a desirable characteristic of a key agreement protocol. It gives assurance that session keys will not be compromised even if the private key of the server is compromised.\\
+\\
+PFS protects past sessions against future compromises of keys
+\subsubsection{Manual Distribution}
+Keys may be manually distributed through physical support. Usually done for personal or large sets of keys.
+\subsubsection{Distribution With Shared Values}
+Distribution with long-term shared secrets is useful, allowing the  exchanging temporary secrets between entities that already share some secret information. The exchange has the form:
+$$
+A \rightarrow B:\{K_s\}_{KEK}
+$$
+Where the secret key is encrypted using a symmetric cipher, with the $KEK$ key, only known by $A$ and $B$. $B$ verifies the message freshness and contents. This method does not assure PFS, as the disclosure of $KEK$  reveals all session keys that have been exchanged between the communicating parties.\\
+\\
+Instead of using a shared key, the receiver's public key may also be used.
+\subsubsection{Distribution Without Shared Values}
+The Diffie-Hellman algorithm is often used in scenarios with no shared values.\\
+\\
+In this algorithm, the objective is to obtain a secret number $K$, shared between $A$ and $B$, but without communicating it in clear.
+\begin{itemize}
+\item Choose two public prime numbers $m$ and $n$ ($n$ large).
+\item $A$ generates a random number $x_a$ and calculates $y_a = m^{x_a} \mod n$.
+\item $B$ generates a random number $x_b$ and calculates $y_b = m^{x_b} \mod n$.
+\item $y_a$ and $y_b$ are made public.
+\item Each party calculates $K$ locally:
+$$
+K = y_b^{x_a} \mod n = y_a^{x_b} \mod n
+$$
+\end{itemize}
+This type of distribution does not provide authentication and is vulnerable to man-in-the-middle attacks. However, if both secret values a and b are ephemeral (e.g. used only once), then there is PFS.
+\subsubsection{Distribution With Third Parties}
+Distribution may be done through means of trusted third parties, such as a key distribution center. These centers act as mediators between the communicating parties, simplifying the management of long-term shared secrets.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{27.png}
+\end{figure}
+This type of distribution assumes authentication and does not assure PFS.\\
+\\
+Kerberos is another frequently used algorithm. It uses a ticket granting service (TGT) that provides time-limited credentials (tickets) for several services/servers and an authentication service (AS), allowing clients to login.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{28.png}
+\end{figure}
+Where tickets include client and server identifiers, timestamps with the beggining and end of validity and the session key value, all ciphered with the server key.\\
+The authenticator has the client identifier and a timestamp of the request, ciphered with the session key.
+
 \chapter{Networks}
 \section{Network Models}
 \subsection{OSI and Internet}
@@ -458,141 +595,29 @@ The client nonce, server nonce, and pre-master secret input into pseudo random-n
 \\
 Master secret and nonces input into another pseudo
 random-number generator, produce key block, cut into several other keys, such as the server and client MAC and encryption keys and initialization vectors.
-\section{Public Key Management}
-In the past, public keys were distributed by means of public directories or announcements. Currently, the distribution is done through the use of digital certificates.
-\subsection{Digital Certificates}
-Certificates are documents signed by a certification entity (CA, public organization or company)
-\begin{itemize}
-\item Public documents
-\item Have a digital signature
-\item Used to distribute public keys through unsecure channels
-\item Contain version, serial number (of the CA), issuer, validity, etc.
-\end{itemize}
-\subsubsection{Certificate Issuance}
-\begin{itemize}
-\item Keys to assure confidentiality
-\begin{itemize}
-\item The public key of $X$ is used by the sender to assure confidentiality of the data sent to $X$
-\item The private key of $X$ is used to decipher the received information
-\item These keys can be refreshed frequently
-\end{itemize}
-\item Keys to assure authentication
-\begin{itemize}
-\item The private key of X is used to sign the content
-\item The corresponding public key to validate the signature
-\item These keys should not be renewed frequently
-\end{itemize}
-\end{itemize}
-\subsubsection{Certificate Distribution}
-There is a PKI (Public Key Infrastructure) to manage certificates in a certain context (e.g. the web). It encompasses a set of CAs (and similar entities), policies and mechanisms, and supports several operations, like the creation of key pairs or distribution of certificates.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{23.png}
-\end{figure}
-A CA can establish trust relations by issuing public key certificates of other CAs or by requiring certification of its public key to other CAs. Some typical trust relations include:
-\begin{itemize}
-\item Flat: only the root CA is trusted. Verifying entities check the certificates validity with the public key of the CA.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{24.png}
-\end{figure}
-\item Hierarchical: there is a tree of CAs. CAs issue certificates to subscribers and other CAs and verifying entities verify the certificates of the subscribers by
-sequentially checking the certificates up to the root certificate (verifying entitites trust CA1)
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{25.png}
-\end{figure}
-The use of intermediary certificates protects the PKI root certificate and delegates the signing authority to another organization (better for scalability)
-\item List of certificates: The verifying entities trust the keys of several root CAs. The verifying entities validate the chain of certificates that lead to any of the CAs
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{26.png}
-\end{figure}
-\end{itemize}
-Browsers and operating systems have root stores with lists of trusted CAs.
-\subsubsection{Certificate Revocation}
-A certificate may be withdrawn for several reasons:
-\begin{itemize}
-\item Corresponding private key compromised
-\item Certificate owner does not operate service any longer
-\item Key ownership has changed
-\item ...
-\end{itemize}
-Two approaches may be used:
-\begin{itemize}
-\item Certificate revocation lists (CRL)
-\begin{itemize}
-\item Lists of revoked certificates
-\item Should be regularly checked by the certificate holders
-\item Intermediate certificates should be checked too
-\item CRLs can become large
-\end{itemize}
-\item Online Certificate Status Protocol (OCSP)
-\begin{itemize}
-\item Allows live revocation checks over the network
-\item Uses a request-response model
-\item Information must be fresh
-\item Servers must have high availability
-\end{itemize}
-\end{itemize}
-There is also a method called OCSP stapling. The idea is that the web server obtains a fresh OCSP response and
-"staples" it to the certificate given to the web browser. This is more efficient and secure, but not universally supported.
-
-\section{Secret Key Management}
-The management of secret keys deals with several aspects, such as key generation, distribution and lifetime.
-\subsection{Key Generation}
-Adequate random values generators should be used for appropriate key generation. Several sources of entropy may be used to create a random number:
-\begin{itemize}
-\item Ticks since boot
-\item Current time
-\item Low-level system info
-\item ...
-\end{itemize}
-Key size depends on the algorithm's strength, lifetime and usage of the key, as well as the attacker's power.
-\subsection{Key Distribution}
-Perfect forward secrecy (PFS) is a desirable characteristic of a key agreement protocol. It gives assurance that session keys will not be compromised even if the private key of the server is compromised.\\
+\section{Authentication}
+Authentication services must handle problems of security and trustworthyness. Their end goal is one of entity (user, machine, service) authentication, facilitating protocol usage and preventing impersonation from attackers.
+\subsection{Authentication With Passwords}
+This type of authentication requires the user to memorize a password and provide it when prompted. It is simple but passwords may be poorly selected by users, making them susceptible to password attacks.\\
 \\
-PFS protects past sessions against future compromises of keys
-\subsubsection{Manual Distribution}
-Keys may be manually distributed through physical support. Usually done for personal or large sets of keys.
-\subsubsection{Distribution With Shared Values}
-Distribution with long-term shared secrets is useful, allowing the  exchanging temporary secrets between entities that already share some secret information. The exchange has the form:
-$$
-A \rightarrow B:\{K_s\}_{KEK}
-$$
-Where the secret key is encrypted using a symmetric cipher, with the $KEK$ key, only known by $A$ and $B$. $B$ verifies the message freshness and contents. This method does not assure PFS, as the disclosure of $KEK$  reveals all session keys that have been exchanged between the communicating parties.\\
+A key derivation function (KDF), such as hashing, is often used when storing passwords in order to prevent their hijacking by attackers. A modern password-based KDF is PBKDF2, which uses a cryptographic hash function, salt and a high iteration count.
+\subsubsection{One-Time Passwords (OTP)}
+This variation requires the validation of a one-time password regarding a secret stored for the user. Such a password is only valid once and thus, pointless for an attacker to capture.\\
 \\
-Instead of using a shared key, the receiver's public key may also be used.
-\subsubsection{Distribution Without Shared Values}
-The Diffie-Hellman algorithm is often used in scenarios with no shared values.\\
+Has better security  in remote authentications over insecure networks or in insecure terminals, however, some implementations may require the users to use some device/application to generate the one-time passwords.
+\subsubsection{Challenge-Response}
+This method requires the authenticator to provide a challenge and the user being authenticated transforms the challenge using the secret that he shares with the authenticator.\\
 \\
-In this algorithm, the objective is to obtain a secret number $K$, shared between $A$ and $B$, but without communicating it in clear.
+Its secure for authentication over unsecure networks, but the authenticator needs to have shared secrets with all users.
+\subsection{Biometric Authentication}
+The user is validated through biometrical data: fingerprint, physiognomy,... It solves the problem of choosing a good password and does not rely on the user's memory, but can be deceived sometimes and does not  allow the transference of authentication between subjects.\\
+\\
+The principle of biometric authentication has two phases:
 \begin{itemize}
-\item Choose two public prime numbers $m$ and $n$ ($n$ large).
-\item $A$ generates a random number $x_a$ and calculates $y_a = m^{x_a} \mod n$.
-\item $B$ generates a random number $x_b$ and calculates $y_b = m^{x_b} \mod n$.
-\item $y_a$ and $y_b$ are made public.
-\item Each party calculates $K$ locally:
-$$
-K = y_b^{x_a} \mod n = y_a^{x_b} \mod n
-$$
+\item Registration: acquisition of information about the person
+\item Authentication: checking the obtained biometric data with the stored template
 \end{itemize}
-This type of distribution does not provide authentication and is vulnerable to man-in-the-middle attacks. However, if both secret values a and b are ephemeral (e.g. used only once), then there is PFS.
-\subsubsection{Distribution With Third Parties}
-Distribution may be done through means of trusted third parties, such as a key distribution center. These centers act as mediators between the communicating parties, simplifying the management of long-term shared secrets.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{27.png}
-\end{figure}
-This type of distribution assumes authentication and does not assure PFS.\\
-\\
-Kerberos is another frequently used algorithm. It uses a ticket granting service (TGT) that provides time-limited credentials (tickets) for several services/servers and an authentication service (AS), allowing clients to login.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.40]{28.png}
-\end{figure}
-Where tickets include client and server identifiers, timestamps with the beggining and end of validity and the session key value, all ciphered with the server key.\\
-The authenticator has the client identifier and a timestamp of the request, ciphered with the session key.
+It should fulfill the following desirable properties: universality, unicity, stability, correctness, convenience and acceptance.
 \end{document}
 
-%next: 7a
+%next: 7b
