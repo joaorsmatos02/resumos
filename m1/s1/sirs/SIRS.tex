@@ -618,6 +618,74 @@ The principle of biometric authentication has two phases:
 \item Authentication: checking the obtained biometric data with the stored template
 \end{itemize}
 It should fulfill the following desirable properties: universality, unicity, stability, correctness, convenience and acceptance.
+\subsection{Authentication Protocols}
+\subsubsection{Password Protocols}
+There is PAP and CHAP, both protocols are used by PPP (Point-to-Point Protocol). Authentication is unidirectional ($A$ authenticates $U$)
+\begin{itemize}
+\item PAP: simple exchange of pair UID/password. Insecure, as the password is sent in plain text:
+\begin{align}
+&U \rightarrow A: username,\; password\\
+&A \rightarrow U: OK/not \; OK
+\end{align}
+\item Challenge Handshake Authentication Protocol (CHAP): 
+\begin{align}
+&U \rightarrow A: username\\
+&A \rightarrow U: authID, \; challenge\\
+&U \rightarrow A: Hash(authID,\; passoword,\; challenge)\\
+&A \rightarrow U: OK/not \; OK
+\end{align}
+In this version, $A$ stores the passwords, however, that problem may be solved by using only a hash of the password.
+\end{itemize}
+\subsubsection{One-Time Password Protocols}
+\begin{itemize}
+\item S/Key: Authenticator gives user a sequence of one-time passwords
+$$
+OPT_1 = Hash(seed,password) \; ... \; OPT_n = Hash(OTP_{n-1})
+$$
+For each user, the authenticator stores only the seed of the one-time password sequence and the current index. The authentication process is as follows:
+\begin{itemize}
+\item Authenticator sends index to the user
+\item User sends $P = OPT_{index-1}$ to the authenticator (the one-time password)
+\item Authenticator computes $Hash(P)$ and compares with stored $OPT_{index}$
+\item If values are equal, then success, server stores $index-1$ and $OPT_{index-1}$
+\item On the first time, the authenticator sends $index = n$, next $index = n-1$, etc.
+\end{itemize}
+\item RSA SecurID: generates a unique number every minute, essentially OPTs. The authentication process is as follows:
+\begin{itemize}
+\item The user generates a one-time password, combining a PIN with the card number
+\item The RSA server performs the same operation and verifies if the values are equal
+\item Server is synchronized with real time (RSA Security Time Synchronization)
+\end{itemize}
+\end{itemize}
+\subsubsection{Asymmetric Keys Protocols}
+The main protocol used with asymmetric keys is EKE. It does a password-authenticated key agreement and is resistant to dictionary attacks.
+\begin{figure}[H]
+\makebox[\textwidth][c]{\includegraphics[scale=0.35]{29.png}}
+\end{figure}
+It's safe from dictionary attacks since, even if an attacker was successful decrypting the public key, it would still have to compute the private key to obtain the the session key (i.e. decrypt $K_u\{K_s\}$).\\
+\\
+It is also protected against man-in-the-middle and replay attacks. However, an attack to the password database in the authenticator would give access to $P$. The solution consists in only storing $Hash(P) = \pi$:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{30.png}
+\end{figure}
+The $Sp$ function could be, for example, a  cryptographic hash function combined with a unique salt for each user and the $Vp$ function could be a time-constant comparison to mitigate timing attacks.
+\subsubsection{Web Authentication Protocols}
+\begin{itemize}
+\item HTTP Basic authentication: when user asks for protected page, browser asks user for username and password for that page and sends them encoded in Base64
+\item HTTP Digest authentication: server sends a similar digest or nonce, the browser sends a hash instead of credentials
+\item In HTTPS, SSL and TLS are used
+\item FIDO2 user authentication: based on user-controlled cryptographic authenticators, such as a smartphone or hardware security key
+\item Session-based authentication: server sends cookie with session identified to the client. Whenever browser sends request to the server, cookie is inserted automatically
+\end{itemize}
+\subsubsection{Web Single-Sign On Protocols}
+Single-sign on was developed as a solution for users who need to authenticate themselves in many devices, managing several passwords.\\
+\\
+OpenID is the main single-sign on protocol. When a user wants to login in a relying party (OpenID supporter), the following exchange occours:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{31.png}
+\end{figure}
 \end{document}
 
-%next: 7b
+%next: 7c
