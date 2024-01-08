@@ -458,6 +458,85 @@ The client nonce, server nonce, and pre-master secret input into pseudo random-n
 \\
 Master secret and nonces input into another pseudo
 random-number generator, produce key block, cut into several other keys, such as the server and client MAC and encryption keys and initialization vectors.
+\section{Public Key Management}
+In the past, public keys were distributed by means of public directories or announcements. Currently, the distribution is done through the use of digital certificates.
+\subsection{Digital Certificates}
+Certificates are documents signed by a certification entity (CA, public organization or company)
+\begin{itemize}
+\item Public documents
+\item Have a digital signature
+\item Used to distribute public keys through unsecure channels
+\item Contain version, serial number (of the CA), issuer, validity, etc.
+\end{itemize}
+\subsubsection{Certificate Issuance}
+\begin{itemize}
+\item Keys to assure confidentiality
+\begin{itemize}
+\item The public key of $X$ is used by the sender to assure confidentiality of the data sent to $X$
+\item The private key of $X$ is used to decipher the received information
+\item These keys can be refreshed frequently
+\end{itemize}
+\item Keys to assure authentication
+\begin{itemize}
+\item The private key of X is used to sign the content
+\item The corresponding public key to validate the signature
+\item These keys should not be renewed frequently
+\end{itemize}
+\end{itemize}
+\subsubsection{Certificate Distribution}
+There is a PKI (Public Key Infrastructure) to manage certificates in a certain context (e.g. the web). It encompasses a set of CAs (and similar entities), policies and mechanisms, and supports several operations, like the creation of key pairs or distribution of certificates.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{23.png}
+\end{figure}
+A CA can establish trust relations by issuing public key certificates of other CAs or by requiring certification of its public key to other CAs. Some typical trust relations include:
+\begin{itemize}
+\item Flat: only the root CA is trusted. Verifying entities check the certificates validity with the public key of the CA.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{24.png}
+\end{figure}
+\item Hierarchical: there is a tree of CAs. CAs issue certificates to subscribers and other CAs and verifying entities verify the certificates of the subscribers by
+sequentially checking the certificates up to the root certificate (verifying entitites trust CA1)
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{25.png}
+\end{figure}
+The use of intermediary certificates protects the PKI root certificate and delegates the signing authority to another organization (better for scalability)
+\item List of certificates: The verifying entities trust the keys of several root CAs. The verifying entities validate the chain of certificates that lead to any of the CAs
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{26.png}
+\end{figure}
+\end{itemize}
+Browsers and operating systems have root stores with lists of trusted CAs.
+\subsubsection{Certificate Revocation}
+A certificate may be withdrawn for several reasons:
+\begin{itemize}
+\item Corresponding private key compromised
+\item Certificate owner does not operate service any longer
+\item Key ownership has changed
+\item ...
+\end{itemize}
+Two approaches may be used:
+\begin{itemize}
+\item Certificate revocation lists (CRL)
+\begin{itemize}
+\item Lists of revoked certificates
+\item Should be regularly checked by the certificate holders
+\item Intermediate certificates should be checked too
+\item CRLs can become large
+\end{itemize}
+\item Online Certificate Status Protocol (OCSP)
+\begin{itemize}
+\item Allows live revocation checks over the network
+\item Uses a request-response model
+\item Information must be fresh
+\item Servers must have high availability
+\end{itemize}
+\end{itemize}
+There is also a method called OCSP stapling. The idea is that the web server obtains a fresh OCSP response and
+"staples" it to the certificate given to the web browser. This is more efficient and secure, but not universally supported.
 \end{document}
 
-%next: 6a
+%next: 6b
