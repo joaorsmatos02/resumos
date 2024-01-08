@@ -537,6 +537,62 @@ Two approaches may be used:
 \end{itemize}
 There is also a method called OCSP stapling. The idea is that the web server obtains a fresh OCSP response and
 "staples" it to the certificate given to the web browser. This is more efficient and secure, but not universally supported.
+
+\section{Secret Key Management}
+The management of secret keys deals with several aspects, such as key generation, distribution and lifetime.
+\subsection{Key Generation}
+Adequate random values generators should be used for appropriate key generation. Several sources of entropy may be used to create a random number:
+\begin{itemize}
+\item Ticks since boot
+\item Current time
+\item Low-level system info
+\item ...
+\end{itemize}
+Key size depends on the algorithm's strength, lifetime and usage of the key, as well as the attacker's power.
+\subsection{Key Distribution}
+Perfect forward secrecy (PFS) is a desirable characteristic of a key agreement protocol. It gives assurance that session keys will not be compromised even if the private key of the server is compromised.\\
+\\
+PFS protects past sessions against future compromises of keys
+\subsubsection{Manual Distribution}
+Keys may be manually distributed through physical support. Usually done for personal or large sets of keys.
+\subsubsection{Distribution With Shared Values}
+Distribution with long-term shared secrets is useful, allowing the  exchanging temporary secrets between entities that already share some secret information. The exchange has the form:
+$$
+A \rightarrow B:\{K_s\}_{KEK}
+$$
+Where the secret key is encrypted using a symmetric cipher, with the $KEK$ key, only known by $A$ and $B$. $B$ verifies the message freshness and contents. This method does not assure PFS, as the disclosure of $KEK$  reveals all session keys that have been exchanged between the communicating parties.\\
+\\
+Instead of using a shared key, the receiver's public key may also be used.
+\subsubsection{Distribution Without Shared Values}
+The Diffie-Hellman algorithm is often used in scenarios with no shared values.\\
+\\
+In this algorithm, the objective is to obtain a secret number $K$, shared between $A$ and $B$, but without communicating it in clear.
+\begin{itemize}
+\item Choose two public prime numbers $m$ and $n$ ($n$ large).
+\item $A$ generates a random number $x_a$ and calculates $y_a = m^{x_a} \mod n$.
+\item $B$ generates a random number $x_b$ and calculates $y_b = m^{x_b} \mod n$.
+\item $y_a$ and $y_b$ are made public.
+\item Each party calculates $K$ locally:
+$$
+K = y_b^{x_a} \mod n = y_a^{x_b} \mod n
+$$
+\end{itemize}
+This type of distribution does not provide authentication and is vulnerable to man-in-the-middle attacks. However, if both secret values a and b are ephemeral (e.g. used only once), then there is PFS.
+\subsubsection{Distribution With Third Parties}
+Distribution may be done through means of trusted third parties, such as a key distribution center. These centers act as mediators between the communicating parties, simplifying the management of long-term shared secrets.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{27.png}
+\end{figure}
+This type of distribution assumes authentication and does not assure PFS.\\
+\\
+Kerberos is another frequently used algorithm. It uses a ticket granting service (TGT) that provides time-limited credentials (tickets) for several services/servers and an authentication service (AS), allowing clients to login.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.40]{28.png}
+\end{figure}
+Where tickets include client and server identifiers, timestamps with the beggining and end of validity and the session key value, all ciphered with the server key.\\
+The authenticator has the client identifier and a timestamp of the request, ciphered with the session key.
 \end{document}
 
-%next: 6b
+%next: 7a
