@@ -686,6 +686,36 @@ OpenID is the main single-sign on protocol. When a user wants to login in a rely
 \centering
 \includegraphics[scale=0.4]{31.png}
 \end{figure}
+
+\section{Access Control}
+Access control is concerned with subjects and the operations these perform on objects. Access actions can be:
+\begin{itemize}
+\item Specific: each object has a set of specific operations
+\item Generic: only write and read (change or not the object's state)
+\item Mixed: execute, append, read, write
+\end{itemize}
+There are also different types of access control systems:
+\begin{itemize}
+\item Discretionary access control systems (DAC): management is made by the owner
+\item Mandatory access control systems (MAC): management is made by a global policy (less susceptible to malware)
+\end{itemize}
+\subsection{Access Control Models}
+The goals of an access control model are those of trusworthiness, expressivity, performance and administration. These models make use of an access control matrix, whose columns are access control lists (ACL) and the rows represent the capabilities of each subject.
+\subsubsection{Role-Based Access Control (RBAC)}
+This method performs access control based on roles. It allows the description of complex policies, such as the segregation of duties and allows transfer of priviliges, while operating on a least privilege methodology.
+\begin{itemize}
+\item Users are associated with roles
+\item Roles are associated with permissions
+\item Reduces size of policy
+\end{itemize}
+\subsubsection{Attribute-Based Access Control (ABAC)}
+Permissions are granted or denied depending on the values of named attributes. It allows for dynamic permissions and fine-grained authorization but is a complex model, with lower performance.
+\subsubsection{Bell-LaPadula (BLP)}
+It is a state-machine model that describes a set of access control rules which use security labels on objects and clearances for subjects. These labels range from the most sensitive (e.g., "Top Secret"), down to the least sensitive (e.g., "Unclassified" or "Public")
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{32.png}
+\end{figure}
 \end{document}
 
-%next: 7c
+%next: 8a
