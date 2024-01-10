@@ -803,6 +803,57 @@ And the distribution of keys:
 \centering
 \includegraphics[scale=0.4]{38.png}
 \end{figure}
-\end{document}
+\section{IPsec And VPNs}
+The goal of IPsec is to protect all IP traffic between nodes: confidentiality, integrity, freshness, authenticity.
+\subsection{Security Associations (SAs)}
+Before sending data, security associations (SAs) are established at sending and receiving entity. SAs are simplex, i.e., one for each direction.
+\subsubsection{Security Association Database (SAD)}
+Endpoint holds SA state in the SAD database, where it can locate them during processing.The SAD is indexed using the SPI (Security Parameter Index).\\
+\\
+When sending IPsec datagram router 1 accesses SAD to determine how to process the datagram; upon arriving in router 2, it fetches the SPI from the IPsec datagram, indexes the SAD with the SPI and processes the datagram accordingly.
+\subsection{IPsec Sub-Protocols}
+IPsec has two sub-protocols:
+\begin{itemize}
+\item Authentication Header (AH)
+\begin{itemize}
+\item Can prevent IP spoofing (packet tampering)
+but not eavesdropping
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{39.png}
+\end{figure}
+\item Encapsulating Security Payload (ESP)
+\begin{itemize}
+\item Can prevent IP spoofing (packet tampering)
+and eavesdropping
+\item Has two modes: transport and tunnel
+\begin{itemize}
+\item Transport mode is used for host-to-host communication. The original IP header is used for routing and the ESP is deciphered by the destination host
+\item Tunnel mode is used in host-to-net and net-to-net scenarios. It has the advantage of concealing the  real IP addresses from the intermediate nodes
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{40.png}
+\end{figure}
+\end{itemize}
+\subsection{Key Distribution}
+In this context, key distribution stems from the problem of creating common SAs between a pair of machines. This can be done manually, but SAs may also be established with protocols.
+\subsubsection{ISAKMP}
+The internet security association and key management protocol (ISAKMP) is a generic framework that allows the negotiation of keys and entity authentication.\\
+\\
+It is an application layer protocol, that does not specify any techniques. The only protocol that uses it is IKE.
+\subsubsection{IKE}
+The internet key exchange protocol works in two phases:
+\begin{itemize}
+\item Establishment of a bidirectional IKE SA
+\item Establishment of unidirectional IPsec SAs
+\end{itemize}
+The transmission of data is secured by IPsec and protected by the unidirectional IPsec SAs.\\
+\\
+In the first phase, host authentication may be done with asymmetric cryptography or a shared secret; in the second phase only with a shared secret (established in the first phase).
+\subsection{VPNs}
+A VPN extends a private network across a public network, enabling  users to send and receive data across shared or public networks. VPNs use tunneling, encapsulating a protocol inside another protocol.
 
-%next: 8b
+\end{document}
