@@ -727,6 +727,82 @@ the messages
 \centering
 \includegraphics[scale=0.4]{33.png}
 \end{figure}
+\section{WiFi Security}
+Wireless networks are worsened by the problem of inexistence of a controlled physical connection, aggravating the problems of eavesdropping or the impersonation of machines.\\
+\\
+The IEEE 802.11* architecture is composed of:
+\begin{itemize}
+\item Stations (devices capable of connecting to a wireless network)
+\item Access points
+\item Wireless network
+\end{itemize}
+Some basic security mechanisms and protocols employed are:
+\begin{itemize}
+\item Service Set Identifier (SSID)
+\item MAC Address Filtering
+\item Wired Equivalent Privacy (WEP)
+\end{itemize}
+\subsection{WEP}
+The goal of WEP is the protection of radio communications between stations and APs, ensuring confidentiality and integrity control. It uses manually distributed, shared symmetric keys of 40 or 104 bits and a stream cipher: the RC4 algorithm.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{34.png}
+\end{figure}
+Every message takes a CRC (Cyclic Redundant Check) value and is encrypted using RC4.\\
+\\
+Some problems with WEP include:
+\begin{itemize}
+\item The AP is not authenticated
+\item Excessive use of the shared key
+\item No control over the variation of the IV
+\item It is possible to repeat the same keystream (repetition of IVs for the same SSID and the same key)
+\item Integrity control is weak
+\end{itemize}
+\subsubsection{WEP Authentication}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{35.png}
+\end{figure}
+An attack that might occour is the authentication with the same keystream:
+\begin{itemize}
+\item AP sends message with nonce ($M$) in plaintext to good station
+\item Good station ciphers nonce and sends it back in cryptogram $C$
+\item Attacker observes $C$ and $M$, so it can obtain 128 bytes of the keystream for a given IV: $C = M\; xor\; keystream(IV,K)$
+\item Attacker sends authentication request and uses the keystream 128 bytes (without knowing $K$) to encrypt the nonce
+\end{itemize}
+\subsection{WPA}
+Compared to WEP, WPA has some improvements, such as the master key being 128 bits long and not used to cipher data; temporary keys are derived from the master; IV is 48 bits; etc.\\
+\\
+WPA uses a temporal key integrity protocol (TKIP): the RC4 cipher is used, with the initial key mixed with the 48 bit IV and a MIC is also included in every message. It is not perfect, however, since the MIC does not fully protect the packet and, in some cases, the keystream might be reused.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{36.png}
+\end{figure}
+\subsection{802.1X and EAP}
+802.1X is the authentication model for IEEE 802 networks, capable of authentication and key distribution. It works in the following stages:
+\begin{itemize}
+\item WEP association between Station and AP
+\item EAP (Extensible Authentication Protocol)
+\begin{itemize}
+\item Authentication and key establishment between Station and Authentication Server; produces MSK (Master Session Key)
+\end{itemize}
+\item Four-way handshake
+\begin{itemize}
+\item Mutual authentication of Station and AP using nonces and MSK
+\item Derive Temporary Key (TK) to be used for secure communication
+\item Validation of stage 1 requests and responses
+\end{itemize}
+\end{itemize}
+The 802.1X architecture might be summarized as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{37.png}
+\end{figure}
+And the distribution of keys:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{38.png}
+\end{figure}
 \end{document}
 
 %next: 8b
