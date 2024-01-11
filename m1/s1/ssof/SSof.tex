@@ -405,5 +405,79 @@ Can be cause by sensitive data not being encrypted, use of home-grown or weak al
 \subsection{Insecure Transport Layer Protection}
 Sensitive traffic or authenticated sessions may be unencrypted. HTTPS should be used.
 
+\section{Database Vulnerabilities}
+SQL injection is the most common vulnerability in modern database systems. It may occour when user input is pasted into SQL commands; the concrete syntax is dependent on the specific DBMS and server-side language used. The steps of an attack include:
+\begin{itemize}
+\item Identifying parameters vulnerable to injection
+\item Database fingerprinting (discover type and version using queries)
+\item Discovering DB schema
+\item Extracting/adding/modifying data from the DB
+\item Denial of service
+\item Evading detection
+\end{itemize}
+\subsection{Methods}
+\subsubsection{Tautologies}
+Inject code in 1 or more conditional statements so that it always evaluate to true (a tautology). It is commonly used to bypass authentication and extract data.\\
+\\
+For example: $' \; or \; 1=1 \; -- $. Such an input may be evaluated as: $$SELECT \; accounts \; FROM \; users \; WHERE \; login='' \; or \; 1=1 \; -- \; ' \; AND \; pass='' \; AND \; pin=$$
+Commenting the last part and breaking the query.
+\subsubsection{Union Query}
+Trick the app into returning additional data by injecting $UNION \; SELECT  \; <rest>$. The attacker uses $<rest>$ to extract data from another table, since the query returns the union of data.
+\subsubsection{Piggy-Backed Queries}
+It does not modify a query, instead adds more queries; requires the DB to be configured to accept multiple statements in a single string.\\
+\\
+For example: $';DROP \; TABLE \; users\;--$.
+\subsubsection{Stored Procedures}
+The injection could instead target a stored procedure.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{9.png}
+\end{figure}
+\subsubsection{Illegal/Incorrect Queries}
+Find injectable parameters (DB type/version, schema) by causing errors:
+\begin{itemize}
+\item Syntax errors: identify injectable parameters
+\item Type errors: deduce data types of certain columns or extract data
+\item Logical errors: reveal names of tables and columns that caused error
+\end{itemize}
+\subsubsection{Inference}
+Attack attempts to infer if a certain condition on the state of the DB is true or false. The objective is similar to using illegal/incorrect queries. There are two techniques:
+\begin{itemize}
+\item Blind injection: Information is inferred by asking true/false questions
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{10.png}
+\end{figure}
+\item Timing attack: Information is inferred from delay in the response, usually with a branch that executes a $WAITFOR$ $DELAY$
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{11.png}
+\end{figure}
+\end{itemize}
+\subsubsection{Alternate Encodings}
+Not a full attack but a trick to evade detection. The idea is to encode input in an unusual format, such as hex, ascii or unicode. For example: 
+$$
+SELECT \; a \; FROM \; u \; WHERE \; login='legalUser';exec(char(0x73687574646f776e))\; --\; AND\; ...
+$$
+In this case it executes as $exec(shutdown)$.
+\subsection{Injection mechanisms}
+\begin{itemize}
+\item GET/POST inputs
+\item Cookies (can be used by the server to build SQL commands, $SELECT \; ... \; WHERE \; cookie='\%s'\; ...$)
+\item Header fields (in PHP). Replace the $XXX$ in $\$\_SERVER['HTTP\_XXX']$ with $HTTP\_URL$, $HTTP\_ACCEPT\_LANGUAGE$, ...
+\end{itemize}
+It's also possible to use second-order injection, where the input is provided so that it is kept in the system and later used. For example, registering a new user as $admin'--$; The site correctly escapes the input and accepts it, but will act as an injection on further queries.
+\subsection{More Vulnerabilities}
+There exist more, less frequent, vulnerabilities in DBMS', such as:
+\begin{itemize}
+\item Blank and default passwords
+\item Unprotected communication (client-server)
+\item Several open ports
+\item Default (privileged) accounts
+\item Code vulnerabilities
+\item Encryption problems
+\end{itemize}
+
+
 \end{document}
-% next: LBS 4 / VSSD 5
+% next: LBS 4 / VSSD 6
