@@ -477,7 +477,36 @@ There exist more, less frequent, vulnerabilities in DBMS', such as:
 \item Code vulnerabilities
 \item Encryption problems
 \end{itemize}
+\section{Data Validation}
+There are 3 facets to validation: type, length and syntax. Validation is also tied to integrity checking and business rule enforcing.\\
+\\
+The first problem that arises is where to perform validation:
+\begin{itemize}
+\item $1^{st}$ principle: data validation has to be made whenever data crosses a trust boundary
+\item $2^{nd}$ principle: there has to be a small set of well defined chokepoints where validations are done
+\end{itemize}
+\subsection{White and Black Listing}
+White listing refers to accepting known good and black listing to rejecting known bad. Of the two, only white listing should be used, since black listing  violates principle of fail-safe defaults.
+\subsection{Sanitization}
+Sanitization consists of eliminating or encoding characters to make input safe.
+\subsubsection{Canonical Representation}
+Metacharacter evasion has to be solved by doing canonicalization before validation. For example, $\%64elete$ in canonical form becomes $delete$.\\
+\\
+Web canonicalization issues are important due to many ways to encode the same character (ascii, UTF, URL encoding)\\
+\\
+The principle is to do before validation the same decodings the application + interpreter might do after validation (in the same order). For example, if the input comes from URL and is used in UTF-8 in a web page:
+\begin{itemize}
+\item Decode URL encoding (i.e., hexadecimal escapes, e.g., \%20) to UTF-8
+\item Canonicalize UTF-8 char
+\item Validate
+\end{itemize}
+\subsection{Encoding}
+Encoding is an alternative/complement to validation. It consists of encoding characters for protection, with the objective of neutralizing dangerous characters (typically metacharacters).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{12.png}
+\end{figure}
 
 
 \end{document}
-% next: LBS 4 / VSSD 6
+% next: LBS 4 / VSSD 7
