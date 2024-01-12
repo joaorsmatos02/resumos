@@ -567,7 +567,67 @@ Pointer subterfuge is a general term for exploits that involve modifying a point
 \item Exception-handler hijacking: modify pointer to an exception handler function
 \item Virtual pointer smashing modify the C++ virtual function table associated with a class
 \end{itemize}
-
-
+\section{Dynamic Protection}
+The idea is to block attacks that may exploit existing vulnerabilities, mostly the case of memory corruption attacks.
+\subsection{Canaries}
+Canaries may be used to detect some stack smashing attacks. They do not detect BO attacks that modify local variables, as those are above the canary, but detect (altough possibly too late) BO attacks againts the function arguments (these are below the ret address).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{15.png}
+\end{figure}
+In order to allow canaries to protect local vars from overflows, a simple solution consists of reordering the stack layout, placing the local vars between the buffer and canary.\\
+\\
+To allow the protection of function arguments, some compilers put the args in CPU registers, preventing this attack. An alternate solution consists of copying the args to the top of the stack in the beginning of a function.
+\subsection{Non-executable Stack and Heap}
+Many buffer overflow attacks involve injecting shell code in the stack/heap. A simple protection is to mark these memory pages as non-executable.
+\subsection{Randomization and Obfuscation}
+\subsubsection{Address Space Layout Randomization (ASLR)}
+ASLR is efective against most BO attacks, but not those against local variables. The idea is to randomize the addresses where code and data are placed in runtime. What is randomized are not the physical addresses by shuffling pages around the RAM (which always happens anyway), but the logic/linear addresses, i.e., the organization of the virtual memory of a process.
+Altough this does not prevent exploitation, it makes it unreliable and harder. Only some elements can be randomized:
+\begin{itemize}
+\item Code: addresses where apps and dynamic libraries are loaded
+\item Stack: starting address of the stack of each thread
+\item Heap: base address of the heap
+\end{itemize}
+\subsubsection{Instruction Set Randomization}
+Code injection would be almost impossible if each computer had its own random instruction set. With this approach, legitimate code is scrambled and malicious code is not, hopefully making it possible to execute.\\
+\\
+A practical case would be SQL  instruction randomization to avoid SQL injection.
+\subsubsection{Function Pointer Obfuscation}
+Long-lived function pointers are often the target of memory corruption exploits, as they provide a direct method for seizing control of program execution.\\
+\\
+Pointer obfuscation mitigates this problem. The idea is to XOR the pointer with a random secret cookie, keeping it protected when not needed.
+\subsection{Integrity Verification}
+\subsubsection{Windows Structured Exception Handling (SEH)}
+This feature is present in Windows operating systems. When an exception is generated, Windows examines a linked list of $EXCEPTION\_REGISTRATION$ structures in the stack. Such structures include pointers to the handlers, which  can be overrun and an exception raised to force a jump to that address.
+\subsubsection{Array Bound Checking}
+BOs are caused by lack of array bound checking, so doing the check solves the problem. It is already done in languages like Java and supported in C compilers, such as $gcc$, with some restrictions.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{16.png}
+\end{figure}
+\subsubsection{Detection Through Interception}
+$libsafe$ is a library with wrappers for problematic libc functions. When a function is called, the wrapper first checks if the buffer is not being overrun, using EBP as an upper bound.
+\subsubsection{Control-flow Integrity}
+Stack Shield has a global ret stack:
+\begin{itemize}
+\item Whenever a function is called, the return address is stored in a $GlobalRetStack$ (besides the normal stack)
+\item Before the function returns, check if the return address in the normal stack and the $GlobalRetStack$ match
+\end{itemize}
+\subsection{Filtering}
+\subsubsection{Web Application Firewalls}
+WAFs are application-level firewalls for webapps:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{17.png}
+\end{figure}
+The interposition can be obtained in four ways:
+\begin{itemize}
+\item Bridge: WAF installed as a transparent bridge (switch)
+\item Router: network reconfigured to direct traffic through the WAF
+\item Reverse proxy: represents the web server for the clients
+\item Embedded: WAF is installed as a web server plug-in
+\end{itemize}
+The reaction to the detection of an attack can range from blocking the HTTP request, to ending the session and even blocking the user.
 \end{document}
-% next: LBS 4 / VSSD 9
+% next: LBS 4
