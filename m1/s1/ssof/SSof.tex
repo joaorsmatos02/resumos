@@ -506,7 +506,46 @@ Encoding is an alternative/complement to validation. It consists of encoding cha
 \centering
 \includegraphics[scale=0.4]{12.png}
 \end{figure}
+\section{Buffer Overflows}
+A buffer is a memory space with contiguous chunks of the same data type (typically bytes or chars).We have a buffer overflow when a program writes after the end of a buffer.\\
+\\
+When a buffer overflow occours, the program becomes unstable, and may crash or proceed. Side effects depend on how much data was written (or overwritten), if the program tries to read such data, etc.
+\subsection{Prevention}
+The prevention method is simple: always do bounds checking; problems might arise only when you cannot control input. Some C functions should be avoided:
+\begin{itemize}
+\item $gets$
+\item $strcpy$
+\item $sprintf$
+\item $scanf$
+\item $streadd$
+\item ...
+\end{itemize}
+There is also a risk of internal BOs, when the overflow is not in the program’s buffers but inside a library function.
+\subsection{Stack Overflows}
+\subsubsection{Stack Smashing}
+Stack smashing is the classic stack overflow attack. For example, the following code is vulnerable, since is inserts untrusted input in $buf$ without checking:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{13.png}
+\end{figure}
+Such attacks can overflow local vars or the saved EIP, and may crash or modify the state of the program, as well as executing code. The effect on the stack can be visualized on the following image:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{14.png}
+\end{figure}
+\subsubsection{Code Injection}
+Consists of inputting arbitrary code to be executed. For this attack, the stack has to be executable and the address where the code is injected has to be discover. It is often difficult because of the reduced space and the inclusion of null bytes (functions like $strcpy$ stop in the first zero).
+\subsubsection{Arc Injection / return-to-libc}
+Consists of inserting a new arc in the program control-flow graph (stack-smashing includes a new node in the graph). For example, overrun the return address to point to code already in the program.
+\subsubsection{Pointer Subterfuge}
+Pointer subterfuge is a general term for exploits that involve modifying a pointer. The objective can be to circumvent protections against BOs when the return address is protected. There are four types:
+\begin{itemize}
+\item Function-pointer clobbering: modify a function pointer to point to attacker supplied code
+\item Data-pointer modification: modify address used to assign data
+\item Exception-handler hijacking: modify pointer to an exception handler function
+\item Virtual pointer smashing modify the C++ virtual function table associated with a class
+\end{itemize}
 
 
 \end{document}
-% next: LBS 4 / VSSD 7
+% next: LBS 4 / VSSD 8
