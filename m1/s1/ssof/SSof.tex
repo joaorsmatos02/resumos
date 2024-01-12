@@ -506,6 +506,28 @@ Encoding is an alternative/complement to validation. It consists of encoding cha
 \centering
 \includegraphics[scale=0.4]{12.png}
 \end{figure}
+
+\section{Input Validation}
+Trust can be misplaced when there is interaction (i.e. input).\\
+\\
+One example of input are environment variables. The libraries used by the program may not do enough sanity checking of the environment variables, such as PATH and IFS.
+\subsection{Metadata and Metacharacters}
+Data is often stored with metadata, which can be represented:
+\begin{itemize}
+\item In-band: as part of the data, e.g., strings in C (a special character is used to indicate the termination)
+\item Out-of-band: separated from data, e.g., strings in Java (the number of characters is metadata stored separately from the characters)
+\end{itemize}
+In-band metacharacters are a source of many vulnerabilities. They occur because the program trusts input to contain only characters, not metacharacters. The most typical attacks using metacharacters are:
+\begin{itemize}
+\item Embedded delimiters ($\backslash$n)
+\item NUL character injection ($\backslash$0)
+\item Separator injection (;)
+\end{itemize}
+\subsection{Format String Vulnerabilities}
+Format strings are used in C, in functions of the families $printf$, $err$ and $syslog$. They are vulnerable because the parameters passed are put in the stack before the function is called. If the format string is controlled by an attacker it might be used to crash the program, print arbitrary memory addresses or write arbitrary values in memory.\\
+\\
+The solution is simple: always write the format string in the program.
+
 \section{Buffer Overflows}
 A buffer is a memory space with contiguous chunks of the same data type (typically bytes or chars).We have a buffer overflow when a program writes after the end of a buffer.\\
 \\
@@ -548,4 +570,4 @@ Pointer subterfuge is a general term for exploits that involve modifying a point
 
 
 \end{document}
-% next: LBS 4 / VSSD 8
+% next: LBS 4 / VSSD 9
