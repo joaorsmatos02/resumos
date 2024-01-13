@@ -221,7 +221,8 @@ Verification of complex properties can be achieved with more human intervention,
 \item Model checking: checks a model (description) of a program, or the code itself. Enables to check its design.
 \item Program Verification: formally proves a property about a program. Uses a specification language (program logic) for expressing properties of a program and an associated logic for (dis)proving that programs meet specifications.
 \end{itemize}
-\subsubsection{Static analysis for Information Flow}
+\section{Static analysis for Information Flow}
+We till not develop a static type-based analysis for our WHILE language. The general steps for an IFlow analysis are:
 \begin{enumerate}
 \item Definition of the language
 \item Information flow policy of security levels
@@ -230,6 +231,108 @@ Verification of complex properties can be achieved with more human intervention,
 \item Mechanism for selecting secure programs
 \item Guarantees about the mechanism
 \end{enumerate}
+\subsection{Definition of a Language}
+In order to define a language, its syntax and semantics must be defined. For this purpose we will use the WHILE language defined previously.
+\subsection{Information Flow Policy of Security Levels}
+In this step, we choose a set of security classes, an flow relation between them, and an operator for combining them. These security levels can speak for instance of confidentiality, integrity, or both. For this purpose, a lattice of security levels will be used.
+\subsubsection{Lattice Policies}
+A class of common information flow policies have some convenient ingredients:
+\begin{itemize}
+\item Security levels form a partial order (allowed flows are transitive, anti-symmetric a)
+\item Two security levels can always be combined
+\item There is a highest and a lowest level
+\end{itemize}
+A flow relation has a lattice structure:
+$$
+L = (L, \leq, \lor, \land, \top, \perp)
+$$
+\begin{itemize}
+\item $L$: set of security levels
+\item $\leq$: partial order on $L$
+\item $\lor$: Join - least upper bound operation
+\item $\land$: Meet - greatest lower bound operation
+\item $\top$: top security level
+\item $\perp$: bottom security level
+\end{itemize}
+The operation $\oplus$ is given by $\lor$ or $\land$. Some more definitions:
+\begin{itemize}
+\item Upper and lower bounds:
+\begin{itemize}
+\item Upper-Bound: given a partially ordered set $(S, \leq)$, element $s$ is an upper-bound of two elements $l_1$ and $l_2$ if it satisfies $l_1 \leq s$ and $l_2 \leq s$
+\item Lower-Bound: given a partially ordered set $(S, \leq)$, element $s$ is a lower-bound of two elements $l_1$ and $l_2$ if it satisfies $s \leq l_1$ and $s \leq l_2$
+\end{itemize}
+\item Join and meet:
+\begin{itemize}
+\item Join ($\lor$): defined for any two $l_1, l_2 \in L$, we have that $l_1 \lor l_2$ is the least upper-bound of $l_1$ and $l_2$ if all other upper-bounds $s$ of $l_1$ and $l_2$ are greater: $l_1 \lor l_2 \leq s$
+\item Meet ($\land$): defined for any two $l_1, l_2 \in L$, we have that $l_1 \land l_2$ is the greatest lower-bound of $l_1$ and $l_2$ if all other lower-bounds $s$ of $l_1$ and $l_2$ are lower: $s \leq l_1 \land l_2$
+\end{itemize}
+\end{itemize}
+\subsection{Classification of Objects into Security Levels}
+Objects, or information containers (variables, channels, files, etc) are given a security level. For this example, we will use a security labeling, i.e. amapping from variables to security levels:
+$$
+(\Gamma: Var \rightarrow L)
+$$
+\subsection{Security Property of Programs}
+Consists of a formal specification of what it means for a program to be secure. While taking into consideration the language expressivity and execution context, specifies the power of the attacker. For this purpose, deterministic input-output noninterference will be used.\\
+\\
+The part of a memory $\rho$ that is observable at level $L$ corresponds to the set of variables that are lower or equal to $L$. 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{18.png}
+\end{figure}
+(Omitting the parameter $\Gamma$ for simplicity)\\
+\\
+Two memories $\rho_1$ and $\rho_2$ are indistinguishable with respect to a security level $L$, if $\rho_1$ and $\rho_2$ agree on the values of variables that are observable at level $L$ That is, for all $x$ such that $\Gamma(x) \leq L$, then $\rho_1(x) = \rho_2(x)$.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{19.png}
+\end{figure}
+(Omitting the parameter $\Gamma$ for simplicity)\\
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{20.png}
+\end{figure}
+\subsection{Mechanism for Selecting Secure Programs}
+For this goal, a type system must be built. A type system can be defined as a tractable syntactic framework for classifying phrases according to the kinds of values they compute. This system should analyze programs written in the language that was defined (WHILE in our case) and only accept programs that follow the chosen security property (Noninterference, for this example). A type system is composed of:
+\begin{itemize}
+\item Types
+\item Typing environment ($\Gamma$): maps variables to types. Used to know what is the type of a variable
+\item Judgements ($\Gamma \vdash program:type$): partially map programs to types. Used for stating that a (part of a) program is typable and what is its type
+\item Rules ($\frac{assumptions}{conclusions}$): relate valid judgments with assumptions. Used for establishing syntactic conditions for judgments to hold
+\end{itemize}
+The idea is to choose a level that represents those of the variables that are read in an expression or test. Only type statements where written variables only depend on read variables (expressions or test) of lower or equal level.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{21.png}
+\end{figure}
+\clearpage
+Types of expressions are at least as high as that of its sub-expressions (remaining an upper bound!). For example:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{22.png}
+\end{figure}
+\clearpage
+Types of statements are at least as low as those of its sub-statements (remaining a lower bound!).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{23.png}
+\end{figure}
+\subsubsection{Typing Derivation Tree}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{24.png}
+\end{figure}
+\subsection{Guarantees About the Mechanism}
+There are two lemmas:
+\begin{itemize}
+\item Simple security: if $\Gamma \vdash a: \tau$ then expression a contains only variables of level $\tau$ or lower.\\
+\\
+Types given to expressions are obtained from types of its variables, and can only be raised.
+\item Confinement: if $\Gamma \vdash a: \tau cmd$ hen statement $S$ assigns only to variables of level $\tau$ or higher.\\
+\\
+Types given to statements are obtained from types of its assigned variables, and can only be lowered.
+\end{itemize}
+Finally, there is the theorem of type soundness: if program $S$ is typable then it satisfies deterministic input-output noninterference.
 
 \chapter{Vulnerabilites And Secure Software Design}
 In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.
@@ -630,4 +733,4 @@ The interposition can be obtained in four ways:
 \end{itemize}
 The reaction to the detection of an attack can range from blocking the HTTP request, to ending the session and even blocking the user.
 \end{document}
-% next: LBS 4
+% next: LBS 5
