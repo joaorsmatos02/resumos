@@ -221,7 +221,7 @@ Verification of complex properties can be achieved with more human intervention,
 \item Model checking: checks a model (description) of a program, or the code itself. Enables to check its design.
 \item Program Verification: formally proves a property about a program. Uses a specification language (program logic) for expressing properties of a program and an associated logic for (dis)proving that programs meet specifications.
 \end{itemize}
-\section{Static analysis for Information Flow}
+\section{Static Analysis for Information Flow}
 We till not develop a static type-based analysis for our WHILE language. The general steps for an IFlow analysis are:
 \begin{enumerate}
 \item Definition of the language
@@ -333,6 +333,118 @@ Types given to expressions are obtained from types of its variables, and can onl
 Types given to statements are obtained from types of its assigned variables, and can only be lowered.
 \end{itemize}
 Finally, there is the theorem of type soundness: if program $S$ is typable then it satisfies deterministic input-output noninterference.
+
+\section{Dynamic Analysis}
+As more information is available at runtime, it is possible to use it and accept secure runs of programs that might be otherwise rejected by static analysis.
+\subsection{Accepting vs. Transforming}
+Our (previous) type system checks whether programs should be accepted: either accepts or rejects a program (there are also type systems that transform programs). Monitors change the behaviour of programs, so that the result is acceptable.
+\subsection{Web Security and Dynamic Languages}
+Most client-side web apps consist of (JavaScript) mashups - a combination of scripts, possibly from external untrusted origins (gadgets). Gadgets are highly dynamic - they can be loaded at runtime and can depend on the input given by the user.\\
+\\
+Browsers follow a Same Origin Policy (SOP): a script loaded from one origin is not allowed to access or modify resources obtained from another origin. Access is granted based on the origin, and not on what will be done with that access.
+\subsubsection{Dynamic Code Evaluation}
+In the context of web applications, dynamic code evaluation is a popular feature. Nearly a quarter of the pages with embedded JavaScript use the eval primitive. There are two main dynamic approaches to control information flow in Javascript:
+\begin{itemize}
+\item Modify a JavaScript engine so that it additionally implements the security monitor. Lock-step monitor:
+\begin{itemize}
+\item Define monitored semantics for the composition of the program and monitor, which can only perform safe executions
+\item Each step of the monitor and program must be synchronized
+\end{itemize}
+\item Inline the monitor into the original program, which has the advantage of being browser-independent. Inlined monitor:
+\begin{itemize}
+\item Define a source-to-source compiler that transforms programs into "programs that monitor themselves".
+\item The monitor is inlined in the program and transformed programs should be safe to execute
+\end{itemize}
+\end{itemize}
+\subsection{A Monitor for Information Flow Analysis}
+We want to be able to talk about each individual step performed by programs and monitors. We will need:
+\begin{itemize}
+\item To define a small-step labeled semantics for the programs ($\Rightarrow^\alpha$)
+\begin{itemize}
+\item This will be divided in two parts: basic and labeled small-step semantics
+\end{itemize}
+\item To define a small-step labeled semantics for the monitor ($\Rightarrow_m^\alpha$)
+\end{itemize}
+\subsubsection{Basic Small-Step Semantics}
+We will need to make some additions to the syntax of WHILE, in order to obtain a dynamic WHILE. Namely, add to the syntatic categories:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{28.png}
+\end{figure}
+The small-step semantics are mostly unchanged:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{27.png}
+\end{figure}
+And there is one addition to the small step axioms and rules:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{25.png}
+\end{figure}
+To evaluate statement $S$, starting from an initial state $\rho$, a derivation sequence can be constructed:
+\begin{itemize}
+\item Try to find an axiom or rule whose left side matches $<S, \rho>$, whose side conditions are satisfied, and for which you can build a derivation tree showing that it can be applied.
+\begin{itemize}
+\item If it is an axiom: determine the final state and terminate.
+\item If it is a rule: determine the intermediate configuration that is the right side of the rule, and try to find the derivation sequence starting form it.
+\end{itemize}
+\end{itemize}
+An example follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{26.png}
+\end{figure}
+\subsubsection{Labelled Small-Step Semantics}
+The runtime syntax of dynamic WHILE sees one more change:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{29.png}
+\end{figure}
+Also on the small-step semantics:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{30.png}
+\end{figure}
+And the rules/axioms:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{31.png}
+\end{figure}
+Note: $b(t)$ serves the purpose of indicating  to the monitor that the program is entering a region guarded by $t$.\\
+The runtime instruction "end" is only for sending a message to the monitor.\\
+\\
+An example follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{32.png}
+\end{figure}
+\subsubsection{Monitor Small-Step Semantics}
+The monitor either accepts an event generated by the program or blocks it by getting stuck. It operates on stacks of security
+levels ($st$). (The empty stack is represented by $\varepsilon$.) Transitions are labeled. The rules are as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{33.png}
+\end{figure}
+An example follows:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{34.png}
+\end{figure}
+Lock-step monitored semantics compose ($|_m$) the executions of the program and the monitor:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{345.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{35.png}
+\end{figure}
+For example:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{36.png}
+\end{figure}
+
 
 \chapter{Vulnerabilites And Secure Software Design}
 In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.
