@@ -445,6 +445,96 @@ For example:
 \includegraphics[scale=0.4]{36.png}
 \end{figure}
 
+\section{Security Verification and Bug-Finding}
+Testing and code reviews are widely used to find bugs in code, but each test only explores one possible execution, i.e. some bugs are still missed.
+\subsection{Program Properties and Noninterference}
+A program $Property$ is a set of behaviours. The behaviours of a program $S$ are denoted $\{[S]\}$.
+\begin{itemize}
+\item Verification of a program $S$ with respect to $Property$ means proving that all the behaviors of $S$ are contained in $Property$:
+$$
+\{[S]\} \subseteq Property
+$$
+\item Bug Finding in a program $S$ with respect to $Property$ means finding a behavior of $S$ that is not in $Property$:
+$$
+\{[S]\} \cap \neg Property \neq \emptyset
+$$
+\end{itemize}
+Properties may be categorized as satety properties (something bad never happens, e.g. type/memory safety) or liveness properties (something good will eventually happen, e.g. termination).
+Depending on how we define the set of allowed behaviors, we get different classes of properties:
+\begin{itemize}
+\item Trace properties: behaviors are traces
+\item 2-trace properties: behaviors are 2-traces
+\end{itemize}
+\subsubsection{Trace}
+Represents a complete trace of a program: a sequence of configurations ($cfg$) that represents a complete step-by-step execution of a program (according to the small-step semantics).\\
+\\
+These can be finite or infinite sets $[cfg_0, ...]$, such that $cfg_0 = <S_0, \rho_0>$ and $\forall 0 \leq i \leq n, cfg_i \Rightarrow cfg_{i+1}$. $\{[S_0]\}$ is the set of trace-behaviors of $S_0$; it includes all the (infinite and finite) traces ($\{[cfg_0, ..., cfg_n]\}, \{[cfg_0, ...]\}$).
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{37.png}
+\end{figure}
+We can then define $NoDivZero$ as a safety property and $Termination$ as a liveness property:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{38.png}
+\end{figure}
+\subsubsection{2-Trace}
+$\{[S_0]\}$, the set of "behaviours of $S_0$" is the set of pairs of traces, which includes all pairs of infinite or finite traces.
+\begin{align}
+&\{[cfg_0, ..., cfg_n], [cfg_0', ..., cfg_m']\}\\
+&\cup \{[cfg_0, ..., cfg_n], [cfg_0', ...]\}\\
+&\cup \{[cfg_0, ...], [cfg_0', ..., cfg_m']\}\\
+& \cup ...
+\end{align}
+Noninterference is a 2-trace property: "no pair of program executions reveals an information leak".
+\subsection{Verification and Bug-finding for Noninterference}
+Existing verification tools are mainly for trace properties. If we can formulate Noninterference as a trace property, we can use an existing analysis to check it instead of building a new one from scratch. The idea is to verify noninterferece by self-composition:
+\begin{align}
+\{[S]\} \subseteq&\; Noninterference(2-trace\;property)\\
+iff&\\
+\{[SelfC(S)]\} \subseteq&\; SafetyNoninterference(trace\;property)
+\end{align}
+Self-composition consists of performing 2 runs of $S$ at once by creating a copy of $S$ using fresh variables from $Var$, then executing $S;S$. To assume and assert same "low" variables in the encoded "two runs" we use a memory $\rho + \overline{\rho}$, where $\rho$ and $\overline{\rho}$ don’t overlap but between which we can map variables.\\
+\\
+To prepare a program $S$ for verification/bug finding for Noninterference by symbolic execution:
+\begin{itemize}
+\item Produce a program $SelfC(S)=S;S$ by self-composition
+\item For each low variable $x$ that appears in $S$:
+\begin{itemize}
+\item Add assumptions and assertions $x=x$, at the beginning and end of the program, respectively.
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{39.png}
+\end{figure}
+\subsubsection{Bug-finding for Noninterference}
+To search for a Noninterference bug in $S$:
+\begin{itemize}
+\item Prepare $S$ for trace-based verification/bug finding
+\item Perform a symbolic execution of the new program
+\begin{itemize}
+\item Collect all assumptions over the symbolic variables in the path condition
+\end{itemize}
+\item See if path condition implies assertions for all possible symbolic values
+\begin{itemize}
+\item (equivalently) see if negation of the implication is satisfiable for any symbolic values
+\end{itemize}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{40.png}
+\end{figure}
+\subsubsection{Verification for Noninterference}
+To verify that $S$ satisfies Noninterference, prove the absence of Noninterference bugs in $S$:
+\begin{itemize}
+\item Prepare $S$ for verification/bug finding for Noninterference by symbolic execution
+\item For each symbolic execution path of the new program:
+\begin{itemize}
+\item Search for a Noninterference bug
+\end{itemize}
+\item $S$ satisfies Noninterference iff no bug is found
+\end{itemize}
 
 \chapter{Vulnerabilites And Secure Software Design}
 In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.
@@ -845,4 +935,3 @@ The interposition can be obtained in four ways:
 \end{itemize}
 The reaction to the detection of an attack can range from blocking the HTTP request, to ending the session and even blocking the user.
 \end{document}
-% next: LBS 5
