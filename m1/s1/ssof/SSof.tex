@@ -537,8 +537,8 @@ To verify that $S$ satisfies Noninterference, prove the absence of Noninterferen
 \end{itemize}
 
 \chapter{Vulnerabilites And Secure Software Design}
-In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.
-\section{Vulnerabilities}
+In secure software design, there are 3 main security attributes: confidentiality, integrity and avaliability.\\
+\\
 A vulnerability is a system defect relevant security-wise, which may be exploited by an attacker to subvert security policy. Vulnerabilities may be classified as:
 \begin{itemize}
 \item Design vulnerabilities
@@ -580,50 +580,8 @@ When user visits trigger page, Torpig asks injection server for another page (e.
 \centering
 \includegraphics[scale=0.5]{2.png}
 \end{figure}
-\section{Protection in Operating Systems}
-Protection is emplyed to ensure that objects are not accessed by unauthorized subjects. There are two aspects: separation and mediation.
-\subsection{Separation}
-Common operating systems (Unix, Windows) run software basically in two modes, enforced by the CPU:
-\begin{itemize}
-\item Kernel mode: software can play with any system resource (memory, I/O devices,...)
-\item User mode: access to resources is controlled by the OS. Software has to call the OS kernel to make privileged
-operations
-\end{itemize}
-There are several forms of separation:
-\begin{itemize}
-\item Physical separation: different processes use different devices (e.g. printers for different levels of security)
-\item Temporal separation: processes with different security requirements are executed at different times
-\item Logical separation: processes operate under the illusion than no other processes exist
-\item Cryptographic separation: processes use cryptography to conceal their data and/ or computations in a way that they become unintelligible to other processes
-\end{itemize}
-\subsubsection{Memory Protection}
-Logical separation is often used to achieve memory protection. The most common solutions are segmentation (program is split in pieces with logical unit, such as code, data, stack...) and paging (program is divided in pages of the same size).\\
-\\
-From a protection point of view, pages are similar to segments: a process can only  access a segment only if appears in its segment translation table or can only see a page if it appears on its table.
-\subsection{Access Control}
-Access control is concerned with validating the access rights of subjects to resources of the system. It should be implemented by a reference monitor, following 3 principles:
-\begin{itemize}
-\item Completeness: it must be impossible to bypass
-\item Isolation: it must be tamperproof
-\item Verifiability: it must be shown to be properly implemented
-\end{itemize}
-Some basic access control mechanisms include:
-\begin{itemize}
-\item Access control lists (ACLs): Each object is associated with a list of pairs (subject, rights)
-\item Capabilities: Each subject has a list of objects that it may access, i.e. pairs (object, rights). Capabilities are cryptographically protected against modification and forging
-\item Access control matrix: A matrix with lines per subject, columns per object, rights in the cells
-\end{itemize}
-There are also two basic access control policies:
-\begin{itemize}
-\item Discretionary Access Control (DAC): access policy defined by the user
-\item Mandatory Access Control (MAC): access policy defined by an administrator
-\end{itemize}
-\subsubsection{Unix Access Control}
-Each user in Unix has a username and a user ID (UID). Users can also belong to one or more groups, each with a group ID (GID). Objects (such as files or directories) have an owner identified by a real UID and a real GID. Access permissions are set for the owner, group, and others (world), with read (r), write (w), and execute (x) permissions.\\
-\\
-When processes interact with objects, their effective UID and effective GID are used to determine access permissions. The kernel compares the effective UID and GID with the permissions of the object to decide whether to grant or deny access.\\
-\\
-The setuid and setgid bits are additional permission bits that can be set on executable files. When the setuid bit is set on an executable file, the program is executed with the effective UID of the file's owner. Similarly, when the setgid bit is set, the program is executed with the effective GID of the file's group owner. Programs with setuid and owner UID 0 (root) are potential targets for privilege escalation attacks because they may execute with elevated privileges, providing an opportunity for attackers to exploit vulnerabilities.
+
+
 \section{Race Conditions}
 Race conditions violate the assumption of atomicity. The vulnerability lies in a problem of concurrency or lack of proper synchronization. There are several sources of races:
 \begin{itemize}
@@ -654,6 +612,63 @@ In the previous cases, concurrency is created by the attacker, with malicious in
 A function is reentrant if it works correctly even if its thread is interrupted by another thread that calls the same function. Such functions cannot use static variables, global variables, other shared resources like libraries (i.e and can only call other reentrant functions.\\
 \\
 In some cases, unix signals may be useful in indicating asynchronous events to a process.
+
+\section{Buffer Overflows}
+A buffer is a memory space with contiguous chunks of the same data type (typically bytes or chars).We have a buffer overflow when a program writes after the end of a buffer.\\
+\\
+When a buffer overflow occours, the program becomes unstable, and may crash or proceed. Side effects depend on how much data was written (or overwritten), if the program tries to read such data, etc.
+\subsection{Stack Overflows}
+\subsubsection{Stack Smashing}
+Stack smashing is the classic stack overflow attack. For example, the following code is vulnerable, since is inserts untrusted input in $buf$ without checking:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{13.png}
+\end{figure}
+Such attacks can overflow local vars or the saved EIP, and may crash or modify the state of the program, as well as executing code. The effect on the stack can be visualized on the following image:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{14.png}
+\end{figure}
+\subsubsection{Code Injection}
+Consists of inputting arbitrary code to be executed. For this attack, the stack has to be executable and the address where the code is injected has to be discover. It is often difficult because of the reduced space and the inclusion of null bytes (functions like $strcpy$ stop in the first zero).
+\subsubsection{Arc Injection / return-to-libc}
+Consists of inserting a new arc in the program control-flow graph (stack-smashing includes a new node in the graph). For example, overrun the return address to point to code already in the program.
+\subsubsection{Pointer Subterfuge}
+Pointer subterfuge is a general term for exploits that involve modifying a pointer. The objective can be to circumvent protections against BOs when the return address is protected. There are four types:
+\begin{itemize}
+\item Function-pointer clobbering: modify a function pointer to point to attacker supplied code
+\item Data-pointer modification: modify address used to assign data
+\item Exception-handler hijacking: modify pointer to an exception handler function
+\item Virtual pointer smashing modify the C++ virtual function table associated with a class
+\end{itemize}
+\subsection{Integer Overflows}
+The semantics of integer-handling are complex and programmers often don’t know the details.\\
+\\
+Integer overflows are usually caused due to insufficient memory allocation, causing a buffer overflow, or excessive memory allocation/infinite loop, leading to DoS. On rarer occasions they may originate from signedness errors (signed integer is interpreted as unsigned or vice-versa) or truncation (assigning an integer with a longer width to another shorter)
+\subsection{Heap Overflows}
+Similar to a stack overflow, a heap overflow occurs when a program writes more data to a dynamically allocated region in the heap memory than it can hold.
+\subsection{Return-Oriented Programming (ROP)}
+ROP provides a "language" which an attacker might use to make a machine do something useful. It does not involve code injection; generalizes return-to-libc (since it does not work well in 64 bit CPUs, as the first function parameters are put in registers).\\
+\\
+This type of attack uses gadgets, which are sequences of instructions ending with ret(C3). In order to find a gadget, search for C3 and see what instructions can be found before it. Gadgets aren’t necessarily based on instructions of the original code.\\
+\\
+The attack consists of overflowing the stack with:
+\begin{itemize}
+\item Addresses of gadgets
+\item Other data the gadgets may pick from the stack
+\end{itemize}
+This constructs a ROP chain where each gadget performs a specific operation and ends with a "return" instruction, transferring control to the next gadget in the chain. By carefully selecting gadgets and their addresses, the attacker can build a sequence that achieves arbitrary actions, such as disabling security features or executing malicious code.
+\subsection{Prevention}
+The prevention method is simple: always do bounds checking; problems might arise only when you cannot control input. Some C functions should be avoided:
+\begin{itemize}
+\item $gets$
+\item $strcpy$
+\item $sprintf$
+\item $scanf$
+\item $streadd$
+\item ...
+\end{itemize}
+There is also a risk of internal BOs, when the overflow is not in the program’s buffers but inside a library function.
 
 \section{Web Application Vulnerabilities}
 Web suffers from all the 3 causes of trouble: complexity, extensibility, connectivity.
@@ -687,27 +702,28 @@ It is similar to reflected XSS but the injection is in the response header, whil
 The attacker inserts a carriage return (CR) and a life feed (LF) creating a new field in the header, or a second response (HTTP response splitting).\\
 \\
 Just as in the reflected XSS, the attacker sends the victim a URL of a vulnerable website.
-\subsection{Direct Object Reference}
+\subsection{Direct Object Reference (DOR)}
 Occours when a site exposes a reference to an internal object and no proper access control (e.g. files, database records, keys, ...).\\
 \\
 Should be prevented by forbidding the exposure of object references and by doing proper access control.
+\subsection{Local File Inclusion (LFI)}
+LFI is a vulnerability that occurs when an application allows an attacker to include files on the server through user-controllable input. LFI attacks can expose sensitive information, and in severe cases, they can lead to cross-site scripting (XSS) and remote code execution.\\
+\\
+DOR and LFI can be related in scenarios where a DOR vulnerability allows an attacker to determine the location of sensitive files, and an LFI vulnerability then allows the attacker to include or access those files.
 \subsection{Cross Site Request Forgery (CSRF)}
 Many sites do certain actions based on an automatically submitted, fixed, ID, typically a session cookie. The attack consists of forcing the user to execute unwanted actions in a vulnerable site in which it is authenticated. Can be done by sending a link by email or chat.\\
 \\
 The solution is similar to XSS, but may also consist on using nonces or requiring re-authentication for critical actions.
-\subsection{Security Misconfiguration}
-Misconfiguration vulnerabilities can exist at any level (OS, web/app server, ...). An attacker can access several things to gain unauthorized access to or knowledge of the system.\\
-\\
-Protection consists of deploying automated scanners  for detecting missing patches, misconfigurations, use of default accounts, unnecessary services, etc.
 \subsection{Failure to Restrict URL Access}
 Pages that are "protected" simply by being inaccessible from the "normal" web tree. The attack consists of forced browsing: guess links and brute force to find unprotected pages.\\
 \\
 Protection relies in having good access control, no "hidden" pages as a form of protection.
 \subsection{Unvalidated Redirects and Forwards}
 Applications frequently redirect users to other pages. Sometimes the target page is specified in an unvalidated parameter, allowing attackers to choose the destination page.
-\subsection{Insecure Cryptographic Storage}
-Can be cause by sensitive data not being encrypted, use of home-grown or weak algorithms, ...
-\subsection{Insecure Transport Layer Protection}
+\subsection{Others}
+\subsubsection{Insecure Cryptographic Storage}
+Can be caused by sensitive data not being encrypted, use of home-grown or weak algorithms, ...
+\subsubsection{Insecure Transport Layer Protection}
 Sensitive traffic or authenticated sessions may be unencrypted. HTTPS should be used.
 
 \section{Database Vulnerabilities}
@@ -720,7 +736,7 @@ SQL injection is the most common vulnerability in modern database systems. It ma
 \item Denial of service
 \item Evading detection
 \end{itemize}
-\subsection{Methods}
+\subsection{Injection Methods}
 \subsubsection{Tautologies}
 Inject code in 1 or more conditional statements so that it always evaluate to true (a tautology). It is commonly used to bypass authentication and extract data.\\
 \\
@@ -772,7 +788,7 @@ In this case it executes as $exec(shutdown)$.
 \item Header fields (in PHP). Replace the $XXX$ in $\$\_SERVER['HTTP\_XXX']$ with $HTTP\_URL$, $HTTP\_ACCEPT\_LANGUAGE$, ...
 \end{itemize}
 It's also possible to use second-order injection, where the input is provided so that it is kept in the system and later used. For example, registering a new user as $admin'--$; The site correctly escapes the input and accepts it, but will act as an injection on further queries.
-\subsection{More Vulnerabilities}
+\subsection{Others}
 There exist more, less frequent, vulnerabilities in DBMS', such as:
 \begin{itemize}
 \item Blank and default passwords
@@ -782,6 +798,53 @@ There exist more, less frequent, vulnerabilities in DBMS', such as:
 \item Code vulnerabilities
 \item Encryption problems
 \end{itemize}
+
+\section{Protection in Operating Systems}
+Protection is emplyed to ensure that objects are not accessed by unauthorized subjects. There are two aspects: separation and mediation.
+\subsection{Separation}
+Common operating systems (Unix, Windows) run software basically in two modes, enforced by the CPU:
+\begin{itemize}
+\item Kernel mode: software can play with any system resource (memory, I/O devices,...)
+\item User mode: access to resources is controlled by the OS. Software has to call the OS kernel to make privileged
+operations
+\end{itemize}
+There are several forms of separation:
+\begin{itemize}
+\item Physical separation: different processes use different devices (e.g. printers for different levels of security)
+\item Temporal separation: processes with different security requirements are executed at different times
+\item Logical separation: processes operate under the illusion than no other processes exist
+\item Cryptographic separation: processes use cryptography to conceal their data and/ or computations in a way that they become unintelligible to other processes
+\end{itemize}
+\subsubsection{Memory Protection}
+Logical separation is often used to achieve memory protection. The most common solutions are segmentation (program is split in pieces with logical unit, such as code, data, stack...) and paging (program is divided in pages of the same size).\\
+\\
+From a protection point of view, pages are similar to segments: a process can only  access a segment only if appears in its segment translation table or can only see a page if it appears on its table.
+\subsection{Access Control}
+Access control is concerned with validating the access rights of subjects to resources of the system. It should be implemented by a reference monitor, following 3 principles:
+\begin{itemize}
+\item Completeness: it must be impossible to bypass
+\item Isolation: it must be tamperproof
+\item Verifiability: it must be shown to be properly implemented
+\end{itemize}
+Some basic access control mechanisms include:
+\begin{itemize}
+\item Access control lists (ACLs): Each object is associated with a list of pairs (subject, rights)
+\item Capabilities: Each subject has a list of objects that it may access, i.e. pairs (object, rights). Capabilities are cryptographically protected against modification and forging
+\item Access control matrix: A matrix with lines per subject, columns per object, rights in the cells
+\end{itemize}
+There are also two basic access control policies:
+\begin{itemize}
+\item Discretionary Access Control (DAC): access policy defined by the user
+\item Mandatory Access Control (MAC): access policy defined by an administrator
+\end{itemize}
+\subsubsection{Unix Access Control}
+Each user in Unix has a username and a user ID (UID). Users can also belong to one or more groups, each with a group ID (GID). Objects (such as files or directories) have an owner identified by a real UID and a real GID. Access permissions are set for the owner, group, and others (world), with read (r), write (w), and execute (x) permissions.\\
+\\
+When processes interact with objects, their effective UID and effective GID are used to determine access permissions. The kernel compares the effective UID and GID with the permissions of the object to decide whether to grant or deny access.\\
+\\
+The setuid and setgid bits are additional permission bits that can be set on executable files. When the setuid bit is set on an executable file, the program is executed with the effective UID of the file's owner. Similarly, when the setgid bit is set, the program is executed with the effective GID of the file's group owner. Programs with setuid and owner UID 0 (root) are potential targets for privilege escalation attacks because they may execute with elevated privileges, providing an opportunity for attackers to exploit vulnerabilities.
+
+
 \section{Data Validation}
 There are 3 facets to validation: type, length and syntax. Validation is also tied to integrity checking and business rule enforcing.\\
 \\
@@ -832,46 +895,6 @@ In-band metacharacters are a source of many vulnerabilities. They occur because 
 Format strings are used in C, in functions of the families $printf$, $err$ and $syslog$. They are vulnerable because the parameters passed are put in the stack before the function is called. If the format string is controlled by an attacker it might be used to crash the program, print arbitrary memory addresses or write arbitrary values in memory.\\
 \\
 The solution is simple: always write the format string in the program.
-
-\section{Buffer Overflows}
-A buffer is a memory space with contiguous chunks of the same data type (typically bytes or chars).We have a buffer overflow when a program writes after the end of a buffer.\\
-\\
-When a buffer overflow occours, the program becomes unstable, and may crash or proceed. Side effects depend on how much data was written (or overwritten), if the program tries to read such data, etc.
-\subsection{Prevention}
-The prevention method is simple: always do bounds checking; problems might arise only when you cannot control input. Some C functions should be avoided:
-\begin{itemize}
-\item $gets$
-\item $strcpy$
-\item $sprintf$
-\item $scanf$
-\item $streadd$
-\item ...
-\end{itemize}
-There is also a risk of internal BOs, when the overflow is not in the program’s buffers but inside a library function.
-\subsection{Stack Overflows}
-\subsubsection{Stack Smashing}
-Stack smashing is the classic stack overflow attack. For example, the following code is vulnerable, since is inserts untrusted input in $buf$ without checking:
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.4]{13.png}
-\end{figure}
-Such attacks can overflow local vars or the saved EIP, and may crash or modify the state of the program, as well as executing code. The effect on the stack can be visualized on the following image:
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.4]{14.png}
-\end{figure}
-\subsubsection{Code Injection}
-Consists of inputting arbitrary code to be executed. For this attack, the stack has to be executable and the address where the code is injected has to be discover. It is often difficult because of the reduced space and the inclusion of null bytes (functions like $strcpy$ stop in the first zero).
-\subsubsection{Arc Injection / return-to-libc}
-Consists of inserting a new arc in the program control-flow graph (stack-smashing includes a new node in the graph). For example, overrun the return address to point to code already in the program.
-\subsubsection{Pointer Subterfuge}
-Pointer subterfuge is a general term for exploits that involve modifying a pointer. The objective can be to circumvent protections against BOs when the return address is protected. There are four types:
-\begin{itemize}
-\item Function-pointer clobbering: modify a function pointer to point to attacker supplied code
-\item Data-pointer modification: modify address used to assign data
-\item Exception-handler hijacking: modify pointer to an exception handler function
-\item Virtual pointer smashing modify the C++ virtual function table associated with a class
-\end{itemize}
 \section{Dynamic Protection}
 The idea is to block attacks that may exploit existing vulnerabilities, mostly the case of memory corruption attacks.
 \subsection{Canaries}
