@@ -9,7 +9,6 @@
 \usepackage{amssymb}
 \usepackage{verbatim}
 \usepackage{float}
-\usepackage{minitoc}
 \usepackage{amsthm}
 \usepackage{hyperref}
 \title{\LARGE{Algorithms for Computational Logic} \\ \vspace{0.5cm} \normalsize{Summary}}
@@ -51,18 +50,74 @@ In bitwise encoding, we represent the constraint $\sum_{j=1}^n x_j \leq 1$ by en
 $$
 v_0, ... v_r-1;\; r=\lceil \log n \rceil (\text{with } n > 1)
 $$
-Each variable $x_j$ is assigned a unique binary number that represents its index. Then, for each variable $x_j$ with binary index representation $i$, we create clauses that enforce the condition: if $x_j = 1$ then the auxiliary bits $b_1, b_2, ..., b_k$ must match the binary encoding of $i$. For a variable $x_j$ with binary index $i$:
-$$
-x_j \rightarrow (b_1^{(i)} \land b_2^{(i)} \land ... \land b_k^{(i)})
-$$
-Where each $b_l^{(i)}$ is either $b_l$ or $\neg b_l$ depending on weather the $l$-th bit of $i$ is 1 or 0. For example:
-\begin{align*}
-&x_1 \rightarrow (\neg b_1 \land \neg b_2)\\
-&x_2 \rightarrow (\neg b_1 \land b_2)\\
-&x_3 \rightarrow ( b_1 \land \neg b_2)\\
-&x_4 \rightarrow (b_1 \land b_2)
-\end{align*}
-There are $\mathcal{O}(n\log n)$ clauses and $\mathcal{O}(\log n)$ auxiliary variables.
+Each variable $x_j$ is assigned a unique binary number that represents its index. Then, for each variable $x_j$ with binary index representation $i$, we create clauses that enforce the condition: 
+\begin{itemize}
+    \item If $x_j = 1$, assignment to $v_i$ variables must encode $j - 1$, and all other $x$ variables must take value 0
+    \item If all $x_j = 0$, any assignment to $v_i$ variables is consistent
+\end{itemize}
+For example, $x_1 + x_2 + x_3 \leq 1$:\\
+\begin{minipage}{0.4\textwidth} 
+    \centering
+    \begin{table}[H]
+        \begin{tabular}{ccc}
+              & $j-1$ & $v_1v_0$ \\ \cline{1-3}
+        $x_1$ & 0     & 00   \\
+        $x_2$ & 1     & 01  \\
+        $x_3$ & 2     & 10   
+        \end{tabular}
+    \end{table}
+\end{minipage}
+\begin{minipage}{0.55\textwidth} 
+    \begin{align*}
+        &(\neg x_1 \lor \neg v_1) \land (\neg x_1 \lor \neg v_0)\\
+        &(\neg x_2 \lor \neg v_1) \land (\neg x_2 \lor v_0)\\
+        &(\neg x_3 \lor v_1) \land (\neg x_3 \lor \neg v_0)\\
+    \end{align*}
+\end{minipage}
+There are $\mathcal{O}(n\log n)$ clauses and $\mathcal{O}(\log n)$ auxiliary variables
+
+\subsection{General Cardinality Constraints}
+Constraints of the form $\sum_{j=1}^n x_j \leq k$ or $\sum_{j=1}^n x_j \geq k$ can be added with:
+\begin{itemize}
+    \item Sequential Counters
+    \item BDDs
+    \item Sorting Networks
+    \item Cardinality Networks
+    \item Totalizer
+\end{itemize}
+\subsubsection{Sequential Counter Encoding}
+For each variable $x_i$, create k additional variables $s_{i,j}$ that are used as counters:
+\begin{itemize}
+    \item $s_{i,j} = 1$ if at least $j$ variables $\{x_1 ... x_i\}$ are assigned value 1
+    \item $s_{i,j} = 0$ if at most $j - 1$ variables $\{x_1 ... x_i\}$ are assigned value 1
+\end{itemize}
+Encoding:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{1.png}
+\end{figure}
+\subsubsection{Totalizer Encoding}
+In this encoding we count in unary how many of the $n$ variables $(x_1 ... x_n)$ are assigned to 1. It can be visualized as a tree:
+\begin{itemize}
+    \item Each node is ($name$ : $variable$ : $sum$)
+    \item Root node has the output variables $(o_1 ... o_n)$ that count how many variables are assigned to 1
+    \item Literals are at the leaves
+    \item Each node counts in unary how many leaves are assigned to 1 in its subtree
+    \item Example: if $b_2 = 1$, then at least 2 of the leaves $(x_3, x_4, x_5)$ are
+    assigned to 1
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{2.png}
+\end{figure}
+To encode $x_1 + x_2 + x_3 + x_4 + x_5 \leq 3$ just set $o_4=0$ and $o_5=0$.\\
+Encoding:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{3.png}
+\end{figure}
+There are $\mathcal{O}(n\log n)$ new variables and $\mathcal{O}(n^2)$ new clauses
+
 \chapter{Optimization problems and SAT-Based Problem Solving}
 \chapter{Satisfiability Modulo Theories}
 \chapter{Answer Set Programming}
