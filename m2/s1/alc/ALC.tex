@@ -20,6 +20,49 @@
 \tableofcontents
 
 \chapter{SAT and Modeling with SAT}
+\section{Cardinality Constraints}
+In order to handle cardinality constraints we have two options: encode the cardinality constraints to CNF and use a SAT solver, or use a pseudo boolean (PB) solver.
+\subsection{AtMost1}
+\begin{itemize}
+\item $\sum_{j=1}^n x_j = 1$ can be encoded with $\left(\sum_{j=1}^n x_j \leq 1\right) \land \left(\sum_{j=1}^n x_j \geq 1\right)$
+\item $\sum_{j=1}^n x_j \geq 1$ can be encoded with $(x_1 \lor x_2 \lor ... \lor x_n)$
+\item $\sum_{j=1}^n x_j \leq 1$ can be encoded with:
+\begin{itemize}
+\item Pairwise encoding
+\item Sequential counter encoding
+\item Bitwise encoding
+\end{itemize}
+\end{itemize}
+\subsubsection{Sequential Counter}
+In order to realize this encoding, we need to add new variables $s_i$ for the fact "there is a 1 on some position $1..i$":
+$$
+s_i \text{ is true if } \sum_{j=1}^i x_j \geq 1
+$$
+Encoding $\sum_{j=1}^n x_j \leq 1$ with sequential counter:
+\begin{align*}
+&(\neg x_1 \lor s_1) \land\\
+&(\neg x_i \lor s_i), i \in 2..n-1 \land\\
+&(\neg s_{i-1} \lor s_i), i \in 2..n-1 \land\\
+&(\neg x_i \lor \neg s_{i-1}), i \in 2..n
+\end{align*}
+If $x_j = 1$, then all $s_i$ variables are assigned and all other $x$ variables must take value 0. There are $\mathcal{O}(n)$ clauses and $\mathcal{O}(n)$ auxiliary variables.
+\subsubsection{Bitwise Encoding}
+In bitwise encoding, we represent the constraint $\sum_{j=1}^n x_j \leq 1$ by encoding the index of the potential true variable in binary. For this, we add new auxiliary variables:
+$$
+v_0, ... v_r-1;\; r=\lceil \log n \rceil (\text{with } n > 1)
+$$
+Each variable $x_j$ is assigned a unique binary number that represents its index. Then, for each variable $x_j$ with binary index representation $i$, we create clauses that enforce the condition: if $x_j = 1$ then the auxiliary bits $b_1, b_2, ..., b_k$ must match the binary encoding of $i$. For a variable $x_j$ with binary index $i$:
+$$
+x_j \rightarrow (b_1^{(i)} \land b_2^{(i)} \land ... \land b_k^{(i)})
+$$
+Where each $b_l^{(i)}$ is either $b_l$ or $\neg b_l$ depending on weather the $l$-th bit of $i$ is 1 or 0. For example:
+\begin{align*}
+&x_1 \rightarrow (\neg b_1 \land \neg b_2)\\
+&x_2 \rightarrow (\neg b_1 \land b_2)\\
+&x_3 \rightarrow ( b_1 \land \neg b_2)\\
+&x_4 \rightarrow (b_1 \land b_2)
+\end{align*}
+There are $\mathcal{O}(n\log n)$ clauses and $\mathcal{O}(\log n)$ auxiliary variables.
 \chapter{Optimization problems and SAT-Based Problem Solving}
 \chapter{Satisfiability Modulo Theories}
 \chapter{Answer Set Programming}
