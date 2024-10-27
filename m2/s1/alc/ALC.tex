@@ -153,6 +153,7 @@ A set of constraints is overconstrained if it is inconsistent. In a given an uns
     \centering
     \includegraphics[scale=0.5]{9.png}
 \end{figure}
+
 \section{MaxSAT Algorithms}
 \subsection{Fu and Malik}
 \begin{figure}[H]
@@ -164,6 +165,62 @@ A set of constraints is overconstrained if it is inconsistent. In a given an uns
     \centering
     \includegraphics[scale=0.5]{11.png}
 \end{figure}
+
+\section{Minimal Unsatisfiable Subsets}
+Given $\mathcal{F}$ unsatisfiable, $\mathcal{M} \subseteq \mathcal{F}$ is a MUS iff $\mathcal{M}$ is unsatisfiable and $\forall_{c \in \mathcal{M}}, \mathcal{M} \setminus \{c\}$ is satisfiable.
+\subsection{Algorithms}
+The following algorithms may be used to identify minimal unsatisfiable subsets.
+\subsubsection{Deletion-Based}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{12.png}
+\end{figure}
+\subsubsection{Insertion-Based}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{13.png}
+\end{figure}
+\subsubsection{Dichotomic}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{14.png}
+\end{figure}
+
+\section{Minimal Correction Subsets}
+$\mathcal{C} \subseteq \mathcal{F}$ is an MCS iff $\mathcal{F} \setminus \mathcal{C}$ is satisfiable and $\forall_{c \in \mathcal{C}}, \mathcal{F} \setminus (\mathcal{C} \setminus \{c\})$ is unsatisfiable.
+\subsection{Algorithms}
+The following algorithms may be used to identify minimal correction subsets.
+\subsubsection{Basic Linear Search}
+\begin{itemize}
+    \item Let $\mathcal{S} \subseteq \mathcal{F}$, such that $\mathcal{S}\nvDash \bot$, initially $\mathcal{S} = \emptyset$
+    \item Let $\mathcal{C} \subseteq \mathcal{F}$, such that $\forall_{c \in \mathcal{C}}, \mathcal{S} \cup \{c\} \vDash \bot $, initially $\mathcal{C} = \emptyset$
+    \item At each iteration, analyze one clause of $c \in \mathcal{F} \setminus (\mathcal{S} \cup \mathcal{C})$:
+    \begin{itemize}
+        \item If $\mathcal{S} \cup \{c\} \vDash \bot$, then add $c$ to $\mathcal{C}$, i.e. $c$ is part of MCS
+        \item If $\mathcal{S} \cup \{c\} \nvDash \bot$, then add $c$ to $\mathcal{C}$, i.e. $c$ is part of MCS
+    \end{itemize}
+\end{itemize}
+There are $\mathcal{O}(m)$ calls to the oracle. An example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{15.png}
+\end{figure}
+\subsubsection{Clause D}
+\begin{itemize}
+    \item Pick an assignment and let $\mathcal{S} \subseteq \mathcal{F}$ be the satisfied clauses and $\mathcal{U} \subseteq \mathcal{F}$ be the falsified clauses, with $\mathcal{F} = \mathcal{S} \cup \mathcal{U}$
+    \item Repeat:
+    \begin{itemize}
+        \item Create clause $D = \cup_{l \in c, c \in \mathcal{U}} l$
+        \item If $\mathcal{S} \cup \{D\} \vDash \bot$, then $\mathcal{U}$ is MCS: Report MCS and terminate
+        \item If $\mathcal{S} \cup \{D\} \nvDash \bot$, then add to $\mathcal{S}$ the satisfied clauses in $\mathcal{U}$, remove from $\mathcal{U}$ the satisfied clauses and loop
+    \end{itemize}
+\end{itemize}
+There are $\mathcal{O}(m-r)$ calls to the oracle, where $r$ is the size of the smallest MCS. An example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{16.png}
+\end{figure}
+
 
 \chapter{Satisfiability Modulo Theories}
 \chapter{Answer Set Programming}
