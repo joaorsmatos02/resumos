@@ -118,7 +118,53 @@ Encoding:
 \end{figure}
 There are $\mathcal{O}(n\log n)$ new variables and $\mathcal{O}(n^2)$ new clauses
 
+\section{SAT Algorithms}
+\subsection{DPLL Solvers}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{4.png}
+\end{figure}
+\subsection{CDCL Solvers}
+CDCL solvers extend DPLL solvers with clause learning and non-chronological backtracking, search restarts, lazy data structures, conflict-guided branching, etc.
+\subsubsection{Clause Learning}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{5.png}
+\end{figure}
+And after backtracking:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{6.png}
+\end{figure}
+\subsubsection{Unique Implication Points}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{7.png}
+\end{figure}
+\subsubsection{Clause Minimization}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{8.png}
+\end{figure}
+
 \chapter{Optimization problems and SAT-Based Problem Solving}
+A set of constraints is overconstrained if it is inconsistent. In a given an unsatisfiable formula, there may be several explanations for its unsatisfiability. The goal of MaxSAT is to find largest subset of clauses that is satisfiable.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{9.png}
+\end{figure}
+\section{MaxSAT Algorithms}
+\subsection{Fu and Malik}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{10.png}
+\end{figure}
+\subsection{MSU3}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{11.png}
+\end{figure}
+
 \chapter{Satisfiability Modulo Theories}
 \chapter{Answer Set Programming}
 \end{document}

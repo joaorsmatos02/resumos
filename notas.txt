@@ -1,6 +1,6 @@
 I
     1. construir formula CNF que corresponde a constraint
-    2. set de clausulas com sequencia de decisão; resolver conflito
+    2. set de clausulas com sequencia de decisão; resolver conflito com CDCL
 II
     1. construir formula maxSat para minimizar algo
     2. formula maxSat; aplicar algoritmo MSU3/Fu-Malik

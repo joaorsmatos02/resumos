@@ -17,3 +17,5 @@
 *.mtc5
 *.bbl
 *.blg
+*.fdb_latexmk
+*.fls
