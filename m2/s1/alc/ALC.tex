@@ -118,6 +118,36 @@ Encoding:
 \end{figure}
 There are $\mathcal{O}(n\log n)$ new variables and $\mathcal{O}(n^2)$ new clauses
 
+\section{Pseudo-Boolean Constraints}
+The general form of these constraints is $\sum_{j=1}^n a_jx_j \leq b$
+\subsection{Encodings}
+\subsubsection{BDD Encoding}
+BDDs can be used to encode pseudo-boolean constraints. For example, to encode $3x_1 + 3x_2 + x_3 \leq 3$, we can construct the following BDD and extract its ITE-based circuit:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{18.png}
+\end{figure}
+\subsubsection{Sequential Weighted Counter Encoding}
+Assuming the general form $\sum_{i=1}^n w_ix_i \leq k$, where the weights are all non-negative:
+\begin{itemize}
+    \item For each variable $x_i$, create $k$ additional variables $s_{i,j}$ that are used as counters
+    \begin{itemize}
+        \item $s_{i,j} = 1$ if the weighted sum of the first $i$ variables $\{x_1 . . . x_i\}$ is at least $j$
+        \item $s_{i,j} = 0$ if the weighted sum of the first $i$ variables $\{x_1 . . . x_i\}$ is at most $j-1$
+    \end{itemize}
+\end{itemize}
+Encoding:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{19.png}
+\end{figure}
+\subsubsection{Generalized Totalizer Encoding}
+The goal of GTE  is to account for the possible values of the left-hand side. It only considers the possible sums generated from the weights in the constraint. For example, in $2x_1 + 3x_2 + 3x_3 + 3x_4 \leq 5$ it is not possible for the weighted sum to have value 1, 4 or 7.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{20.png}
+\end{figure}
+
 \section{SAT Algorithms}
 \subsection{DPLL Solvers}
 \begin{figure}[H]
@@ -221,6 +251,53 @@ There are $\mathcal{O}(m-r)$ calls to the oracle, where $r$ is the size of the s
     \includegraphics[scale=0.4]{16.png}
 \end{figure}
 
+\section{Duality Between MUSes and MCSes}
+\begin{itemize}
+    \item Let $\mathcal{S}$ be a finite set
+    \item Let $\mathcal{F}$ be a set of subsets of $\mathcal{S}, \mathcal{F} \subseteq 2^\mathcal{S}$
+    \item A hitting set $\mathcal{H} \subseteq \mathcal{S}$ is such that $\forall_{\mathcal{G} \in \mathcal{F}} \mathcal{H} \cap \mathcal{G} \neq \emptyset$
+    \item $\mathcal{H}$ is (subset) minimal  if none of its subsets is a hitting set of $\mathcal{F}$
+    \item $\mathcal{H}$ is cardinality minimal (or of minimum size) if there are no hitting sets of $\mathcal{F}$ with fewer elements
+\end{itemize}
+For example:
+\begin{align*}
+    &\mathcal{S} = \{1, 2, 3, 4, 5, 6, 7\}\\
+    &\mathcal{F} = \{\{1, 2, 3\}, \{3, 4, 5\}, \{5, 6, 7\}\}\\
+    &\mathcal{H}_1 = \{1, 2, 4, 6, 7\}\\
+    &\mathcal{H}_1 = \{2, 4, 6\}\\
+    &\mathcal{H}_1 = \{3, 7\}
+\end{align*}
+MUSes are minimal hitting sets of MCSes, and MCSes are minimal hitting sets of MUSes. En example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{17.png}
+\end{figure}
+\subsection{MHS Approach for Solving MaxSAT}
+The MaxSAT solution is a smallest MCS, and any MCS is a hitting set of all MUSes. This duality can be used to solve MaxSAT:
+\begin{enumerate}
+    \item Let $\mathcal{K}$ be a set of unsatisfiable cores (or MUSes)
+    \item Find a minimum hitting set $\mathcal{H}$ of the set $\mathcal{K}$ of already computed cores (or MUSes)
+    \item Check satisfiability of $\mathcal{F} \setminus \mathcal{H}$
+    \begin{itemize}
+        \item If satisfiable, then $\mathcal{H}$ is a smallest MCS; terminate and return $\mathcal{H}$
+        \item Otherwise, compute core (or MUS) and add it to $\mathcal{K}$
+    \end{itemize}
+    \item Loop from 2
+\end{enumerate}
+\subsection{Enumeration}
+\subsubsection{MCSes}
+Generate and block:
+\begin{enumerate}
+    \item Extract MCS $\mathcal{C}$
+    \item Block $\mathcal{C}$, i.e. at least one clause in $\mathcal{C}$ must be satisfied
+    \item Loop from 1
+\end{enumerate}
+\subsubsection{MUSes}
+The process for enumerating MUSes is different since we cannot block them: preventing a clause from being added to the MUS is infeasible. The only solution is explicit set enumeration. Compute all MCSes and then all MUSes:
+\begin{itemize}
+    \item Compute all MCSes using MCS enumerator
+    \item Compute all minimal hitting sets of the MCSes
+\end{itemize}
 
 \chapter{Satisfiability Modulo Theories}
 \chapter{Answer Set Programming}
