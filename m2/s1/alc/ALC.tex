@@ -147,6 +147,65 @@ The goal of GTE  is to account for the possible values of the left-hand side. It
     \centering
     \includegraphics[scale=0.5]{20.png}
 \end{figure}
+\subsection{Pseudo-Boolean Optimization}
+Suppose we must minimize $\sum_{j=1}^n c_jx_j$ subject to $\sum_{j=1}^n a_{ij}x_j \leq b_i \;\; \forall i \in \{1, ..., m\}, \forall j \in \{1, ..., n\}, x_j \in \{0, 1\}$. To translate this to MaxSAT we should:
+\begin{itemize}
+    \item Encode each pseudo-Boolean constraint into CNF. All clauses used in the encoding are hard
+    \item For each term $c_jx_j$ in the objective function, add a soft clause $(\lnot x_j)$ with weight $c_j$
+\end{itemize}
+There are several ways of solving the optimization problem:
+\begin{itemize}
+    \item Translate into MaxSAT and use a Weighted MaxSAT algorithm
+    \item Iterative Pseudo-Boolean solving
+    \item Core-guided Pseudo-Boolean solving
+    \item Branch-and-Bound Search
+\end{itemize}
+Given a PBO problem instance, where variables have an integer
+domain, the Linear Programming Relaxation is the corresponding
+linear program where the variable's integer constraints are relaxed
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{21.png}
+\end{figure}
+\subsubsection{Linear Programming Relaxation}
+LPR is relevant since if can be solved quickly and if he relaxed linear program returns an optimal solution where all variables have integer value, then the solution of the relaxed linear program is also the optimal solution of the PBO problem. If the solution of the relaxed linear program is not integer for some variable, it still provides a lower bound on the optimal value of the PBO optimal solution
+\subsubsection{Branch-and-Bound Search}
+In the branch and bound algorithm we search by recursively dividing into smaller subproblems. It continuously uses LPR to get lower bounds (in case of minimization) and get candidade solutions.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{22.png}
+\end{figure}
+\subsection{Cutting Planes}
+Cutting planes are used to further prune the space. Can be used to combine two constraints:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{23.png}
+\end{figure}
+For example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{24.png}
+\end{figure}
+Rounding can also be applied:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{25.png}
+\end{figure}
+For example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{26.png}
+\end{figure}
+And backtracking can also be applied:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{27.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{28.png}
+\end{figure}
+
 
 \section{SAT Algorithms}
 \subsection{DPLL Solvers}
