@@ -359,5 +359,130 @@ The process for enumerating MUSes is different since we cannot block them: preve
 \end{itemize}
 
 \chapter{Satisfiability Modulo Theories}
+SMT refer to the determination of whether a logical formula can be satisfied given certain constraints or theories. There are eager and lazy approaches for SMT solving.
+\section{Eager Approaches}
+Eager approaches encode the problem into a CNF and solve it with a SAT solver (single SAT call).
+\subsection{Finite Models with Booleans}
+Finding a model of finite size $n$ can be encoded as SAT.
+\subsubsection{Log-encoding}
+In log-encoding, elements of the universe are represented by $k = \lceil \log_2 n\rceil$ boolean variables:
+\begin{itemize}
+    \item Equality: $(a_k, ..., a_0) = (b_k, ..., b_0) \rightsquigarrow \bigwedge_{i \in 0..k} (a_i \Leftrightarrow b_i)$
+    \item Inequality: $(a_k, ..., a_0) < (b_k, ..., b_0) \rightsquigarrow (\lnot a_k \land b_k) \lor ((a_k \Leftrightarrow b_k) \land (a_{k-1}, ..., a_0) < (b_{k-1}, ..., b_0))$
+    \item Other operations can be encoded, e.g. summation and multiplication by school method
+\end{itemize}
+\subsubsection{Unary-encoding}
+In unary-encoding, elements are represented by $n$ boolean variables, with $a_i \Rightarrow a_{i-1}$ for $i \in 1..n$:
+\begin{itemize}
+    \item Equality: $(a_n, ..., a_0) = (b_n, ...m b_0) \rightsquigarrow \bigwedge_{i \in 0..n} (a_i \Leftrightarrow b_i)$
+    \item Inequality: $(a_n, ..., a_0) < (b_n, ..., b_0) \rightsquigarrow \bigvee_{i \in 0..n} (\lnot a_i \land b_i)$
+\end{itemize}
+Log-encoding smaller but unary-encoding tends to give better behavior in SAT solvers.
+\subsection{Small Model Properties}
+In some theories, satisfiability can be encoded into finding a finite model. A formula with only equality and $n$ variables is satisfiable iff it has a model of at most size $n$.\\
+\\
+This is true seince for any larger model $A'$ we can construct $A'$ by considering only elements used to interpret the variables in the formula. For example, $(x_1 = x_2) \lor (x_1 = x_3) \land (x_3 \neq x_2)$ is decided by looking for a model up to size 3.
+\subsubsection{Integer Difference Logic}
+Let $s$ be the sum of absolute values of weights and $n$ number of variables. It is sufficient to look for a model with integers in $0..(s+n)$, since any solution can be shifted to it starts at 0. We can "compress" any solution while preserving the satisfiability of the same literals.
+\subsection{Ackerman's Reduction}
+When working with uninterpreted functions, for each application $f(\vec{a})$ introduce a fresh variable $f_a$ and for each pair of applications $f(\vec{a}), f(\vec{c})$ add the implication $\vec{a} = \vec{c} \Rightarrow f_{\vec{a}} = f_{\vec{c}}$. For example:
+\begin{align*}
+    &f(a) \neq f(c) \land (a = c \lor f(a) = c)\\
+    &f_a \neq f_c \land (a = c \lor f_a = c) \land (a = c \Rightarrow f_a = f_c)
+\end{align*}
+We must also consider the sub-terms:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{29.png}
+\end{figure}
+
+\section{Lazy Approaches}
+Lazy approaches use SAT for the boolean structure and a theory solver for conjunctions of literals (multiple SAT calls). The following is needed:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{30.png}
+\end{figure}
+And the algorithm is as follows:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{31.png}
+\end{figure}
+\subsection{Theory Solver}
+The theory solver checks models from the SAT solver within the theory.
+\subsubsection{Congruence Closure}
+Congruence closure is used for equality:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{32.png}
+\end{figure}
+For example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{33.png}
+\end{figure}
+\subsubsection{Integer Difference Logic}
+IDL is used on integer variables to make a conjunction of linear inequalities of the form $x_i - x_j \leq k$. The algorithm is as follows:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{34.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{35.png}
+\end{figure}
+For example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{36.png}
+\end{figure}
+
+\section{Theories}
+\subsection{Real Linear Arithmetic}
+RLA is a theory in SMT that deals with formulas involving linear inequalities over real numbers. An RLA formula may include constraints like $a_x + b_y \leq c$, where $a$, $b$, and $c$ are constants, and $x$ and $y$ are real-valued variables.
+\subsubsection{The Simplex Method}
+The Simplex Method is a well-known algorithm from linear programming used for solving systems of linear inequalities, especially for real-valued variables. It works in three phases:
+\begin{itemize}
+    \item Formulation: The system of inequalities is converted into an objective function subject to constraints, where the goal is to either maximize or minimize a certain variable.
+    \item Pivoting: The algorithm iteratively improves feasible solutions by "pivoting" on certain variables, adjusting values while keeping all constraints satisfied.
+    \item Termination: It terminates when either a feasible solution is found (satisfying the constraints) or it determines that the system is infeasible.
+\end{itemize}
+\subsubsection{Fourier-Motzkin}
+FM is an anternative to simplex. The idea is if $A \leq x$ and $x \leq B$, then $A \leq B$. Elimination by forcing all bounds to be nonempty:
+$$
+\left(\bigwedge_i A_i \leq x \land \bigwedge_j x\leq B_j \right) \Leftrightarrow \bigwedge_{i,j} A_i \leq B_j
+$$
+It works in two phases:
+\begin{itemize}
+    \item Phase 1: eliminate equalities
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{37.png}
+    \end{figure}
+    \item Phase 2: Variable Elimination
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{38.png}
+    \end{figure}
+\end{itemize}
+For example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{39.png}
+\end{figure}
+\subsection{Combining Theories}
+Until now we have assumed there is a single theory, but in practice it is important to combine theories. To do so, we can use the Nelson-Oppen method (under certain conditions), use lazy solving and let the theory solvers communicate through equality. It works in two steps:
+\begin{itemize}
+    \item First step: puriﬁcation
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{40.png}
+    \end{figure}
+    \item Second step: guess and check
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{41.png}
+    \end{figure}
+\end{itemize}
+
 \chapter{Answer Set Programming}
 \end{document}
