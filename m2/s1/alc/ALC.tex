@@ -485,4 +485,71 @@ Until now we have assumed there is a single theory, but in practice it is import
 \end{itemize}
 
 \chapter{Answer Set Programming}
+ASP is a declarative problem solving paradigm. The problems are specified using rules similar to logic programming, with convenient extensions.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{42.png}
+\end{figure}
+\section{Answer Sets}
+The process to compute an answer set is as follows:
+\begin{itemize}
+    \item First, ground the program, i.e., substitute specific values for variables in the rules
+    \item In positive programs - simpler case: no negation
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{43.png}
+    \end{figure}
+    \item In programs with negation - consider a guess $S$ - compute the reduct which has no negations
+    \begin{itemize}
+        \item If the answer set of the reduct (positive program) is exactly $S$ then $S$ is an answer set
+    \end{itemize}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{44.png}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{45.png}
+    \end{figure}
+\end{itemize}
+An example:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{46.png}
+\end{figure}
+\section{Extensions}
+Many extensions can be implemented into ASP (definition of answer set has to be extended), for example:
+\begin{itemize}
+    \item Arithmetic: rules may contain symbols for arithmetic operations and comparisons
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{47.png}
+    \end{figure}
+    \item Disjunctive rules: the head of a rule may be a disjunction of several atoms (often separated by bars or semicolons), rather than a single atom
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{48.png}
+    \end{figure}
+    \item Choice rules: enclosing the list of atoms in the head in curly braces represents the "choice" construct; choose in all possible ways which atoms from the list will be included in the answer set
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{49.png}
+    \end{figure}
+    One may specify bounds on the number of atoms that are included: the lower bound is shown to the left of the expression in braces, and the upper bound to the right
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{50.png}
+    \end{figure}
+    \item Constraints: disjunctive rule that has 0 disjuncts in the head, so that it starts with the symbol :-
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{51.png}
+    \end{figure}
+    \item Classical negation: the "classical negation" sign (–) should be distinguished from the negation as failure symbol (not)
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.5]{52.png}
+    \end{figure}
+\end{itemize}
+
 \end{document}
